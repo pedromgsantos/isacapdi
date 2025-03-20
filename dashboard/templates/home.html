@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Home{% endblock %}
+
+{% block content %}
+<div style="background-color: #fff; padding: 20px; border-radius: 10px;">
+    <h2>📊 Análises e Estatísticas</h2>
+
+    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+        <div style="background: #F1F8E9; padding: 15px; border-radius: 10px; flex: 1;">
+            <h4>Visitas</h4>
+            <p style="font-size: 22px; font-weight: bold;">100</p>
+        </div>
+        <div style="background: #E3F2FD; padding: 15px; border-radius: 10px; flex: 1;">
+            <h4>Novos Visitantes</h4>
+            <p style="font-size: 22px; font-weight: bold;">57</p>
+        </div>
+        <div style="background: #FFEBEE; padding: 15px; border-radius: 10px; flex: 1;">
+            <h4>Tempo Médio de Utilização</h4>
+            <p style="font-size: 22px; font-weight: bold;">2m 13s</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <h3>📈 Gráficos de Estatísticas</h3>
+        <p>Implementar gráficos aqui...</p>
+    </div>
+</div>
+{% endblock %}

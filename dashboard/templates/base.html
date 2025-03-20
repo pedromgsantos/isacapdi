@@ -1,0 +1,69 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
+    <link rel ="icon" href = "../static/imgs/favicon.png">
+</head>
+<body style="display: flex; height: 100vh; margin: 0;">
+
+    <!-- Sidebar -->
+    <div style="width: 250px; background-color: #F8F9FA; padding: 20px; display: flex; flex-direction: column; height: 100vh; position: fixed; left: 0; top: 0; box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); justify-content: space-between;">
+        
+        <!-- Menu Superior -->
+        <div>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <a href="{% url 'home' %}">
+                    <img src="../static/imgs/Logo.png" alt="Logo" style="width: 200px;">
+                </a>
+            </div>
+            <nav>
+                <ul style="list-style: none; padding: 0;">
+                    <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Análises e Estatísticas</a></li>
+                    <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Eventos</a></li>
+                    <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Notícias</a></li>
+                    <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Mensagens</a></li>
+                    <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Utilizadores</a></li>
+                    <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Certificados</a></li>
+                    
+                    <!-- Linha Separadora -->
+                    <li style="padding: 10px; border-top: 1px solid #ccc;"><a href="#" style="text-decoration: none; color: black;">Membros ISACA</a></li>
+                    <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Calendário</a></li>
+                </ul>
+            </nav>
+        </div>
+        
+
+        <!-- Menu Inferior -->
+        <div style="border-top: 1px solid #ccc; padding-top: 10px;">
+            <nav>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    <li style="padding: 10px;">
+                        <a 
+                           style="text-decoration: none; color: black;">
+                            Definições
+                        </a>
+                    </li>
+                    <li style="padding: 10px;">
+                        <a href="{% url 'logout' %}" style="text-decoration: none; color: red;">
+                            Logout
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div style="margin-left: 260px; padding: 20px; flex-grow: 1; width: calc(100% - 260px);">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
