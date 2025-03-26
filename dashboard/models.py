@@ -35,6 +35,7 @@ class Eventos(models.Model):
     texto = models.TextField(blank=True, null=True)
     imagem = models.CharField(max_length=128, blank=True, null=True)
     visivel = models.IntegerField(blank=True, null=True)
+    local = models.CharField(max_length=256, blank=True, null=True)
 
     class Meta:
         managed = True  # O Django pode criar e gerenciar esta tabela
