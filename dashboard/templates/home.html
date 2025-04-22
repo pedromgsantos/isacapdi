@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {# Verifique se este caminho está correto #}
 {% load static %}
 
 {% block title %}Dashboard - Análises e Estatísticas{% endblock %}
@@ -25,145 +25,91 @@
     <div class="row g-4 mb-4">
         <div class="col-lg-4 col-md-6">
             <div onclick="showChart('ativos')" class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem; cursor:pointer; transition: box-shadow 0.2s ease;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
-                            <i class="bi bi-person-fill"></i>
-                        </div>
-                        <div>
-                            <p class="mb-0 small text-muted">Utilizadores Ativos</p>
-                            <h5 class="mb-0 fw-bold">{{ total_active }}</h5>
-                        </div>
-                    </div>
-                </div>
+                <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-person-fill"></i> </div> <div> <p class="mb-0 small text-muted">Utilizadores Ativos</p> <h5 class="mb-0 fw-bold">{{ total_active }}</h5> </div> </div> </div>
             </div>
         </div>
         <div class="col-lg-4 col-md-6">
              <div onclick="showChart('eventos')" class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem; cursor:pointer; transition: box-shadow 0.2s ease;">
-                 <div class="card-body p-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(255, 193, 7, 0.15); color: #ffc107; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
-                           <i class="bi bi-calendar-event-fill"></i>
-                        </div>
-                        <div>
-                            <p class="mb-0 small text-muted">Eventos</p>
-                            <h5 class="mb-0 fw-bold">{{ total_events }}</h5>
-                        </div>
-                    </div>
-                </div>
+                 <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(255, 193, 7, 0.15); color: #ffc107; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-calendar-event-fill"></i> </div> <div> <p class="mb-0 small text-muted">Eventos</p> <h5 class="mb-0 fw-bold">{{ total_events }}</h5> </div> </div> </div>
             </div>
         </div>
         <div class="col-lg-4 col-md-12">
              <div onclick="showChart('novos')" class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem; cursor:pointer; transition: box-shadow 0.2s ease;">
-                <div class="card-body p-3">
-                    <div class="d-flex align-items-center gap-3">
-                        <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(40, 167, 69, 0.1); color: #28a745; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;">
-                           <i class="bi bi-person-plus-fill"></i>
-                        </div>
-                        <div>
-                            <p class="mb-0 small text-muted">Utilizadores Novos</p>
-                            <h5 class="mb-0 fw-bold">{{ total_new }}</h5>
-                        </div>
-                    </div>
-                </div>
+                 <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(40, 167, 69, 0.1); color: #28a745; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-person-plus-fill"></i> </div> <div> <p class="mb-0 small text-muted">Utilizadores Novos</p> <h5 class="mb-0 fw-bold">{{ total_new }}</h5> </div> </div> </div>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4" style="border-radius: 0.75rem;">
+    <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;"> 
          <div class="card-header bg-white border-0 pt-3 pb-0 px-3">
              <h5 class="card-title fw-semibold mb-0 fs-6" id="chartTitle">Utilizadores Ativos</h5>
          </div>
-        <div class="card-body chart-container p-2">
+        <div class="card-body chart-container p-2"> 
             <canvas id="mainLineChart"></canvas>
         </div>
+    </div> 
+
+    <div class="dropdown mt-3"> 
+      <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" id="periodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        {{ selected_period_label }}
+      </button>
+      <ul class="dropdown-menu" aria-labelledby="periodDropdown"> {# Abre para baixo por defeito #}
+        {% for key, period_data in allowed_periods.items %}
+          <li>
+            <a class="dropdown-item period-link {% if key == selected_period_key %}active{% endif %}"
+               href="#"
+               data-period-key="{{ key }}">
+               {{ period_data.label }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
     </div>
 
-    <div class="row g-4">
+    <div class="row g-4 mt-4"> 
         <div class="col-lg-5">
+            {# Tabela de Visualizações por Título - Dropdown Modificado #}
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 0.75rem;">
                 <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center">
                     <h5 class="card-title fw-semibold mb-0 fs-6">Visualizações por Título</h5>
                     <div class="dropdown d-inline-block">
                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="pageViewsPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Últimos 7 dias
+                            {{ selected_period_label }} {# <-- Mostra o período selecionado globalmente #}
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="pageViewsPeriodDropdown">
-                             <li><a class="dropdown-item" href="#">Últimos 7 dias</a></li>
-                             <li><a class="dropdown-item" href="#">Últimos 30 dias</a></li>
+                            {% for key, period_data in allowed_periods.items %}
+                              <li>
+                                {# Link usa a chave do período (recarrega a página inteira) #}
+                                <a class="dropdown-item {% if key == selected_period_key %}active{% endif %}"
+                                   href="?period={{ key }}">
+                                   {{ period_data.label }}
+                                </a>
+                              </li>
+                            {% endfor %}
                         </ul>
                     </div>
                 </div>
                 <div class="card-body">
                     <table class="table table-sm table-borderless small">
-                        <thead>
-                            <tr class="text-muted">
-                                <th>Título</th>
-                                <th class="text-end">Visualizações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for page in page_views_data %}
-                            <tr>
-                                <td title="{{ page.title }}">{{ page.title|truncatechars:45 }}</td>
-                                <td class="text-end fw-medium">{{ page.views }}</td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="2" class="text-center text-muted fst-italic py-3">Nenhum dado de visualização encontrado.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
+                        <thead> <tr class="text-muted"> <th>Título</th> <th class="text-end">Visualizações</th> </tr> </thead>
+                        <tbody> {% for page in page_views_data %} <tr> <td title="{{ page.title }}">{{ page.title|truncatechars:45 }}</td> <td class="text-end fw-medium">{{ page.views }}</td> </tr> {% empty %} <tr> <td colspan="2" class="text-center text-muted fst-italic py-3">Nenhum dado de visualização encontrado.</td> </tr> {% endfor %} </tbody>
                     </table>
                 </div>
             </div>
 
             <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;">
-                 <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center">
-                    <h5 class="card-title fw-semibold mb-0 fs-6">Novos Visitantes vs Visitantes Habituais</h5>
-                    <div class="dropdown d-inline-block">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="visitorTypePeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Últimos 7 dias
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="visitorTypePeriodDropdown">
-                             <li><a class="dropdown-item" href="#">Últimos 7 dias</a></li>
-                             <li><a class="dropdown-item" href="#">Últimos 30 dias</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-6">
-                             <canvas id="newVisitorsDonut" height="120"></canvas>
-                             <p class="fw-bold mt-2 mb-0">{{ new_visitor_percentage | default:"--%" }}</p>
-                             <small class="text-muted">Novos</small>
-                        </div>
-                         <div class="col-6">
-                             <canvas id="returningVisitorsDonut" height="120"></canvas>
-                              <p class="fw-bold mt-2 mb-0">{{ returning_visitor_percentage | default:"--%" }}</p>
-                             <small class="text-muted">Habituais</small>
-                        </div>
-                    </div>
-                </div>
+                 <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Novos Visitantes vs Visitantes Habituais</h5> <div class="dropdown d-inline-block"> <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="visitorTypePeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false"> Últimos 7 dias </button> <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="visitorTypePeriodDropdown"> <li><a class="dropdown-item" href="#">Últimos 7 dias</a></li> <li><a class="dropdown-item" href="#">Últimos 30 dias</a></li> </ul> </div> </div>
+                 <div class="card-body"> <div class="row text-center"> <div class="col-6"> <canvas id="newVisitorsDonut" height="120"></canvas> <p class="fw-bold mt-2 mb-0">{{ new_visitor_percentage | default:"--%" }}</p> <small class="text-muted">Novos</small> </div> <div class="col-6"> <canvas id="returningVisitorsDonut" height="120"></canvas> <p class="fw-bold mt-2 mb-0">{{ returning_visitor_percentage | default:"--%" }}</p> <small class="text-muted">Habituais</small> </div> </div> </div>
             </div>
         </div>
-
         <div class="col-lg-7">
             <div class="row g-4">
                 <div class="col-md-6"><div class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem;"><div class="card-body text-center"><h6 class="card-subtitle mb-2 text-muted" style="font-size: 0.9rem;">Média de páginas vistas</h6><i class="bi bi-file-earmark-text display-6 text-warning my-2"></i><h4 class="card-title fw-bold mt-2">{{ media_paginas_vistas | default:"--.--" }}</h4></div></div></div>
                 <div class="col-md-6"><div class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem;"><div class="card-body text-center"><h6 class="card-subtitle mb-2 text-muted" style="font-size: 0.9rem;">Número médio de botões clicados</h6><i class="bi bi-cursor-fill display-6 text-info my-2"></i><h4 class="card-title fw-bold mt-2">{{ media_botoes_clicados | default:"--.--" }}</h4></div></div></div>
                 <div class="col-12">
                      <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;">
-                         <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center">
-                            <h5 class="card-title fw-semibold mb-0 fs-6">Utilizadores por País</h5>
-                            <div class="dropdown d-inline-block"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="countryPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">Últimos 7 dias</button><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="countryPeriodDropdown"><li><a class="dropdown-item" href="#">Últimos 7 dias</a></li><li><a class="dropdown-item" href="#">Últimos 30 dias</a></li></ul></div>
-                         </div>
-                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-8"><div id="worldMapPlaceholder" style="height: 200px; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem;" class="text-muted">Mapa Aqui</div></div>
-                                <div class="col-md-4"><table class="table table-sm table-borderless small mt-2 mt-md-0"><thead><tr class="text-muted"><th>País</th><th class="text-end">Utilizadores</th></tr></thead><tbody>{% for country in country_data|default_if_none:'' %}<tr><td><span class="badge bg-secondary">{{ country.code | default:"--"}}</span></td><td class="text-end fw-medium">{{ country.users | default:"--" }}</td></tr>{% empty %}<tr><td colspan="2" class="text-center text-muted fst-italic py-3">Sem dados.</td></tr>{% endfor %}</tbody></table></div>
-                            </div>
-                        </div>
+                         <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Utilizadores por País</h5> <div class="dropdown d-inline-block"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="countryPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">Últimos 7 dias</button><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="countryPeriodDropdown"><li><a class="dropdown-item" href="#">Últimos 7 dias</a></li><li><a class="dropdown-item" href="#">Últimos 30 dias</a></li></ul></div> </div>
+                         <div class="card-body"> <div class="row"> <div class="col-md-8"><div id="worldMapPlaceholder" style="height: 200px; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem;" class="text-muted">Mapa Aqui</div></div> <div class="col-md-4"><table class="table table-sm table-borderless small mt-2 mt-md-0"><thead><tr class="text-muted"><th>País</th><th class="text-end">Utilizadores</th></tr></thead><tbody>{% for country in country_data|default_if_none:'' %}<tr><td><span class="badge bg-secondary">{{ country.code | default:"--"}}</span></td><td class="text-end fw-medium">{{ country.users | default:"--" }}</td></tr>{% empty %}<tr><td colspan="2" class="text-center text-muted fst-italic py-3">Sem dados.</td></tr>{% endfor %}</tbody></table></div> </div> </div>
                      </div>
                 </div>
             </div>
@@ -175,7 +121,6 @@
 {{ active_users|json_script:"ativos-data" }}
 {{ events|json_script:"eventos-data" }}
 {{ new_users|json_script:"novos-data" }}
-
 {{ new_visitor_data|json_script:"new-visitor-data" }}
 {{ returning_visitor_data|json_script:"returning-visitor-data" }}
 
@@ -190,8 +135,15 @@
         const ctx = document.getElementById("mainLineChart")?.getContext("2d");
         const chartTitleElement = document.getElementById("chartTitle");
         window.chartInstance = null;
+        let currentChartType = 'ativos';
 
-        window.showChart = function(tipo) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const initialChart = urlParams.get('chart');
+        if (initialChart && ['ativos', 'eventos', 'novos'].includes(initialChart)) {
+            currentChartType = initialChart;
+        }
+
+        const _drawChart = function(tipo) {
             if (!ctx) { console.error("Contexto do gráfico não encontrado!"); return; }
             const datasets = {
                 ativos: { label: "Utilizadores Ativos", data: ativos, color: "rgba(13, 110, 253, 0.6)" },
@@ -205,6 +157,11 @@
                 type: 'line', data: { labels: labels, datasets: [{ label: selected.label, data: selected.data, borderColor: selected.color, backgroundColor: selected.color.replace('0.6', '0.1'), tension: 0.4, borderWidth: 2, fill: true, pointRadius: 3, pointHoverRadius: 6, pointBackgroundColor: selected.color.replace('0.6', '1') }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
             });
             if (chartTitleElement) { chartTitleElement.textContent = selected.label; }
+        };
+
+        window.showChart = function(tipo) {
+            currentChartType = tipo;
+            _drawChart(tipo);
         }
 
         const canvas = document.getElementById("mainLineChart");
@@ -212,8 +169,7 @@
             const observer = new ResizeObserver((entries) => {
                 for (let entry of entries) {
                     if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-                        // console.log("Canvas pronto, a desenhar gráfico inicial."); // Console log removido
-                        window.showChart('ativos');
+                        window.showChart(currentChartType);
                         observer.unobserve(entry.target); break;
                     }
                 }
@@ -221,18 +177,25 @@
             observer.observe(canvas);
         } else { console.error("Elemento canvas #mainLineChart não encontrado para o observer."); }
 
-        /*
-        // Placeholder JS para Gráficos Donut (Precisa de Dados e Implementação)
-        const newVisitorDonutData = JSON.parse(document.getElementById("new-visitor-data").textContent || '[57, 43]');
-        const returningVisitorDonutData = JSON.parse(document.getElementById("returning-visitor-data").textContent || '[43, 57]');
-        const newDonutCtx = document.getElementById('newVisitorsDonut')?.getContext('2d');
-        const returningDonutCtx = document.getElementById('returningVisitorsDonut')?.getContext('2d');
+        document.querySelectorAll('.period-link').forEach(link => {
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                const periodKey = this.dataset.periodKey;
+                if (periodKey) {
+                    window.location.href = `?period=${periodKey}&chart=${currentChartType}`;
+                }
+            });
+        });
 
-        if (newDonutCtx) { new Chart(newDonutCtx, { type: 'doughnut', data: { datasets: [{ data: newVisitorDonutData, backgroundColor: ['rgba(40, 167, 69, 0.7)','rgba(220, 220, 220, 0.3)'], borderWidth: 0, cutout: '70%' }] }, options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }); }
-        if (returningDonutCtx) { new Chart(returningDonutCtx, { type: 'doughnut', data: { datasets: [{ data: returningVisitorDonutData, backgroundColor: ['rgba(13, 110, 253, 0.7)','rgba(220, 220, 220, 0.3)'], borderWidth: 0, cutout: '70%' }] }, options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }); }
-        */
+        /* Placeholder JS para Gráficos Donut */
+        // const newVisitorDonutData = JSON.parse(document.getElementById("new-visitor-data").textContent || '[57, 43]');
+        // const returningVisitorDonutData = JSON.parse(document.getElementById("returning-visitor-data").textContent || '[43, 57]');
+        // const newDonutCtx = document.getElementById('newVisitorsDonut')?.getContext('2d');
+        // const returningDonutCtx = document.getElementById('returningVisitorsDonut')?.getContext('2d');
+        // if (newDonutCtx) { new Chart(newDonutCtx, { type: 'doughnut', data: { datasets: [{ data: newVisitorDonutData, backgroundColor: ['rgba(40, 167, 69, 0.7)','rgba(220, 220, 220, 0.3)'], borderWidth: 0, cutout: '70%' }] }, options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }); }
+        // if (returningDonutCtx) { new Chart(returningDonutCtx, { type: 'doughnut', data: { datasets: [{ data: returningVisitorDonutData, backgroundColor: ['rgba(13, 110, 253, 0.7)','rgba(220, 220, 220, 0.3)'], borderWidth: 0, cutout: '70%' }] }, options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }); }
 
-    });
+    }); // Fim do DOMContentLoaded
 </script>
 
 {% endblock %}
