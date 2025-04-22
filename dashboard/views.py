@@ -33,7 +33,7 @@ def user_login(request):
     else:
         form = CustomLoginForm()
     # Use o caminho correto para o seu template de login
-    return render(request, 'registration/login.html', {'form': form})
+    return render(request, 'login.html', {'form': form})
 
 def user_logout(request):
     logout(request)
