@@ -1,97 +1,167 @@
 # dashboard/views.py
-
-from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, redirect
-# Importa corretamente de .analytics.client
-from .analytics.client import get_analytics_data, get_page_views_by_title
-from .forms import CustomLoginForm # Assumindo forms.py em dashboard/
-from django.contrib.auth.decorators import login_required
 from datetime import datetime, timedelta
 
-# Definição dos períodos permitidos
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.shortcuts import redirect, render
+
+from .analytics.client import (
+    get_analytics_data,
+    get_avg_pageviews_per_session,
+    get_engagement_rate,
+    get_new_vs_returning_users,
+    get_page_views_by_title,
+    get_users_by_country,
+)
+from .forms import CustomLoginForm
+
 ALLOWED_PERIODS = {
     "7d": {"days": 7, "api_str": "7daysAgo", "label": "Últimos 7 dias"},
     "30d": {"days": 30, "api_str": "30daysAgo", "label": "Últimos 30 dias"},
     "180d": {"days": 180, "api_str": "180daysAgo", "label": "Últimos 6 meses"},
-    "365d": {"days": 365, "api_str": "365daysAgo", "label": "Último Ano"},
+    "365d": {"days": 365, "api_str": "365daysAgo", "label": "Último ano"},
 }
 
-# Defina os nomes das suas URLs aqui
-LOGIN_URL_NAME = 'login' # Ajuste conforme o nome da sua URL de login em urls.py
-HOME_URL_NAME = 'home'   # Ajuste conforme o nome da sua URL da home em urls.py
+LOGIN_URL_NAME = "login"
+HOME_URL_NAME = "home"
+
 
 def user_login(request):
     if request.user.is_authenticated:
         return redirect(HOME_URL_NAME)
-    if request.method == "POST":
-        form = CustomLoginForm(data=request.POST)
-        if form.is_valid():
-            user = form.get_user()
-            login(request, user)
-            redirect_to = request.GET.get('next', HOME_URL_NAME)
-            return redirect(redirect_to)
-    else:
-        form = CustomLoginForm()
-    # Use o caminho correto para o seu template de login
-    return render(request, 'login.html', {'form': form})
+
+    form = CustomLoginForm(data=request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        login(request, form.get_user())
+        return redirect(request.GET.get("next", HOME_URL_NAME))
+
+    return render(request, "login.html", {"form": form})
+
 
 def user_logout(request):
     logout(request)
     return redirect(LOGIN_URL_NAME)
 
+
 @login_required(login_url=LOGIN_URL_NAME)
 def home(request):
-    selected_period_key = request.GET.get('period', '7d')
-    if selected_period_key not in ALLOWED_PERIODS:
-        selected_period_key = '7d'
+    period_key = request.GET.get("period", "7d")
+    if period_key not in ALLOWED_PERIODS:
+        period_key = "7d"
 
-    period_info = ALLOWED_PERIODS[selected_period_key]
-    num_days = period_info["days"]
-    api_date_str = period_info["api_str"]
-    selected_period_label = period_info["label"]
+    period = ALLOWED_PERIODS[period_key]
+    num_days, api_str, period_label = period["days"], period["api_str"], period["label"]
 
-    # Buscar dados do GA para o período selecionado
-    raw_data = get_analytics_data(start_date_str=api_date_str)
-    page_views_data = get_page_views_by_title(start_date_str=api_date_str, limit=8)
+    trend = get_analytics_data(start_date_str=api_str)
+    page_views = get_page_views_by_title(start_date_str=api_str, limit=8)
+    avg_pages = get_avg_pageviews_per_session(start_date_str=api_str)
+    engagement = get_engagement_rate(start_date_str=api_str)
+    new_vs_returning = get_new_vs_returning_users(start_date_str=api_str)
+    country_data = get_users_by_country(start_date_str=api_str, limit=5)
 
-    # Processar dados para o gráfico principal, garantindo todas as datas
     today = datetime.today()
-    date_labels = [(today - timedelta(days=i)).strftime("%d/%m") for i in reversed(range(num_days))]
+    labels = [(today - timedelta(days=i)).strftime("%d/%m") for i in reversed(range(num_days))]
+    series_active = {d: 0 for d in labels}
+    series_events = {d: 0 for d in labels}
+    series_new = {d: 0 for d in labels}
 
-    active_dict = {d: 0 for d in date_labels}
-    events_dict = {d: 0 for d in date_labels}
-    new_dict = {d: 0 for d in date_labels}
+    for entry in trend:
+        d = entry["date"]
+        if d in series_active:
+            series_active[d] = entry["active_users"]
+            series_events[d] = entry["events"]
+            series_new[d] = entry["new_users"]
 
-    for entry in raw_data:
-        if "date" in entry and entry["date"] in active_dict:
-            date = entry["date"]
-            active_dict[date] = entry.get("active_users", 0)
-            events_dict[date] = entry.get("events", 0)
-            new_dict[date] = entry.get("new_users", 0)
+    total_active = sum(series_active.values())
+    total_events = sum(series_events.values())
+    total_new = sum(series_new.values())
 
-    # Calcular totais para os cartões superiores
-    total_active = sum(active_dict.values())
-    total_events = sum(events_dict.values())
-    total_new = sum(new_dict.values())
+    new_pct_val = 0.0
+    ret_pct_val = 0.0
+    if new_vs_returning["total"]:
+        new_pct_val = (new_vs_returning["new"] / new_vs_returning["total"]) * 100
+        ret_pct_val = 100 - new_pct_val
 
-    context = {
-        "labels": date_labels,
-        "active_users": list(active_dict.values()),
-        "events": list(events_dict.values()),
-        "new_users": list(new_dict.values()),
+    ctx = {
+        "labels": labels,
+        "active_users": list(series_active.values()),
+        "events": list(series_events.values()),
+        "new_users": list(series_new.values()),
         "total_active": total_active,
         "total_events": total_events,
         "total_new": total_new,
-        "page_views_data": page_views_data,
+        "page_views_data": page_views,
+        "media_paginas_vistas": f"{avg_pages:.2f}",
+        "taxa_interacao": f"{engagement * 100:.1f}%",
         "allowed_periods": ALLOWED_PERIODS,
-        "selected_period_key": selected_period_key,
-        "selected_period_label": selected_period_label,
-        # Adicione placeholders vazios/default para outras variáveis do template
-        'new_visitor_percentage': '--%',
-        'returning_visitor_percentage': '--%',
-        'media_paginas_vistas': '--.--',
-        'media_botoes_clicados': '--.--',
-        'country_data': [],
+        "selected_period_key": period_key,
+        "selected_period_label": period_label,
+        "new_visitor_count": new_vs_returning["new"], # Usado para dados iniciais dos donuts se necessário
+        "returning_visitor_count": new_vs_returning["returning"], # Usado para dados iniciais se necessário
+        "new_visitor_percentage": f"{new_pct_val:.1f}%", # Para display no HTML
+        "returning_visitor_percentage": f"{ret_pct_val:.1f}%", # Para display no HTML
+        "new_visitor_percentage_api_initial": new_pct_val, # Para JS inicialização do Donut
+        "returning_visitor_percentage_api_initial": ret_pct_val, # Para JS inicialização do Donut
+        "country_data": country_data,
     }
-    # Renderiza o template localizado em dashboard/templates/home.html
-    return render(request, 'home.html', context)
+    return render(request, "home.html", ctx)
+
+
+@login_required(login_url=LOGIN_URL_NAME)
+def get_dashboard_data_api(request):
+    period_key = request.GET.get("period", "7d")
+    if period_key not in ALLOWED_PERIODS:
+        return JsonResponse({"error": "Período inválido"}, status=400)
+
+    period = ALLOWED_PERIODS[period_key]
+    num_days, api_str = period["days"], period["api_str"]
+
+    trend = get_analytics_data(start_date_str=api_str)
+    page_views = get_page_views_by_title(start_date_str=api_str, limit=8)
+    avg_pages = get_avg_pageviews_per_session(start_date_str=api_str)
+    engagement = get_engagement_rate(start_date_str=api_str)
+    new_vs_returning = get_new_vs_returning_users(start_date_str=api_str)
+    country_data = get_users_by_country(start_date_str=api_str, limit=5)
+
+    today = datetime.today()
+    labels = [(today - timedelta(days=i)).strftime("%d/%m") for i in reversed(range(num_days))]
+    series_active = {d: 0 for d in labels}
+    series_events = {d: 0 for d in labels}
+    series_new = {d: 0 for d in labels}
+
+    for entry in trend:
+        d = entry["date"]
+        if d in series_active:
+            series_active[d] = entry["active_users"]
+            series_events[d] = entry["events"]
+            series_new[d] = entry["new_users"]
+
+    total_active = sum(series_active.values())
+    total_events = sum(series_events.values())
+    total_new = sum(series_new.values())
+
+    new_pct = 0.0
+    ret_pct = 0.0
+    if new_vs_returning["total"]:
+        new_pct = (new_vs_returning["new"] / new_vs_returning["total"]) * 100
+        ret_pct = 100 - new_pct
+
+    data = {
+        "labels": labels,
+        "active_users": list(series_active.values()),
+        "events": list(series_events.values()),
+        "new_users": list(series_new.values()),
+        "total_active": total_active,
+        "total_events": total_events,
+        "total_new": total_new,
+        "page_views_data": page_views,
+        "media_paginas_vistas": f"{avg_pages:.2f}",
+        "taxa_interacao": f"{engagement * 100:.1f}%",
+        "new_visitor_count": new_vs_returning["new"], # Contagem para os donuts, se precisar
+        "returning_visitor_count": new_vs_returning["returning"], # Contagem para os donuts
+        "new_visitor_percentage_api": new_pct, # Percentagem como float para JS
+        "returning_visitor_percentage_api": ret_pct, # Percentagem como float para JS
+        "country_data": country_data,
+    }
+    return JsonResponse(data)

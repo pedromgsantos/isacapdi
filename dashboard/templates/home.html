@@ -1,4 +1,4 @@
-{% extends 'base.html' %} {# Verifique se este caminho está correto #}
+{% extends 'base.html' %} {# Verifique se este caminho encontra o seu base.html #}
 {% load static %}
 
 {% block title %}Dashboard - Análises e Estatísticas{% endblock %}
@@ -11,6 +11,7 @@
             <i class="bi bi-bar-chart-line-fill me-2 text-primary"></i>
             Análises e Estatísticas
         </h2>
+        {# Dropdown principal movido para baixo do gráfico #}
     </div>
 
     <ul class="nav nav-tabs mb-4">
@@ -25,37 +26,38 @@
     <div class="row g-4 mb-4">
         <div class="col-lg-4 col-md-6">
             <div onclick="showChart('ativos')" class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem; cursor:pointer; transition: box-shadow 0.2s ease;">
-                <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-person-fill"></i> </div> <div> <p class="mb-0 small text-muted">Utilizadores Ativos</p> <h5 class="mb-0 fw-bold">{{ total_active }}</h5> </div> </div> </div>
+                <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(13, 110, 253, 0.1); color: #0d6efd; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-person-fill"></i> </div> <div> <p class="mb-0 small text-muted">Utilizadores Ativos</p> <h5 class="mb-0 fw-bold" id="total-active-value">{{ total_active }}</h5> </div> </div> </div>
             </div>
         </div>
         <div class="col-lg-4 col-md-6">
              <div onclick="showChart('eventos')" class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem; cursor:pointer; transition: box-shadow 0.2s ease;">
-                 <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(255, 193, 7, 0.15); color: #ffc107; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-calendar-event-fill"></i> </div> <div> <p class="mb-0 small text-muted">Eventos</p> <h5 class="mb-0 fw-bold">{{ total_events }}</h5> </div> </div> </div>
+                 <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(255, 193, 7, 0.15); color: #ffc107; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-calendar-event-fill"></i> </div> <div> <p class="mb-0 small text-muted">Eventos</p> <h5 class="mb-0 fw-bold" id="total-events-value">{{ total_events }}</h5> </div> </div> </div>
             </div>
         </div>
         <div class="col-lg-4 col-md-12">
              <div onclick="showChart('novos')" class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem; cursor:pointer; transition: box-shadow 0.2s ease;">
-                 <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(40, 167, 69, 0.1); color: #28a745; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-person-plus-fill"></i> </div> <div> <p class="mb-0 small text-muted">Utilizadores Novos</p> <h5 class="mb-0 fw-bold">{{ total_new }}</h5> </div> </div> </div>
+                 <div class="card-body p-3"> <div class="d-flex align-items-center gap-3"> <div style="width: 45px; height: 45px; border-radius: 50%; background-color: rgba(40, 167, 69, 0.1); color: #28a745; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; flex-shrink: 0;"> <i class="bi bi-person-plus-fill"></i> </div> <div> <p class="mb-0 small text-muted">Utilizadores Novos</p> <h5 class="mb-0 fw-bold" id="total-new-value">{{ total_new }}</h5> </div> </div> </div>
             </div>
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;"> 
+    <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;">
          <div class="card-header bg-white border-0 pt-3 pb-0 px-3">
              <h5 class="card-title fw-semibold mb-0 fs-6" id="chartTitle">Utilizadores Ativos</h5>
          </div>
-        <div class="card-body chart-container p-2"> 
+        <div class="card-body chart-container p-2"> {# Controlado por CSS externo #}
             <canvas id="mainLineChart"></canvas>
         </div>
-    </div> 
+    </div>
 
-    <div class="dropdown mt-3"> 
+    <div class="dropdown mt-3 mb-4"> {# Dropdown principal movido para aqui #}
       <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" id="periodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         {{ selected_period_label }}
       </button>
-      <ul class="dropdown-menu" aria-labelledby="periodDropdown"> {# Abre para baixo por defeito #}
+      <ul class="dropdown-menu" aria-labelledby="periodDropdown">
         {% for key, period_data in allowed_periods.items %}
           <li>
+            {# Links agora usam JS, href="#" e data-period-key #}
             <a class="dropdown-item period-link {% if key == selected_period_key %}active{% endif %}"
                href="#"
                data-period-key="{{ key }}">
@@ -66,37 +68,19 @@
       </ul>
     </div>
 
-    <div class="row g-4 mt-4"> 
+    <div class="row g-4"> {# Linha inferior #}
         <div class="col-lg-5">
-            {# Tabela de Visualizações por Título - Dropdown Modificado #}
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 0.75rem;">
-                <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center">
-                    <h5 class="card-title fw-semibold mb-0 fs-6">Visualizações por Título</h5>
-                    <div class="dropdown d-inline-block">
-                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="pageViewsPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            {{ selected_period_label }} {# <-- Mostra o período selecionado globalmente #}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="pageViewsPeriodDropdown">
-                            {% for key, period_data in allowed_periods.items %}
-                              <li>
-                                {# Link usa a chave do período (recarrega a página inteira) #}
-                                <a class="dropdown-item {% if key == selected_period_key %}active{% endif %}"
-                                   href="?period={{ key }}">
-                                   {{ period_data.label }}
-                                </a>
-                              </li>
-                            {% endfor %}
-                        </ul>
-                    </div>
-                </div>
+                <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Visualizações por Título</h5> <div class="dropdown d-inline-block"> <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="pageViewsPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false"> {{ selected_period_label }} </button> <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="pageViewsPeriodDropdown"> {% for key, period_data in allowed_periods.items %}<li><a class="dropdown-item {% if key == selected_period_key %}active{% endif %}" href="?period={{ key }}"> {{ period_data.label }} </a></li>{% endfor %} </ul> </div> </div>
                 <div class="card-body">
                     <table class="table table-sm table-borderless small">
                         <thead> <tr class="text-muted"> <th>Título</th> <th class="text-end">Visualizações</th> </tr> </thead>
-                        <tbody> {% for page in page_views_data %} <tr> <td title="{{ page.title }}">{{ page.title|truncatechars:45 }}</td> <td class="text-end fw-medium">{{ page.views }}</td> </tr> {% empty %} <tr> <td colspan="2" class="text-center text-muted fst-italic py-3">Nenhum dado de visualização encontrado.</td> </tr> {% endfor %} </tbody>
+                        <tbody id="page-views-tbody"> {# ID adicionado #}
+                            {% for page in page_views_data %} <tr> <td title="{{ page.title }}">{{ page.title|truncatechars:45 }}</td> <td class="text-end fw-medium">{{ page.views }}</td> </tr> {% empty %} <tr> <td colspan="2" class="text-center text-muted fst-italic py-3">Nenhum dado de visualização encontrado.</td> </tr> {% endfor %}
+                        </tbody>
                     </table>
                 </div>
             </div>
-
             <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;">
                  <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Novos Visitantes vs Visitantes Habituais</h5> <div class="dropdown d-inline-block"> <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="visitorTypePeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false"> Últimos 7 dias </button> <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="visitorTypePeriodDropdown"> <li><a class="dropdown-item" href="#">Últimos 7 dias</a></li> <li><a class="dropdown-item" href="#">Últimos 30 dias</a></li> </ul> </div> </div>
                  <div class="card-body"> <div class="row text-center"> <div class="col-6"> <canvas id="newVisitorsDonut" height="120"></canvas> <p class="fw-bold mt-2 mb-0">{{ new_visitor_percentage | default:"--%" }}</p> <small class="text-muted">Novos</small> </div> <div class="col-6"> <canvas id="returningVisitorsDonut" height="120"></canvas> <p class="fw-bold mt-2 mb-0">{{ returning_visitor_percentage | default:"--%" }}</p> <small class="text-muted">Habituais</small> </div> </div> </div>
@@ -104,8 +88,24 @@
         </div>
         <div class="col-lg-7">
             <div class="row g-4">
-                <div class="col-md-6"><div class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem;"><div class="card-body text-center"><h6 class="card-subtitle mb-2 text-muted" style="font-size: 0.9rem;">Média de páginas vistas</h6><i class="bi bi-file-earmark-text display-6 text-warning my-2"></i><h4 class="card-title fw-bold mt-2">{{ media_paginas_vistas | default:"--.--" }}</h4></div></div></div>
-                <div class="col-md-6"><div class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem;"><div class="card-body text-center"><h6 class="card-subtitle mb-2 text-muted" style="font-size: 0.9rem;">Número médio de botões clicados</h6><i class="bi bi-cursor-fill display-6 text-info my-2"></i><h4 class="card-title fw-bold mt-2">{{ media_botoes_clicados | default:"--.--" }}</h4></div></div></div>
+                <div class="col-md-6">
+                    <div class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem;">
+                        <div class="card-body text-center">
+                            <h6 class="card-subtitle mb-2 text-muted" style="font-size: 0.9rem;">Média de páginas vistas</h6>
+                            <i class="bi bi-file-earmark-text display-6 text-warning my-2"></i>
+                            <h4 class="card-title fw-bold mt-2" id="avg-page-views-value">{{ media_paginas_vistas }}</h4> {# ID adicionado #}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                     <div class="card border-0 shadow-sm h-100" style="border-radius: 0.75rem;">
+                        <div class="card-body text-center">
+                             <h6 class="card-subtitle mb-2 text-muted" style="font-size: 0.9rem;">Taxa de Interação</h6>
+                             <i class="bi bi-graph-up display-6 text-success my-2"></i>
+                            <h4 class="card-title fw-bold mt-2" id="engagement-rate-value">{{ taxa_interacao }}</h4> {# ID adicionado #}
+                        </div>
+                    </div>
+                </div>
                 <div class="col-12">
                      <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;">
                          <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Utilizadores por País</h5> <div class="dropdown d-inline-block"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="countryPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">Últimos 7 dias</button><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="countryPeriodDropdown"><li><a class="dropdown-item" href="#">Últimos 7 dias</a></li><li><a class="dropdown-item" href="#">Últimos 30 dias</a></li></ul></div> </div>
@@ -115,8 +115,9 @@
             </div>
         </div>
     </div>
-</div>
+</div> {# Fim container-fluid #}
 
+{# Scripts de Dados para carga inicial #}
 {{ labels|json_script:"labels-data" }}
 {{ active_users|json_script:"ativos-data" }}
 {{ events|json_script:"eventos-data" }}
@@ -127,49 +128,84 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const labels = JSON.parse(document.getElementById("labels-data").textContent || '[]');
-        const ativos = JSON.parse(document.getElementById("ativos-data").textContent || '[]');
-        const eventos = JSON.parse(document.getElementById("eventos-data").textContent || '[]');
-        const novos = JSON.parse(document.getElementById("novos-data").textContent || '[]');
+        // --- Guardar dados iniciais e estado ---
+        let chartLabels = JSON.parse(document.getElementById("labels-data").textContent || '[]');
+        let chartDataAtivos = JSON.parse(document.getElementById("ativos-data").textContent || '[]');
+        let chartDataEventos = JSON.parse(document.getElementById("eventos-data").textContent || '[]');
+        let chartDataNovos = JSON.parse(document.getElementById("novos-data").textContent || '[]');
 
         const ctx = document.getElementById("mainLineChart")?.getContext("2d");
         const chartTitleElement = document.getElementById("chartTitle");
-        window.chartInstance = null;
-        let currentChartType = 'ativos';
+        window.chartInstance = null; // Instância do gráfico Chart.js
+        let currentChartType = 'ativos'; // Guarda o tipo de gráfico ativo ('ativos', 'eventos', 'novos')
 
+        // --- Ler parâmetros do URL na carga inicial ---
         const urlParams = new URLSearchParams(window.location.search);
         const initialChart = urlParams.get('chart');
+        const initialPeriod = urlParams.get('period') || '7d'; // Default '7d' se não houver parâmetro
         if (initialChart && ['ativos', 'eventos', 'novos'].includes(initialChart)) {
             currentChartType = initialChart;
         }
 
-        const _drawChart = function(tipo) {
-            if (!ctx) { console.error("Contexto do gráfico não encontrado!"); return; }
+        // --- Elementos HTML que precisam ser atualizados ---
+        const periodDropdownButton = document.getElementById('periodDropdown');
+        const pageViewsTbody = document.getElementById('page-views-tbody');
+        const totalActiveEl = document.getElementById('total-active-value');
+        const totalEventsEl = document.getElementById('total-events-value');
+        const totalNewEl = document.getElementById('total-new-value');
+        const avgPageViewsEl = document.getElementById('avg-page-views-value');
+        const engagementRateEl = document.getElementById('engagement-rate-value');
+
+
+        // --- Função interna para desenhar/atualizar o gráfico Chart.js ---
+        const _updateChart = function(tipo) {
+            if (!ctx) return; // Sai se o canvas não existe
             const datasets = {
-                ativos: { label: "Utilizadores Ativos", data: ativos, color: "rgba(13, 110, 253, 0.6)" },
-                eventos: { label: "Eventos", data: eventos, color: "rgba(255, 193, 7, 0.6)" },
-                novos: { label: "Utilizadores Novos", data: novos, color: "rgba(40, 167, 69, 0.6)" }
+                ativos: { label: "Utilizadores Ativos", data: chartDataAtivos, color: "rgba(13, 110, 253, 0.6)" },
+                eventos: { label: "Eventos", data: chartDataEventos, color: "rgba(255, 193, 7, 0.6)" },
+                novos: { label: "Utilizadores Novos", data: chartDataNovos, color: "rgba(40, 167, 69, 0.6)" }
             };
             const selected = datasets[tipo];
-            if (!selected) { console.error("Tipo de gráfico inválido:", tipo); return; }
-            if (window.chartInstance) window.chartInstance.destroy();
-            window.chartInstance = new Chart(ctx, {
-                type: 'line', data: { labels: labels, datasets: [{ label: selected.label, data: selected.data, borderColor: selected.color, backgroundColor: selected.color.replace('0.6', '0.1'), tension: 0.4, borderWidth: 2, fill: true, pointRadius: 3, pointHoverRadius: 6, pointBackgroundColor: selected.color.replace('0.6', '1') }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } }, x: { grid: { display: false } } } }
-            });
+            if (!selected) return; // Sai se o tipo for inválido
+
+            const dataValues = selected.data || [];
+            const dataMax = dataValues.length > 0 ? Math.max(...dataValues) : 0;
+            const suggestedYMax = Math.max(Math.ceil(dataMax) + 2, 5); // Ajuste do eixo Y
+
+            if (window.chartInstance) {
+                // Atualiza dados e opções do gráfico existente
+                window.chartInstance.data.labels = chartLabels;
+                window.chartInstance.data.datasets[0].label = selected.label;
+                window.chartInstance.data.datasets[0].data = selected.data;
+                window.chartInstance.data.datasets[0].borderColor = selected.color;
+                window.chartInstance.data.datasets[0].backgroundColor = selected.color.replace('0.6', '0.1');
+                window.chartInstance.data.datasets[0].pointBackgroundColor = selected.color.replace('0.6', '1');
+                window.chartInstance.options.scales.y.suggestedMax = suggestedYMax;
+                window.chartInstance.update(); // Redesenha sem destruir
+            } else {
+                // Cria o gráfico pela primeira vez
+                window.chartInstance = new Chart(ctx, {
+                    type: 'line',
+                    data: { labels: chartLabels, datasets: [{ label: selected.label, data: selected.data, borderColor: selected.color, backgroundColor: selected.color.replace('0.6', '0.1'), tension: 0.4, borderWidth: 2, fill: true, pointRadius: 3, pointHoverRadius: 6, pointBackgroundColor: selected.color.replace('0.6', '1') }] },
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, suggestedMax: suggestedYMax }, x: { grid: { display: false } } } }
+                });
+            }
             if (chartTitleElement) { chartTitleElement.textContent = selected.label; }
         };
 
+        // --- Função exposta globalmente para ser chamada pelo onclick dos cartões ---
         window.showChart = function(tipo) {
-            currentChartType = tipo;
-            _drawChart(tipo);
+            currentChartType = tipo; // Atualiza o tipo de gráfico atual
+            _updateChart(tipo);    // Chama a função para (re)desenhar
         }
 
+        // --- Desenho inicial via ResizeObserver ---
         const canvas = document.getElementById("mainLineChart");
         if (canvas) {
             const observer = new ResizeObserver((entries) => {
                 for (let entry of entries) {
                     if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-                        window.showChart(currentChartType);
+                        window.showChart(currentChartType); // Usa o tipo lido do URL ou default
                         observer.unobserve(entry.target); break;
                     }
                 }
@@ -177,25 +213,105 @@
             observer.observe(canvas);
         } else { console.error("Elemento canvas #mainLineChart não encontrado para o observer."); }
 
+        // --- Lógica para Atualização de Período via Fetch API ---
         document.querySelectorAll('.period-link').forEach(link => {
             link.addEventListener('click', function(event) {
-                event.preventDefault();
+                event.preventDefault(); // Não seguir o link '#'
                 const periodKey = this.dataset.periodKey;
-                if (periodKey) {
-                    window.location.href = `?period=${periodKey}&chart=${currentChartType}`;
+                const periodLabel = this.textContent.trim(); // Guarda o texto do link clicado
+
+                if (!periodKey) return;
+
+                // Opcional: Feedback visual de loading
+                if(periodDropdownButton) {
+                    periodDropdownButton.textContent = 'A carregar...';
+                    periodDropdownButton.disabled = true;
                 }
+                // Opcional: Pode adicionar um spinner/overlay na página
+
+                const apiUrl = `/api/data/?period=${periodKey}&chart=${currentChartType}`;
+
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            // Lança um erro para ser apanhado pelo .catch()
+                            return response.json().then(errData => {
+                                throw new Error(`Erro HTTP ${response.status}: ${errData.error || response.statusText}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => { // data contém a resposta JSON da view get_dashboard_data_api
+                        // Atualizar variáveis globais com os novos dados
+                        chartLabels = data.labels || [];
+                        chartDataAtivos = data.active_users || [];
+                        chartDataEventos = data.events || [];
+                        chartDataNovos = data.new_users || [];
+
+                        // Atualizar DOM: Cartões superiores
+                        if(totalActiveEl) totalActiveEl.textContent = data.total_active ?? '0';
+                        if(totalEventsEl) totalEventsEl.textContent = data.total_events ?? '0';
+                        if(totalNewEl) totalNewEl.textContent = data.total_new ?? '0';
+
+                        // Atualizar DOM: Cartões inferiores
+                        if(avgPageViewsEl) avgPageViewsEl.textContent = data.media_paginas_vistas ?? '0.00';
+                        if(engagementRateEl) engagementRateEl.textContent = data.taxa_interacao ?? '0.0%';
+
+                        // Atualizar DOM: Tabela
+                        if(pageViewsTbody) {
+                            pageViewsTbody.innerHTML = ''; // Limpar linhas existentes
+                            if (data.page_views_data && data.page_views_data.length > 0) {
+                                data.page_views_data.forEach(page => {
+                                    const row = pageViewsTbody.insertRow();
+                                    const cell1 = row.insertCell();
+                                    const cell2 = row.insertCell();
+                                    // Truncar título no JS se necessário, ou usar CSS text-overflow
+                                    let truncatedTitle = page.title.length > 45 ? page.title.substring(0, 42) + '...' : page.title;
+                                    cell1.textContent = truncatedTitle;
+                                    cell1.title = page.title; // Tooltip com título completo
+                                    cell2.textContent = page.views;
+                                    cell2.classList.add('text-end', 'fw-medium');
+                                });
+                            } else {
+                                pageViewsTbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted fst-italic py-3">Nenhum dado de visualização encontrado.</td></tr>';
+                            }
+                        }
+
+                        // Atualizar o gráfico Chart.js
+                        _updateChart(currentChartType); // Usa a função interna _updateChart
+
+                        // Atualizar estado do dropdown
+                        if(periodDropdownButton) periodDropdownButton.textContent = periodLabel;
+                        document.querySelectorAll('.period-link').forEach(el => el.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // Opcional: Atualizar URL na barra de endereço
+                        const newUrl = `?period=${periodKey}&chart=${currentChartType}`;
+                        history.pushState({period: periodKey, chart: currentChartType}, '', newUrl);
+
+                    })
+                    .catch(error => {
+                        console.error('Erro ao buscar/processar dados da API:', error);
+                        // Poderia mostrar uma mensagem de erro mais visível ao utilizador
+                        if(periodDropdownButton) periodDropdownButton.textContent = 'Erro!';
+                    })
+                    .finally(() => {
+                        // Opcional: Remover indicador de loading
+                        if(periodDropdownButton) periodDropdownButton.disabled = false;
+                         // Garante que o botão volta ao normal se deu erro
+                         if (periodDropdownButton && (periodDropdownButton.textContent === 'A carregar...' || periodDropdownButton.textContent === 'Erro!')) {
+                             const currentActiveLink = document.querySelector('.period-link.active');
+                             periodDropdownButton.textContent = currentActiveLink ? currentActiveLink.textContent.trim() : 'Selecionar Período';
+                         }
+                         // Opcional: Remover spinner/overlay
+                    });
             });
         });
 
         /* Placeholder JS para Gráficos Donut */
-        // const newVisitorDonutData = JSON.parse(document.getElementById("new-visitor-data").textContent || '[57, 43]');
-        // const returningVisitorDonutData = JSON.parse(document.getElementById("returning-visitor-data").textContent || '[43, 57]');
-        // const newDonutCtx = document.getElementById('newVisitorsDonut')?.getContext('2d');
-        // const returningDonutCtx = document.getElementById('returningVisitorsDonut')?.getContext('2d');
-        // if (newDonutCtx) { new Chart(newDonutCtx, { type: 'doughnut', data: { datasets: [{ data: newVisitorDonutData, backgroundColor: ['rgba(40, 167, 69, 0.7)','rgba(220, 220, 220, 0.3)'], borderWidth: 0, cutout: '70%' }] }, options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }); }
-        // if (returningDonutCtx) { new Chart(returningDonutCtx, { type: 'doughnut', data: { datasets: [{ data: returningVisitorDonutData, backgroundColor: ['rgba(13, 110, 253, 0.7)','rgba(220, 220, 220, 0.3)'], borderWidth: 0, cutout: '70%' }] }, options: { responsive: true, plugins: { legend: { display: false }, tooltip: { enabled: false } } } }); }
+        // ...
 
-    }); // Fim do DOMContentLoaded
+    });
 </script>
 
 {% endblock %}
