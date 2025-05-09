@@ -51,7 +51,7 @@
     </div>
 
     <div class="dropdown mt-3 mb-4"> {# Dropdown principal movido para aqui #}
-      <button class="btn btn-outline-secondary dropdown-toggle btn-sm" type="button" id="periodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      <button class="btn btn-outline-secondary dropdown-toggle btn-sm period-dropdown-button" type="button" id="periodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         {{ selected_period_label }}
       </button>
       <ul class="dropdown-menu" aria-labelledby="periodDropdown">
@@ -59,9 +59,9 @@
           <li>
             {# Links agora usam JS, href="#" e data-period-key #}
             <a class="dropdown-item period-link {% if key == selected_period_key %}active{% endif %}"
-               href="#"
-               data-period-key="{{ key }}">
-               {{ period_data.label }}
+                href="#"
+                data-period-key="{{ key }}">
+                {{ period_data.label }}
             </a>
           </li>
         {% endfor %}
@@ -71,7 +71,11 @@
     <div class="row g-4"> {# Linha inferior #}
         <div class="col-lg-5">
             <div class="card border-0 shadow-sm mb-4" style="border-radius: 0.75rem;">
-                <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Visualizações por Título</h5> <div class="dropdown d-inline-block"> <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="pageViewsPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false"> {{ selected_period_label }} </button> <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="pageViewsPeriodDropdown"> {% for key, period_data in allowed_periods.items %}<li><a class="dropdown-item {% if key == selected_period_key %}active{% endif %}" href="?period={{ key }}"> {{ period_data.label }} </a></li>{% endfor %} </ul> </div> </div>
+                <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Visualizações por Título</h5> <div class="dropdown d-inline-block"> <button class="btn btn-sm btn-outline-secondary dropdown-toggle period-dropdown-button" type="button" id="pageViewsPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false"> {{ selected_period_label }} </button> <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="pageViewsPeriodDropdown"> {% for key, period_data in allowed_periods.items %}<li><a class="dropdown-item period-link {% if key == selected_period_key %}active{% endif %}"
+                    href="#"
+                    data-period-key="{{ key }}">
+                    {{ period_data.label }}
+                 </a></li>{% endfor %} </ul> </div> </div>
                 <div class="card-body">
                     <table class="table table-sm table-borderless small">
                         <thead> <tr class="text-muted"> <th>Título</th> <th class="text-end">Visualizações</th> </tr> </thead>
@@ -82,8 +86,39 @@
                 </div>
             </div>
             <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;">
-                 <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Novos Visitantes vs Visitantes Habituais</h5> <div class="dropdown d-inline-block"> <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="visitorTypePeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false"> Últimos 7 dias </button> <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="visitorTypePeriodDropdown"> <li><a class="dropdown-item" href="#">Últimos 7 dias</a></li> <li><a class="dropdown-item" href="#">Últimos 30 dias</a></li> </ul> </div> </div>
-                 <div class="card-body"> <div class="row text-center"> <div class="col-6"> <canvas id="newVisitorsDonut" height="120"></canvas> <p class="fw-bold mt-2 mb-0">{{ new_visitor_percentage | default:"--%" }}</p> <small class="text-muted">Novos</small> </div> <div class="col-6"> <canvas id="returningVisitorsDonut" height="120"></canvas> <p class="fw-bold mt-2 mb-0">{{ returning_visitor_percentage | default:"--%" }}</p> <small class="text-muted">Habituais</small> </div> </div> </div>
+                 <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Novos Visitantes vs Visitantes Habituais</h5> <div class="dropdown d-inline-block"> <button class="btn btn-sm btn-outline-secondary dropdown-toggle period-dropdown-button" type="button" id="visitorTypePeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false"> Últimos 7 dias </button> <ul class="dropdown-menu" aria-labelledby="periodDropdown">
+                    {% for key, period_data in allowed_periods.items %}
+                      <li>
+                        {# Links agora usam JS, href="#" e data-period-key #}
+                        <a class="dropdown-item period-link {% if key == selected_period_key %}active{% endif %}"
+                            href="#"
+                            data-period-key="{{ key }}">
+                            {{ period_data.label }}
+                        </a>
+                      </li>
+                    {% endfor %}
+                  </ul> </div> </div>
+                 <div class="card-body py-5"> <div class= "mt-4 row text-center align-items-center">
+                    <div class="col-6"
+                        style="height:140px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <!-- conta inicial vem em data-count -->
+                        <canvas id="newVisitorsDonut"
+                                width="120" height="120"
+                                style="max-width: 100%; max-height: 100%;"
+                                data-count="{{ new_visitor_count }}"></canvas>
+                        <p class="fw-bold mt-2 mb-0" id="newVisitorsPerc">{{ new_visitor_percentage|default:"--%" }}</p>
+                        <small class="text-muted">Novos</small>
+                    </div>
+                    <div class="col-6"
+                        style="height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                        <canvas id="returningVisitorsDonut"
+                                width="120" height="120"
+                                style="max-width: 100%; max-height: 100%;"
+                                data-count="{{ returning_visitor_count }}"></canvas>
+                        <p class="fw-bold mt-2 mb-0" id="returningVisitorsPerc">{{ returning_visitor_percentage|default:"--%" }}</p>
+                        <small class="text-muted">Habituais</small>
+                    </div>
+                  </div> </div>
             </div>
         </div>
         <div class="col-lg-7">
@@ -108,7 +143,18 @@
                 </div>
                 <div class="col-12">
                      <div class="card border-0 shadow-sm" style="border-radius: 0.75rem;">
-                         <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Utilizadores por País</h5> <div class="dropdown d-inline-block"><button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="countryPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">Últimos 7 dias</button><ul class="dropdown-menu dropdown-menu-end" aria-labelledby="countryPeriodDropdown"><li><a class="dropdown-item" href="#">Últimos 7 dias</a></li><li><a class="dropdown-item" href="#">Últimos 30 dias</a></li></ul></div> </div>
+                         <div class="card-header bg-white border-0 pt-3 pb-0 px-3 d-flex justify-content-between align-items-center"> <h5 class="card-title fw-semibold mb-0 fs-6">Utilizadores por País</h5> <div class="dropdown d-inline-block"><button class="btn btn-sm btn-outline-secondary dropdown-toggle period-dropdown-button" type="button" id="countryPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">Últimos 7 dias</button><ul class="dropdown-menu" aria-labelledby="periodDropdown">
+                            {% for key, period_data in allowed_periods.items %}
+                              <li>
+                                {# Links agora usam JS, href="#" e data-period-key #}
+                                <a class="dropdown-item period-link {% if key == selected_period_key %}active{% endif %}"
+                                    href="#"
+                                    data-period-key="{{ key }}">
+                                    {{ period_data.label }}
+                                </a>
+                              </li>
+                            {% endfor %}
+                          </ul></div> </div>
                          <div class="card-body"> <div class="row"> <div class="col-md-8"><div id="worldMapPlaceholder" style="height: 200px; background-color: #e9ecef; display: flex; align-items: center; justify-content: center; border-radius: 0.5rem;" class="text-muted">Mapa Aqui</div></div> <div class="col-md-4"><table class="table table-sm table-borderless small mt-2 mt-md-0"><thead><tr class="text-muted"><th>País</th><th class="text-end">Utilizadores</th></tr></thead><tbody>{% for country in country_data|default_if_none:'' %}<tr><td><span class="badge bg-secondary">{{ country.code | default:"--"}}</span></td><td class="text-end fw-medium">{{ country.users | default:"--" }}</td></tr>{% empty %}<tr><td colspan="2" class="text-center text-muted fst-italic py-3">Sem dados.</td></tr>{% endfor %}</tbody></table></div> </div> </div>
                      </div>
                 </div>
@@ -127,191 +173,236 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // --- Guardar dados iniciais e estado ---
-        let chartLabels = JSON.parse(document.getElementById("labels-data").textContent || '[]');
-        let chartDataAtivos = JSON.parse(document.getElementById("ativos-data").textContent || '[]');
-        let chartDataEventos = JSON.parse(document.getElementById("eventos-data").textContent || '[]');
-        let chartDataNovos = JSON.parse(document.getElementById("novos-data").textContent || '[]');
+document.addEventListener('DOMContentLoaded', () => {
 
-        const ctx = document.getElementById("mainLineChart")?.getContext("2d");
-        const chartTitleElement = document.getElementById("chartTitle");
-        window.chartInstance = null; // Instância do gráfico Chart.js
-        let currentChartType = 'ativos'; // Guarda o tipo de gráfico ativo ('ativos', 'eventos', 'novos')
+    /* ──────────────── ESTADO GLOBAL ──────────────── */
+    let chartLabels      = JSON.parse(document.getElementById("labels-data").textContent   || '[]');
+    let chartDataAtivos  = JSON.parse(document.getElementById("ativos-data").textContent   || '[]');
+    let chartDataEventos = JSON.parse(document.getElementById("eventos-data").textContent  || '[]');
+    let chartDataNovos   = JSON.parse(document.getElementById("novos-data").textContent    || '[]');
 
-        // --- Ler parâmetros do URL na carga inicial ---
-        const urlParams = new URLSearchParams(window.location.search);
-        const initialChart = urlParams.get('chart');
-        const initialPeriod = urlParams.get('period') || '7d'; // Default '7d' se não houver parâmetro
-        if (initialChart && ['ativos', 'eventos', 'novos'].includes(initialChart)) {
-            currentChartType = initialChart;
+    const ctx              = document.getElementById("mainLineChart")?.getContext("2d");
+    const chartTitleEl     = document.getElementById("chartTitle");
+    const allPeriodButtons = document.querySelectorAll('.period-dropdown-button');
+    const centerTextPlugin = {
+        id: 'centerText',
+        afterDraw(chart, _args, opts) {
+            if (!opts?.text) return;                       // ignora se não houver texto
+            const { ctx, chartArea: { width, height } } = chart;
+            ctx.save();
+            ctx.font         = '600 14px sans-serif';
+            ctx.fillStyle    = '#212529';
+            ctx.textAlign    = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(opts.text, width / 2, height / 2);
+            ctx.restore();
         }
+    };
+    Chart.register(centerTextPlugin);
 
-        // --- Elementos HTML que precisam ser atualizados ---
-        const periodDropdownButton = document.getElementById('periodDropdown');
-        const pageViewsTbody = document.getElementById('page-views-tbody');
-        const totalActiveEl = document.getElementById('total-active-value');
-        const totalEventsEl = document.getElementById('total-events-value');
-        const totalNewEl = document.getElementById('total-new-value');
-        const avgPageViewsEl = document.getElementById('avg-page-views-value');
-        const engagementRateEl = document.getElementById('engagement-rate-value');
+    window.chartInstance   = null;
+    let currentChartType   = 'ativos';
 
+    /* ──────────────── FUNÇÕES UTILITÁRIAS ──────────────── */
+    const setButtonsText     = txt   => allPeriodButtons.forEach(btn => btn.textContent  = txt);
+    const toggleButtonsState = state => allPeriodButtons.forEach(btn => btn.disabled     = state);
 
-        // --- Função interna para desenhar/atualizar o gráfico Chart.js ---
-        const _updateChart = function(tipo) {
-            if (!ctx) return; // Sai se o canvas não existe
-            const datasets = {
-                ativos: { label: "Utilizadores Ativos", data: chartDataAtivos, color: "rgba(13, 110, 253, 0.6)" },
-                eventos: { label: "Eventos", data: chartDataEventos, color: "rgba(255, 193, 7, 0.6)" },
-                novos: { label: "Utilizadores Novos", data: chartDataNovos, color: "rgba(40, 167, 69, 0.6)" }
-            };
-            const selected = datasets[tipo];
-            if (!selected) return; // Sai se o tipo for inválido
+    const _updateChart = tipo => {
+        if (!ctx) return;
 
-            const dataValues = selected.data || [];
-            const dataMax = dataValues.length > 0 ? Math.max(...dataValues) : 0;
-            const suggestedYMax = Math.max(Math.ceil(dataMax) + 2, 5); // Ajuste do eixo Y
+        const styles = {
+            ativos : {lbl: "Utilizadores Ativos", cor: "rgba(13,110,253)"},
+            eventos: {lbl: "Eventos"            , cor: "rgba(255,193,7)"},
+            novos  : {lbl: "Utilizadores Novos" , cor: "rgba(40,167,69)"}
+        }[tipo];
 
-            if (window.chartInstance) {
-                // Atualiza dados e opções do gráfico existente
-                window.chartInstance.data.labels = chartLabels;
-                window.chartInstance.data.datasets[0].label = selected.label;
-                window.chartInstance.data.datasets[0].data = selected.data;
-                window.chartInstance.data.datasets[0].borderColor = selected.color;
-                window.chartInstance.data.datasets[0].backgroundColor = selected.color.replace('0.6', '0.1');
-                window.chartInstance.data.datasets[0].pointBackgroundColor = selected.color.replace('0.6', '1');
-                window.chartInstance.options.scales.y.suggestedMax = suggestedYMax;
-                window.chartInstance.update(); // Redesenha sem destruir
-            } else {
-                // Cria o gráfico pela primeira vez
-                window.chartInstance = new Chart(ctx, {
-                    type: 'line',
-                    data: { labels: chartLabels, datasets: [{ label: selected.label, data: selected.data, borderColor: selected.color, backgroundColor: selected.color.replace('0.6', '0.1'), tension: 0.4, borderWidth: 2, fill: true, pointRadius: 3, pointHoverRadius: 6, pointBackgroundColor: selected.color.replace('0.6', '1') }] },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, suggestedMax: suggestedYMax }, x: { grid: { display: false } } } }
-                });
-            }
-            if (chartTitleElement) { chartTitleElement.textContent = selected.label; }
+        if (!styles) return;
+
+        const datasets = {
+            ativos : chartDataAtivos,
+            eventos: chartDataEventos,
+            novos  : chartDataNovos
         };
 
-        // --- Função exposta globalmente para ser chamada pelo onclick dos cartões ---
-        window.showChart = function(tipo) {
-            currentChartType = tipo; // Atualiza o tipo de gráfico atual
-            _updateChart(tipo);    // Chama a função para (re)desenhar
-        }
+        const baseColor = styles.cor;
+        const bgColor   = baseColor.replace(')', ',0.1)');
+        const maxY      = Math.max(Math.max(...datasets[tipo], 0) + 2, 5);
 
-        // --- Desenho inicial via ResizeObserver ---
-        const canvas = document.getElementById("mainLineChart");
-        if (canvas) {
-            const observer = new ResizeObserver((entries) => {
-                for (let entry of entries) {
-                    if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
-                        window.showChart(currentChartType); // Usa o tipo lido do URL ou default
-                        observer.unobserve(entry.target); break;
+        if (window.chartInstance) {
+            const c = window.chartInstance;
+            c.data.labels                     = chartLabels;
+            c.data.datasets[0].label          = styles.lbl;
+            c.data.datasets[0].data           = datasets[tipo];
+            c.data.datasets[0].borderColor    = baseColor;
+            c.data.datasets[0].backgroundColor= bgColor;
+            c.data.datasets[0].pointBackgroundColor = baseColor;
+            c.options.scales.y.suggestedMax   = maxY;
+            c.update();
+        } else {
+            window.chartInstance = new Chart(ctx, {
+                type : 'line',
+                data : { labels: chartLabels,
+                         datasets: [{
+                             label               : styles.lbl,
+                             data                : datasets[tipo],
+                             borderColor         : baseColor,
+                             backgroundColor     : bgColor,
+                             tension             : 0.4, fill: true,
+                             borderWidth         : 2,
+                             pointRadius         : 3,
+                             pointHoverRadius    : 6,
+                             pointBackgroundColor: baseColor
+                         }]},
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales : {
+                        y: { beginAtZero: true, ticks: { precision: 0 }, suggestedMax: maxY },
+                        x: { grid: { display: false } }
                     }
                 }
             });
-            observer.observe(canvas);
-        } else { console.error("Elemento canvas #mainLineChart não encontrado para o observer."); }
+        }
+        chartTitleEl.textContent = styles.lbl;
+    };
 
-        // --- Lógica para Atualização de Período via Fetch API ---
-        document.querySelectorAll('.period-link').forEach(link => {
-            link.addEventListener('click', function(event) {
-                event.preventDefault(); // Não seguir o link '#'
-                const periodKey = this.dataset.periodKey;
-                const periodLabel = this.textContent.trim(); // Guarda o texto do link clicado
+    window.showChart = tipo => {
+        currentChartType = tipo;
+        _updateChart(tipo);
+    };
 
-                if (!periodKey) return;
+    /* ──────────────── RESIZE INIT (1ª render) ──────────────── */
+    const canvas = document.getElementById("mainLineChart");
+    if (canvas) {
+        new ResizeObserver(entries => {
+            if (entries[0].contentRect.width > 0) {
+                window.showChart(currentChartType);
+            }
+        }).observe(canvas);
+    }
 
-                // Opcional: Feedback visual de loading
-                if(periodDropdownButton) {
-                    periodDropdownButton.textContent = 'A carregar...';
-                    periodDropdownButton.disabled = true;
-                }
-                // Opcional: Pode adicionar um spinner/overlay na página
+    /* ── donuts Novos / Habituais ────────────────────────────────────────── */
+let donutNew = null, donutRet = null;
 
-                const apiUrl = `/api/data/?period=${periodKey}&chart=${currentChartType}`;
+function renderDonuts(newCount, retCount) {
+    const total = (newCount + retCount) || 1;              // evita divisão por 0
+    const newPerc = +(newCount / total * 100).toFixed(1);
+    const retPerc = +(retCount / total * 100).toFixed(1);
 
-                fetch(apiUrl)
-                    .then(response => {
-                        if (!response.ok) {
-                            // Lança um erro para ser apanhado pelo .catch()
-                            return response.json().then(errData => {
-                                throw new Error(`Erro HTTP ${response.status}: ${errData.error || response.statusText}`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => { // data contém a resposta JSON da view get_dashboard_data_api
-                        // Atualizar variáveis globais com os novos dados
-                        chartLabels = data.labels || [];
-                        chartDataAtivos = data.active_users || [];
-                        chartDataEventos = data.events || [];
-                        chartDataNovos = data.new_users || [];
+    // actualiza legenda textual
+    document.getElementById('newVisitorsPerc').textContent = `${newPerc}%`;
+    document.getElementById('returningVisitorsPerc').textContent = `${retPerc}%`;
 
-                        // Atualizar DOM: Cartões superiores
-                        if(totalActiveEl) totalActiveEl.textContent = data.total_active ?? '0';
-                        if(totalEventsEl) totalEventsEl.textContent = data.total_events ?? '0';
-                        if(totalNewEl) totalNewEl.textContent = data.total_new ?? '0';
-
-                        // Atualizar DOM: Cartões inferiores
-                        if(avgPageViewsEl) avgPageViewsEl.textContent = data.media_paginas_vistas ?? '0.00';
-                        if(engagementRateEl) engagementRateEl.textContent = data.taxa_interacao ?? '0.0%';
-
-                        // Atualizar DOM: Tabela
-                        if(pageViewsTbody) {
-                            pageViewsTbody.innerHTML = ''; // Limpar linhas existentes
-                            if (data.page_views_data && data.page_views_data.length > 0) {
-                                data.page_views_data.forEach(page => {
-                                    const row = pageViewsTbody.insertRow();
-                                    const cell1 = row.insertCell();
-                                    const cell2 = row.insertCell();
-                                    // Truncar título no JS se necessário, ou usar CSS text-overflow
-                                    let truncatedTitle = page.title.length > 45 ? page.title.substring(0, 42) + '...' : page.title;
-                                    cell1.textContent = truncatedTitle;
-                                    cell1.title = page.title; // Tooltip com título completo
-                                    cell2.textContent = page.views;
-                                    cell2.classList.add('text-end', 'fw-medium');
-                                });
-                            } else {
-                                pageViewsTbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted fst-italic py-3">Nenhum dado de visualização encontrado.</td></tr>';
-                            }
-                        }
-
-                        // Atualizar o gráfico Chart.js
-                        _updateChart(currentChartType); // Usa a função interna _updateChart
-
-                        // Atualizar estado do dropdown
-                        if(periodDropdownButton) periodDropdownButton.textContent = periodLabel;
-                        document.querySelectorAll('.period-link').forEach(el => el.classList.remove('active'));
-                        this.classList.add('active');
-
-                        // Opcional: Atualizar URL na barra de endereço
-                        const newUrl = `?period=${periodKey}&chart=${currentChartType}`;
-                        history.pushState({period: periodKey, chart: currentChartType}, '', newUrl);
-
-                    })
-                    .catch(error => {
-                        console.error('Erro ao buscar/processar dados da API:', error);
-                        // Poderia mostrar uma mensagem de erro mais visível ao utilizador
-                        if(periodDropdownButton) periodDropdownButton.textContent = 'Erro!';
-                    })
-                    .finally(() => {
-                        // Opcional: Remover indicador de loading
-                        if(periodDropdownButton) periodDropdownButton.disabled = false;
-                         // Garante que o botão volta ao normal se deu erro
-                         if (periodDropdownButton && (periodDropdownButton.textContent === 'A carregar...' || periodDropdownButton.textContent === 'Erro!')) {
-                             const currentActiveLink = document.querySelector('.period-link.active');
-                             periodDropdownButton.textContent = currentActiveLink ? currentActiveLink.textContent.trim() : 'Selecionar Período';
-                         }
-                         // Opcional: Remover spinner/overlay
-                    });
-            });
-        });
-
-        /* Placeholder JS para Gráficos Donut */
-        // ...
-
+    const makeChart = (ctx, mainColour, perc, reverse = false) => new Chart(ctx, {
+        type: 'doughnut',
+        data: { 
+        datasets: [{
+            data: reverse ? [100 - perc, perc] : [perc, 100 - perc], // inverter valores!
+            backgroundColor: reverse ? ['#e9ecef', mainColour] : [mainColour, '#e9ecef'],
+            borderWidth: 0
+        }]
+    },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '68%',
+            rotation: -Math.PI / 2, // começa no topo
+            plugins: {
+                legend:   { display: false },
+                tooltip:  { enabled: false },
+                centerText: { text: `${perc}%` }   // vem para o plugin
+            }
+        }
     });
+
+    // destruir (se já existirem) e recriar
+    donutNew?.destroy();
+    donutRet?.destroy();
+    donutNew = makeChart(
+        document.getElementById('newVisitorsDonut').getContext('2d'),
+        '#70B540', newPerc
+    );
+    donutRet = makeChart(
+        document.getElementById('returningVisitorsDonut').getContext('2d'),
+        '#6c757d', retPerc,
+        true // inverter valores para o donut de habituais, para uma melhor estética
+    );
+}
+
+// ── primeira renderização com valores vindos do template
+renderDonuts(
+    parseInt(document.getElementById('newVisitorsDonut').dataset.count)  || 0,
+    parseInt(document.getElementById('returningVisitorsDonut').dataset.count) || 0
+);
+
+
+    /* ──────────────── EVENTO DE CADA LINK ──────────────── */
+    document.querySelectorAll('.period-link').forEach(link => {
+        link.addEventListener('click', ev => {
+            ev.preventDefault();
+
+            const periodKey   = link.dataset.periodKey;
+            const periodLabel = link.textContent.trim();
+            if (!periodKey)   return;
+
+            setButtonsText('A carregar…');
+            toggleButtonsState(true);
+
+            fetch(`/api/data/?period=${periodKey}&chart=${currentChartType}`)
+                .then(r => r.ok ? r.json() : r.json().then(j => {throw new Error(j.error || r.statusText);}))
+                .then(data => {
+                    /* ─── Estado ─── */
+                    chartLabels      = data.labels       || [];
+                    chartDataAtivos  = data.active_users || [];
+                    chartDataEventos = data.events       || [];
+                    chartDataNovos   = data.new_users    || [];
+
+                    /* ─── Cartões superiores ─── */
+                    document.getElementById('total-active-value').textContent  = data.total_active ?? '0';
+                    document.getElementById('total-events-value').textContent  = data.total_events ?? '0';
+                    document.getElementById('total-new-value').textContent     = data.total_new    ?? '0';
+
+                    /* ─── Cartões inferiores ─── */
+                    document.getElementById('avg-page-views-value').textContent = data.media_paginas_vistas ?? '0.00';
+                    document.getElementById('engagement-rate-value').textContent = data.taxa_interacao       ?? '0.0%';
+
+                    /* ─── Tabela de páginas ─── */
+                    const tbody = document.getElementById('page-views-tbody');
+                    tbody.innerHTML = '';
+                    (data.page_views_data || []).forEach(p => {
+                        const tr   = tbody.insertRow();
+                        const cell1= tr.insertCell(), cell2 = tr.insertCell();
+                        cell1.textContent        = p.title.length > 45 ? p.title.slice(0,42)+'…' : p.title;
+                        cell1.title              = p.title;
+                        cell2.textContent        = p.views;
+                        cell2.className          = 'text-end fw-medium';
+                    });
+                    if (!data.page_views_data?.length)
+                        tbody.innerHTML = '<tr><td colspan="2" class="text-center text-muted fst-italic py-3">Nenhum dado de visualização encontrado.</td></tr>';
+
+                        /* ─── donuts ─── */
+                    if (typeof data.new_visitor_count !== 'undefined' &&
+                        typeof data.returning_visitor_count !== 'undefined') {
+                        renderDonuts(data.new_visitor_count, data.returning_visitor_count);
+                    }
+
+                    /* ─── Gráfico principal ─── */
+                    _updateChart(currentChartType);
+
+                    /* ─── UI ─── */
+                    setButtonsText(periodLabel);
+                    document.querySelectorAll('.period-link').forEach(a => a.classList.toggle('active',
+                        a.dataset.periodKey === periodKey));
+                })
+                .catch(err => {
+                    console.error('Erro API:', err);
+                    setButtonsText('Erro!');
+                })
+                .finally(() => toggleButtonsState(false));
+        });
+    });
+});
 </script>
+
 
 {% endblock %}
