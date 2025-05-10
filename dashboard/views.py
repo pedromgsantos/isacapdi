@@ -25,6 +25,7 @@ ALLOWED_PERIODS = {
 
 LOGIN_URL_NAME = "login"
 HOME_URL_NAME = "home"
+COUNTRY_DATA_LIMIT = 10 # Mantém o limite como estava (podes ajustar se necessário)
 
 
 def user_login(request):
@@ -58,7 +59,13 @@ def home(request):
     avg_pages = get_avg_pageviews_per_session(start_date_str=api_str)
     engagement = get_engagement_rate(start_date_str=api_str)
     new_vs_returning = get_new_vs_returning_users(start_date_str=api_str)
-    country_data = get_users_by_country(start_date_str=api_str, limit=5)
+    
+    raw_country_data = get_users_by_country(start_date_str=api_str, limit=COUNTRY_DATA_LIMIT)
+    # FILTRAR AQUI para remover "(not set)"
+    country_data = [
+        country for country in raw_country_data
+        if country.get("name", "").lower() != "(not set)" and country.get("code", "").lower() != "(not set)"
+    ]
 
     today = datetime.today()
     labels = [(today - timedelta(days=i)).strftime("%d/%m") for i in reversed(range(num_days))]
@@ -97,13 +104,11 @@ def home(request):
         "allowed_periods": ALLOWED_PERIODS,
         "selected_period_key": period_key,
         "selected_period_label": period_label,
-        "new_visitor_count": new_vs_returning["new"], # Usado para dados iniciais dos donuts se necessário
-        "returning_visitor_count": new_vs_returning["returning"], # Usado para dados iniciais se necessário
-        "new_visitor_percentage": f"{new_pct_val:.1f}%", # Para display no HTML
-        "returning_visitor_percentage": f"{ret_pct_val:.1f}%", # Para display no HTML
-        "new_visitor_percentage_api_initial": new_pct_val, # Para JS inicialização do Donut
-        "returning_visitor_percentage_api_initial": ret_pct_val, # Para JS inicialização do Donut
-        "country_data": country_data,
+        "new_visitor_count": new_vs_returning["new"],
+        "returning_visitor_count": new_vs_returning["returning"],
+        "new_visitor_percentage": f"{new_pct_val:.1f}%",
+        "returning_visitor_percentage": f"{ret_pct_val:.1f}%",
+        "country_data": country_data, # Dados já filtrados
     }
     return render(request, "home.html", ctx)
 
@@ -122,7 +127,13 @@ def get_dashboard_data_api(request):
     avg_pages = get_avg_pageviews_per_session(start_date_str=api_str)
     engagement = get_engagement_rate(start_date_str=api_str)
     new_vs_returning = get_new_vs_returning_users(start_date_str=api_str)
-    country_data = get_users_by_country(start_date_str=api_str, limit=5)
+    
+    raw_country_data = get_users_by_country(start_date_str=api_str, limit=COUNTRY_DATA_LIMIT)
+    # FILTRAR AQUI para remover "(not set)"
+    country_data = [
+        country for country in raw_country_data
+        if country.get("name", "").lower() != "(not set)" and country.get("code", "").lower() != "(not set)"
+    ]
 
     today = datetime.today()
     labels = [(today - timedelta(days=i)).strftime("%d/%m") for i in reversed(range(num_days))]
@@ -141,12 +152,6 @@ def get_dashboard_data_api(request):
     total_events = sum(series_events.values())
     total_new = sum(series_new.values())
 
-    new_pct = 0.0
-    ret_pct = 0.0
-    if new_vs_returning["total"]:
-        new_pct = (new_vs_returning["new"] / new_vs_returning["total"]) * 100
-        ret_pct = 100 - new_pct
-
     data = {
         "labels": labels,
         "active_users": list(series_active.values()),
@@ -158,10 +163,8 @@ def get_dashboard_data_api(request):
         "page_views_data": page_views,
         "media_paginas_vistas": f"{avg_pages:.2f}",
         "taxa_interacao": f"{engagement * 100:.1f}%",
-        "new_visitor_count": new_vs_returning["new"], # Contagem para os donuts, se precisar
-        "returning_visitor_count": new_vs_returning["returning"], # Contagem para os donuts
-        "new_visitor_percentage_api": new_pct, # Percentagem como float para JS
-        "returning_visitor_percentage_api": ret_pct, # Percentagem como float para JS
-        "country_data": country_data,
+        "new_visitor_count": new_vs_returning["new"],
+        "returning_visitor_count": new_vs_returning["returning"],
+        "country_data": country_data, # Dados já filtrados
     }
     return JsonResponse(data)

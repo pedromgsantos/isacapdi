@@ -172,7 +172,7 @@ def get_new_vs_returning_users(property_id=DEFAULT_PROPERTY_ID, start_date_str="
         return {"new": 0, "returning": 0, "total": 0}
 
 
-def get_users_by_country(property_id=DEFAULT_PROPERTY_ID, start_date_str="7daysAgo", limit=5):
+def get_users_by_country(property_id=DEFAULT_PROPERTY_ID, start_date_str="7daysAgo", limit=10): # MODIFICADO: limit default para 10
     """Top países por utilizadores."""
     client = _get_ga_client()
     if not client:
@@ -192,8 +192,8 @@ def get_users_by_country(property_id=DEFAULT_PROPERTY_ID, start_date_str="7daysA
         resp = client.run_report(req)
         return [
             {
-                "name": row.dimension_values[0].value,
-                "code": row.dimension_values[1].value,
+                "name": row.dimension_values[0].value, # Deverá ser "(not set)" quando aplicável
+                "code": row.dimension_values[1].value, # Deverá ser "(not set)" ou similar quando aplicável
                 "users": int(row.metric_values[0].value),
             }
             for row in resp.rows
