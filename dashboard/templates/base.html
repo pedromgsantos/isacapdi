@@ -10,6 +10,12 @@
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     <link rel ="icon" href = "../static/imgs/favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" rel="stylesheet" />
+
+    {#Scripts para os PDFs (têm de ser colocados no head para garantir que são lidos antes)#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
 </head>
 <body style="display: flex; height: 100vh; margin: 0;">
 

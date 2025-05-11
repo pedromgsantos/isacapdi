@@ -108,7 +108,9 @@ def home(request):
         "returning_visitor_count": new_vs_returning["returning"],
         "new_visitor_percentage": f"{new_pct_val:.1f}%",
         "returning_visitor_percentage": f"{ret_pct_val:.1f}%",
-        "country_data": country_data, # Dados já filtrados
+        "country_data": country_data, 
+        "num_days": num_days,
+
     }
     return render(request, "home.html", ctx)
 
@@ -165,6 +167,9 @@ def get_dashboard_data_api(request):
         "taxa_interacao": f"{engagement * 100:.1f}%",
         "new_visitor_count": new_vs_returning["new"],
         "returning_visitor_count": new_vs_returning["returning"],
-        "country_data": country_data, # Dados já filtrados
+        "country_data": country_data,
+        "num_days": num_days,
+        "selected_period_label": period["label"],
+
     }
     return JsonResponse(data)

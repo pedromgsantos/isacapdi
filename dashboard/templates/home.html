@@ -11,6 +11,9 @@
         <h2 class="fw-bold fs-2 mb-0">
             Análises e Estatísticas
         </h2>
+        <button class="btn btn-sm btn-outline-primary" id="exportPdfButton">
+            <i class="bi bi-file-earmark-arrow-down-fill me-1"></i> Exportar Relatório PDF
+        </button>
     </div>
 
     <!-- Navegação por Abas (Tabs) -->
@@ -290,6 +293,8 @@
 {{ events|json_script:"eventos-data" }}
 {{ new_users|json_script:"novos-data" }}
 {{ country_data|json_script:"country-data" }}
+{{ num_days|json_script:"num-days-initial" }}
+{{ selected_period_label|json_script:"selected-period-label-initial" }}
 
 {# Os dados de utilizadores novos e habituais são passados como atributos de dados nos canvas, mas vou deixar aqui porque posso precisar no futuro #}
 {# {{ new_visitor_data|json_script:"new-visitor-data" }} #}
@@ -311,6 +316,9 @@ document.addEventListener('DOMContentLoaded', () => { // Aguarda o carregamento 
     let chartDataEventosInitial = JSON.parse(document.getElementById("eventos-data")?.textContent  || '[]');
     let chartDataNovosInitial   = JSON.parse(document.getElementById("novos-data")?.textContent    || '[]');
     const initialCountryData = JSON.parse(document.getElementById("country-data")?.textContent || "[]"); // Dados iniciais para o mapa e tabela de países
+    
+    let currentNumDays = JSON.parse(document.getElementById("num-days-initial")?.textContent || '7'); 
+    let currentSelectedPeriodLabel = JSON.parse(document.getElementById("selected-period-label-initial")?.textContent || '"Últimos 7 dias"');
 
     // Elementos DOM
     const mainLineChartCtx   = document.getElementById("mainLineChart")?.getContext("2d"); // Contexto do canvas do gráfico principal
@@ -639,8 +647,8 @@ document.addEventListener('DOMContentLoaded', () => { // Aguarda o carregamento 
         link.addEventListener('click', (event) => {
             event.preventDefault();
 
-            const periodKey   = link.dataset.periodKey;
-            const periodLabel = link.textContent.trim();
+            const periodKey   = link.dataset.periodKey; // Obtém a chave do período a partir do atributo data-period-key
+            const periodLabel = link.textContent.trim(); // Obtém o texto do link (label do período)
             if (!periodKey) return;
 
             setAllPeriodButtonsText('A carregar…');
@@ -709,6 +717,16 @@ document.addEventListener('DOMContentLoaded', () => { // Aguarda o carregamento 
                     document.querySelectorAll('.period-link').forEach(a => {
                          a.classList.toggle('active', a.dataset.periodKey === periodKey);
                     });
+
+                    if (data.num_days !== undefined) { 
+                        currentNumDays = data.num_days;
+                        console.log("PDF Info: num_days atualizado pela API para:", currentNumDays);
+                    }
+                    if (data.selected_period_label !== undefined) { 
+                        currentSelectedPeriodLabel = data.selected_period_label;
+                        console.log("PDF Info: selected_period_label atualizado pela API para:", currentSelectedPeriodLabel);
+                    }
+
                 })
                 .catch(error => {
                     console.error('Erro ao buscar dados da API:', error);
@@ -720,6 +738,236 @@ document.addEventListener('DOMContentLoaded', () => { // Aguarda o carregamento 
                 });
         });
     });
+
+    const exportDashboardOrganizadoPdf = () => {
+        const { jsPDF } = window.jspdf; // Acede ao construtor jsPDF
+        const pdf = new jsPDF({
+            orientation: 'p', // portrait
+            unit: 'mm',
+            format: 'a4'
+        });
+
+        const exportButton = document.getElementById('exportPdfButton');
+        const originalButtonText = exportButton.innerHTML;
+        exportButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> A gerar PDF...';
+        exportButton.disabled = true;
+
+        let currentY = 15; // Margem superior inicial em mm
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const leftMargin = 15;
+        const rightMargin = 15;
+        const contentWidth = pdf.internal.pageSize.getWidth() - leftMargin - rightMargin;
+        const lineSpacing = 7;
+        const sectionSpacing = 10;
+        const titleSpacing = 8;
+
+        function checkAndAddPage(alturaEstimadaProximoElemento = 20) {
+            if (currentY + alturaEstimadaProximoElemento > pageHeight - 15) { // 15mm de margem inferior
+                pdf.addPage();
+                currentY = 15; // Reset para margem superior na nova página
+            }
+        }
+
+        // 1. Título Principal do Relatório
+        pdf.setFontSize(20);
+        pdf.setTextColor(40, 40, 40); // Cor escura para o título
+        pdf.text("Relatório de Análises do Website", pdf.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+        currentY += titleSpacing + 5;
+
+        pdf.setFontSize(11);
+        pdf.setTextColor(80, 80, 80); 
+        const periodoLabelParaPdf = currentSelectedPeriodLabel || "Período não especificado";
+        
+        let dateRangeString = "Intervalo de datas não disponível";
+        if (typeof currentNumDays === 'number' && currentNumDays > 0) {
+            const endDate = new Date(); 
+            endDate.setDate(endDate.getDate() - 1); // "Ontem"
+
+            const startDate = new Date(endDate);
+            startDate.setDate(endDate.getDate() - (currentNumDays - 1)); 
+
+            const formatDate = (date) => {
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // Meses são 0-indexados
+                return `${day}/${month}`; 
+            };
+            dateRangeString = `${formatDate(startDate)} até ${formatDate(endDate)}`;
+        }
+
+        pdf.text(`${periodoLabelParaPdf} (${dateRangeString})`, pdf.internal.pageSize.getWidth() / 2, currentY, { align: 'center' });
+        currentY += lineSpacing; // Ajusta o espaçamento se necessário
+
+        // Adicionar Data de Geração
+        pdf.setFontSize(9);
+        pdf.setTextColor(100, 100, 100);
+        const generationDate = new Date().toLocaleString('pt-PT');
+        pdf.text(`Gerado em: ${generationDate}`, leftMargin, currentY);
+        currentY += sectionSpacing;
+
+        // 2. Métricas Principais (Cards)
+        checkAndAddPage();
+        pdf.setFontSize(14);
+        pdf.setTextColor(0, 0, 0); // Resetar cor
+        pdf.text("Resumo Geral", leftMargin, currentY);
+        pdf.setLineWidth(0.3);
+        pdf.line(leftMargin, currentY + 1, leftMargin + contentWidth, currentY + 1); // Linha separadora
+        currentY += titleSpacing;
+        
+        pdf.setFontSize(10);
+        const totalActive = document.getElementById('total-active-value')?.textContent || 'N/D';
+        const totalEvents = document.getElementById('total-events-value')?.textContent || 'N/D';
+        const totalNew = document.getElementById('total-new-value')?.textContent || 'N/D';
+        
+        pdf.text(`- Utilizadores Ativos Totais: ${totalActive}`, leftMargin, currentY); currentY += lineSpacing;
+        pdf.text(`- Eventos Totais: ${totalEvents}`, leftMargin, currentY); currentY += lineSpacing;
+        pdf.text(`- Utilizadores Novos Totais: ${totalNew}`, leftMargin, currentY); currentY += sectionSpacing;
+
+
+        // 3. Gráfico Principal de Linha (como imagem)
+        checkAndAddPage(80); // Estimar altura para o gráfico
+        pdf.setFontSize(14);
+        const chartTitle = document.getElementById('chartTitle')?.textContent || "Tendência de Utilizadores";
+        pdf.text(chartTitle, leftMargin, currentY);
+        pdf.setLineWidth(0.3);
+        pdf.line(leftMargin, currentY + 1, leftMargin + contentWidth, currentY + 1);
+        currentY += titleSpacing;
+
+        if (mainLineChartInstance) {
+            try {
+                const chartImgData = mainLineChartInstance.toBase64Image('image/png', 1.0);
+                const chartAspectRatio = mainLineChartInstance.canvas.width / mainLineChartInstance.canvas.height;
+                let chartImgWidth = contentWidth; 
+                let chartImgHeight = chartImgWidth / chartAspectRatio;
+                
+                if (chartImgHeight > 70) { // Limitar altura máxima do gráfico no PDF
+                    chartImgHeight = 70;
+                    chartImgWidth = chartImgHeight * chartAspectRatio;
+                }
+                checkAndAddPage(chartImgHeight + 5); // Verifica se cabe
+                pdf.addImage(chartImgData, 'PNG', leftMargin, currentY, chartImgWidth, chartImgHeight);
+                currentY += chartImgHeight + sectionSpacing;
+            } catch (e) {
+                console.error("Erro ao adicionar gráfico principal ao PDF:", e);
+                pdf.setFontSize(10).setTextColor(200,0,0).text("  Erro ao renderizar gráfico.", leftMargin, currentY); currentY += lineSpacing;
+                pdf.setTextColor(0,0,0);
+            }
+        } else {
+            pdf.setFontSize(10).text("  Gráfico principal não disponível.", leftMargin, currentY); currentY += lineSpacing;
+        }
+
+        // 4. Tabela: Visualizações por Título
+        checkAndAddPage(40);
+        pdf.setFontSize(14);
+        pdf.text("Páginas Mais Vistas", leftMargin, currentY);
+        pdf.setLineWidth(0.3);
+        pdf.line(leftMargin, currentY + 1, leftMargin + contentWidth, currentY + 1);
+        currentY += titleSpacing;
+
+        const pageViewsTableEl = document.getElementById('page-views-tbody');
+        if (pageViewsTableEl && typeof pdf.autoTable === 'function') {
+            const head = [['Título da Página', 'Visualizações']];
+            const body = [];
+            pageViewsTableEl.querySelectorAll('tr').forEach(tr => {
+                if (tr.cells.length === 2 && !tr.querySelector('.fst-italic')) { // Evitar linha "Nenhum dado"
+                    body.push([tr.cells[0].textContent, tr.cells[1].textContent]);
+                }
+            });
+            if (body.length > 0) {
+                pdf.autoTable({
+                    head: head, body: body, startY: currentY,
+                    theme: 'striped', headStyles: { fillColor: [52, 73, 94] }, margin: { left: leftMargin, right: rightMargin },
+                });
+                currentY = pdf.lastAutoTable.finalY + sectionSpacing;
+            } else {
+                pdf.setFontSize(10).text("  Nenhum dado de visualizações por título.", leftMargin, currentY); currentY += lineSpacing;
+            }
+        } else {
+            pdf.setFontSize(10).text("  Tabela de visualizações não disponível.", leftMargin, currentY); currentY += lineSpacing;
+        }
+
+        // --- Função assíncrona para adicionar elementos que usam html2canvas (como o mapa) ---
+        async function addHtmlElementsToPdf() {
+            // 5. Mapa de Utilizadores por País (como imagem) e Tabela
+            checkAndAddPage(60); // Espaço para o título e a tabela antes do mapa
+            pdf.setFontSize(14);
+            pdf.text("Distribuição Geográfica de Utilizadores", leftMargin, currentY);
+            pdf.setLineWidth(0.3);
+            pdf.line(leftMargin, currentY + 1, leftMargin + contentWidth, currentY + 1);
+            currentY += titleSpacing;
+
+            const countryTableEl = document.getElementById('country-data-tbody');
+            if (countryTableEl && typeof pdf.autoTable === 'function') {
+                const countryHead = [['País', 'Utilizadores']];
+                const countryBody = [];
+                countryTableEl.querySelectorAll('tr').forEach(tr => {
+                    if (tr.cells.length === 2 && !tr.querySelector('.fst-italic')) {
+                        countryBody.push([tr.cells[0].textContent, tr.cells[1].textContent]);
+                    }
+                });
+                if (countryBody.length > 0) {
+                     pdf.autoTable({
+                        head: countryHead, body: countryBody, startY: currentY,
+                        theme: 'striped', headStyles: { fillColor: [41, 128, 185] }, margin: { left: leftMargin, right: rightMargin },
+                        columnStyles: { 
+                            0: { cellWidth: 'auto' }, 
+                            1: { halign: 'right', cellWidth: 40 } // MODIFICADO: halign: 'right'
+                        }
+                    });
+                    currentY = pdf.lastAutoTable.finalY + 5; // Espaço menor antes do mapa
+                } else {
+                    pdf.setFontSize(10).text("  Nenhum dado de utilizadores por país.", leftMargin, currentY); currentY += lineSpacing;
+                }
+            }
+
+            const mapElement = document.getElementById('worldMapPlaceholder');
+            if (mapElement) {
+                checkAndAddPage(75); // Altura estimada para o mapa
+                try {
+                    // Ocultar dropdowns sobrepostos ao mapa durante a captura
+                    const dropdownsNoMapa = mapElement.closest('.card-body').querySelectorAll('.dropdown');
+                    dropdownsNoMapa.forEach(dd => dd.style.visibility = 'hidden');
+
+                    const canvas = await html2canvas(mapElement, { scale: 2, useCORS: true, backgroundColor: '#ffffff' });
+                    
+                    dropdownsNoMapa.forEach(dd => dd.style.visibility = 'visible'); // Restaurar visibilidade
+
+                    const mapImgData = canvas.toDataURL('image/png');
+                    const mapAspectRatio = canvas.width / canvas.height;
+                    let mapImgWidth = contentWidth * 0.65; // Mapa um pouco menor
+                    let mapImgHeight = mapImgWidth / mapAspectRatio;
+
+                    if (mapImgHeight > 65) { // Limitar altura
+                        mapImgHeight = 65;
+                        mapImgWidth = mapImgHeight * mapAspectRatio;
+                    }
+                    checkAndAddPage(mapImgHeight + 5);
+                    const mapXOffset = (contentWidth - mapImgWidth) / 2 + leftMargin; // Centralizar mapa
+                    pdf.addImage(mapImgData, 'PNG', mapXOffset, currentY, mapImgWidth, mapImgHeight);
+                    currentY += mapImgHeight + sectionSpacing;
+                } catch (err) {
+                    console.error("Erro ao renderizar mapa para PDF:", err);
+                    pdf.setFontSize(10).setTextColor(200,0,0).text("  Erro ao renderizar mapa.", leftMargin, currentY); currentY += lineSpacing;
+                    pdf.setTextColor(0,0,0);
+                }
+            }
+            // Adicionar outras seções aqui se necessário, usando checkAndAddPage()
+
+            // Salva o PDF
+            pdf.save(`Relatorio_Dashboard_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        // Chama a função assíncrona e depois restaura o botão
+        addHtmlElementsToPdf().finally(() => {
+            exportButton.innerHTML = originalButtonText;
+            exportButton.disabled = false;
+        });
+    };
+
+    const exportButton = document.getElementById('exportPdfButton');
+    if (exportButton) {
+        exportButton.addEventListener('click', exportDashboardOrganizadoPdf);
+    }
+    // --- FIM DA NOVA FUNCIONALIDADE DE EXPORTAR PDF ---
 
 });
 </script>
