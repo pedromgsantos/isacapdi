@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils import timezone
 
 # Modelo de Comentários (Banco Externo, sem migração)
 class Comentarios(models.Model):
