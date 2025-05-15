@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Adicionar Evento{% endblock %}
+
+{% block content %}
+<div style="max-width: 1100px; margin: 2rem auto;">
+  <div style="display: flex; align-items: center; margin-bottom: 1.8rem;">
+    <a href="{% url 'dashboard:eventos' %}" style="background-color: #2a3f54; color: white; border-radius: 50%; width: 50px; height: 50px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.5rem; margin-right: 1rem;">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 style="font-size: 2rem; font-weight: 700; color: #212529; margin: 0; line-height: 1;">Adicionar Evento</h1>
+  </div>
+
+  <div style="background-color: white; border-radius: 1.5rem; padding: 3rem 4rem; box-shadow: 0 0.3rem 1rem rgba(0,0,0,0.08);">
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <label for="imagem" style="cursor: pointer; display: inline-block;">
+          <div id="image-preview-container" style="background-color: #e9ecef; color: #adb5bd; border-radius: 50%; width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto; overflow: hidden;">
+            <i id="camera-icon" class="bi bi-camera"></i>
+            <img id="image-preview" src="#" alt="Pré-visualização" style="width: 100%; height: 100%; object-fit: cover; display: none;" />
+          </div>
+          <div style="color: #0d6efd; text-decoration: underline; font-weight: 500; font-size: 0.9rem; margin-top: 0.4rem;">
+            Adicionar Poster do Evento
+          </div>
+        </label>
+        <input type="file" id="imagem" name="imagem" accept="image/*" style="display: none;">
+      </div>
+
+
+      <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+        <div style="flex: 1;">
+          <label for="nome" style="font-weight: 600; font-size: 0.9rem; color: #6c757d; margin-bottom: 0.3rem; display: block;">Nome do Evento</label>
+          <input type="text" id="nome" name="nome" placeholder="Nome do evento" required
+                 style="background-color: #f1f3f5; border: none; border-radius: 0.6rem; padding: 0.85rem 1rem; font-size: 1rem; width: 100%;">
+        </div>
+        <div style="flex: 1;">
+          <label for="data" style="font-weight: 600; font-size: 0.9rem; color: #6c757d; margin-bottom: 0.3rem; display: block;">Data</label>
+          <input type="date" id="data" name="data" required
+                 style="background-color: #f1f3f5; border: none; border-radius: 0.6rem; padding: 0.85rem 1rem; font-size: 1rem; width: 100%;">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 2rem; margin-bottom: 2rem;">
+        {# --- Left Column --- #}
+        <div style="flex: 1;">
+          <div>
+            <label for="descricao" style="font-weight: 600; font-size: 0.9rem; color: #6c757d; margin-bottom: 0.3rem; display: block;">Descrição do Evento</label>
+            <input type="text" id="descricao" name="descricao" placeholder="Breve descrição"
+                  style="background-color: #f1f3f5; border: none; border-radius: 0.6rem; padding: 0.85rem 1rem; font-size: 1rem; width: 100%;">
+          </div>
+
+          {# --- ORIGINAL TEXT INPUT FOR TAGS --- #}
+          <div style="margin-top: 1.5rem;">
+            <label for="tags" style="font-weight: 600; font-size: 0.9rem; color: #6c757d; margin-bottom: 0.3rem; display: block;">Tags</label>
+            <div class="dropdown">
+              <button type="button" id="dropdownTags" data-bs-toggle="dropdown" aria-expanded="false" class="dropdown-toggle" style="background-color: #f1f3f5; 
+               border: none; border-radius: 0.6rem; padding: 0.85rem 1rem; font-size: 1rem; width: 100%; text-align: left; color: #6c757d;">
+                Selecionar Tags
+              </button>
+              <ul class="dropdown-menu w-100" aria-labelledby="dropdownTags" id="tagsDropdown">
+                <li><label class="dropdown-item"><input type="checkbox" name="tags" value="presencial"> Presencial</label></li>
+                <li><label class="dropdown-item"><input type="checkbox" name="tags" value="online"> Online</label></li>
+                <li><label class="dropdown-item"><input type="checkbox" name="tags" value="sustentabilidade"> Sustentabilidade</label></li>
+                <li><label class="dropdown-item"><input type="checkbox" name="tags" value="inteligencia-artificial"> Inteligência Artificial</label></li>
+              </ul>
+            </div>
+  
+          </div>
+          {# --- END ORIGINAL TEXT INPUT --- #}
+        </div>
+
+        {# --- Right Column --- #}
+        <div style="flex: 1;">
+          <label for="texto" style="font-weight: 600; font-size: 0.9rem; color: #6c757d; margin-bottom: 0.3rem; display: block;">Descrição Completa</label>
+          <textarea id="texto" name="texto" placeholder="Descrição Completa"
+                    style="background-color: #f1f3f5; border: none; border-radius: 0.6rem; padding: 0.85rem 1rem; font-size: 1rem; width: 100%; min-height: 140px; resize: vertical;"></textarea>
+        </div>
+      </div>
+
+      {# --- Visibilidade Checkbox --- #}
+      <div style="display: flex; align-items: center; margin-bottom: 2.2rem;">
+        <label for="is_hidden" style="font-size: 1rem; color: #495057; margin-right: 0.75rem; font-weight: normal; cursor: pointer; display: inline-block; margin-bottom: 0;">Visibilidade</label>
+        <input type="checkbox" id="is_hidden" name="is_hidden"
+               style="width: 1.3em; height: 1.3em; border: 1px solid #adb5bd; cursor: pointer; vertical-align: middle;">
+      </div>
+
+      <div style="text-align: center; margin-top: 1rem;">
+        <button type="submit"
+                style="background-color: #2a3f54; color: white; border: none; border-radius: 0.7rem; padding: 0.9rem 3rem; font-size: 1.1rem; font-weight: 600; transition: background-color 0.2s ease-in-out; cursor: pointer;">
+          Adicionar
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+{# --- JavaScript for Image Preview (As Provided) --- #}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('imagem');
+    const imagePreviewContainer = document.getElementById('image-preview-container');
+    const imagePreview = document.getElementById('image-preview');
+    const cameraIcon = document.getElementById('camera-icon');
+
+    if (imageInput && imagePreviewContainer && imagePreview && cameraIcon) {
+      imageInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = function(e) {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            cameraIcon.style.display = 'none';
+            imagePreviewContainer.style.backgroundColor = 'transparent'; // Changed from #e9ecef
+          }
+          reader.readAsDataURL(file);
+        } else {
+          imagePreview.src = '#';
+          imagePreview.style.display = 'none';
+          cameraIcon.style.display = 'block';
+          imagePreviewContainer.style.backgroundColor = '#e9ecef';
+        }
+      });
+    } else {
+        console.error("One or more elements for image preview not found.");
+    }
+  });
+</script>
+{# --- No JS for clickable tags in this version --- #}
+
+{% endblock %}

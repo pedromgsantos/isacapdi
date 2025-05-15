@@ -2,16 +2,20 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
 
-# Modelo de Comentários (Banco Externo, sem migração)
-class Comentarios(models.Model):
-    eventoid = models.PositiveIntegerField(db_column='eventoId')
-    email = models.CharField(max_length=250, blank=True, null=True)
-    mensagem = models.TextField()
-    date = models.DateField()
+
+class Eventos(models.Model):
+    nome = models.CharField(max_length=128)
+    data = models.DateField(blank=True, null=True)
+    descricao = models.CharField(max_length=256, blank=True, null=True)
+    texto = models.TextField(blank=True, null=True)
+    imagem = models.ImageField(upload_to='eventos_imgs/', blank=True, null=True)
+    visivel = models.IntegerField(blank=True, null=True)
+    tags = models.JSONField(default=list)
+    is_hidden = models.BooleanField(default=False)
 
     class Meta:
-        managed = False  # O Django não gerencia essa tabela
-        db_table = 'comentarios'
+        managed = True
+        db_table = 'eventos'
 
 # Modelo de Contactos (Banco Externo, sem migração)
 class Contactos(models.Model):
@@ -37,20 +41,6 @@ class Contactos(models.Model):
 
     def __str__(self):
         return f"Mensagem de {self.nome} sobre '{self.assunto}' em {self.data_envio.strftime('%d/%m/%y %H:%M')}"
-
-# Modelo de Eventos (Gerenciado pelo Django)
-class Eventos(models.Model):
-    nome = models.CharField(max_length=128)
-    data = models.DateField(blank=True, null=True)
-    descricao = models.CharField(max_length=256, blank=True, null=True)
-    texto = models.TextField(blank=True, null=True)
-    imagem = models.CharField(max_length=128, blank=True, null=True)
-    visivel = models.IntegerField(blank=True, null=True)
-    local = models.CharField(max_length=256, blank=True, null=True)
-
-    class Meta:
-        managed = True 
-        db_table = 'eventos'
 
 class Newsletter(models.Model):
     # O Django adiciona 'id = models.AutoField(primary_key=True)' automaticamente

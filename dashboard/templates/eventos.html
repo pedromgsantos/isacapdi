@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard - Eventos{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+
+<style>
+  .event-item .card {
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+  }
+  .event-item .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+  }
+  .event-item .card .event-image-reduced {
+    width: 80%;
+    max-height: 150px;
+    object-fit: cover;
+    display: block;
+    margin: 10px auto;
+    transition: filter 0.3s ease;
+  }
+  .event-item.d-none {
+    display: none !important;
+  }
+
+  .event-item.event-hidden .card .event-image-reduced {
+    filter: grayscale(80%) brightness(50%);
+  }
+
+  .event-hidden-overlay {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(40, 40, 40, 0.65);
+    display: flex; justify-content: center; align-items: center;
+    opacity: 1;
+    pointer-events: none;
+    z-index: 10;
+  }
+  .event-hidden-overlay i {
+    color: white; font-size: 3rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="background-color: #fff;">
+  <section class="container my-4">
+    <div class="mb-4 d-flex justify-content-between align-items-center">
+      <h2 class="fw-bold mb-0">Eventos</h2>
+    </div>
+
+    <div class="row align-items-center mb-4 gy-2">
+      <div class="col-md d-flex flex-wrap align-items-center gap-2">
+        <label for="ordenar" class="form-label fw-semibold mb-0 me-1">Ordenar:</label>
+        <select id="ordenar" class="form-select form-select-sm w-auto me-3">
+          <option selected>Mais recente</option>
+          <option>Mais antigo</option>
+        </select>
+
+        <label for="filtro" class="form-label fw-semibold mb-0 me-1">Filtrar:</label>
+        <select id="filtro" class="form-select form-select-sm w-auto">
+          <option value="todos" selected>Todos</option>
+          <option value="presencial">Presencial</option>
+          <option value="online">Online</option>
+          <option value="sustentabilidade">Sustentabilidade</option>
+          <option value="inteligencia-artificial">Inteligência Artificial</option>
+        </select>
+      </div>
+
+      <div class="col-md-auto d-flex justify-content-md-end gap-2 mt-2 mt-md-0">
+        <a href="{% url 'dashboard:add_event' %}" class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-circle me-1"></i> Adicionar Evento
+        </a>        
+        <a href="{% url 'dashboard:hide_events_page' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-eye-slash me-1"></i> Esconder Eventos
+        </a>
+      </div>
+    </div>
+
+    <div class="row mt-4" id="event-grid">
+      {% for event_data in eventos %}
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-4 event-item {% if event_data.is_hidden %}event-hidden{% endif %}"
+           data-tags="{{ event_data.normalized_tags_str }}"
+           data-event-id="{{ event_data.id }}"
+           data-date="{{ event_data.date|date:'Y-m-d' }}">
+        <div class="card shadow-sm">
+          <div style="position: relative;">
+            <img src="{{ event_data.image_url }}" class="card-img-top event-image-reduced" alt="{{ event_data.title }}">
+            {% if event_data.is_hidden %}
+            <div class="event-hidden-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(40, 40, 40, 0.65); display: flex; justify-content: center; align-items: center; z-index: 10;">
+              <i class="bi bi-eye-slash" style="color: white; font-size: 3rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.6);"></i>
+            </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <div class="alert alert-info text-center" role="alert">
+          Nenhum evento para exibir no momento.
+        </div>
+      </div>
+      {% endfor %}
+      <div id="no-filter-results" class="col-12 d-none">
+        <div class="alert alert-warning text-center mt-3">Nenhum evento encontrado para o filtro selecionado.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Modal de Edição -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <form id="editEventForm" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title" id="editEventLabel">Editar Evento</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" name="id" id="edit-event-id">
+          <div class="mb-3">
+            <label for="edit-nome" class="form-label">Nome do Evento</label>
+            <input type="text" class="form-control" name="nome" id="edit-nome" required>
+          </div>
+          <div class="mb-3">
+            <label for="edit-descricao" class="form-label">Descrição</label>
+            <input type="text" class="form-control" name="descricao" id="edit-descricao">
+          </div>
+          <div class="mb-3">
+            <label for="edit-texto" class="form-label">Descrição Completa</label>
+            <textarea class="form-control" name="texto" id="edit-texto" rows="4"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="edit-data" class="form-label">Data</label>
+            <input type="date" class="form-control" name="data" id="edit-data" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">Guardar Alterações</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const filterSelect = document.getElementById('filtro');
+const ordenarSelect = document.getElementById('ordenar');
+const eventGrid = document.getElementById('event-grid');
+const noFilterResultsDiv = document.getElementById('no-filter-results');
+
+function applyFiltersAndOrdering() {
+  const selectedFilter = filterSelect.value;
+  const order = ordenarSelect.value;
+  const eventItems = Array.from(eventGrid.querySelectorAll('.event-item'));
+
+  // Ordenar
+  eventItems.sort((a, b) => {
+    const dateA = new Date(a.getAttribute('data-date'));
+    const dateB = new Date(b.getAttribute('data-date'));
+    return order === 'Mais recente' ? dateB - dateA : dateA - dateB;
+  });
+
+  // Aplicar filtro e reordenar DOM
+  let visibleCount = 0;
+  eventItems.forEach(item => {
+    const tags = item.dataset.tags.split(' ').filter(Boolean);
+    const matchesFilter = selectedFilter === 'todos' || tags.includes(selectedFilter);
+
+    if (matchesFilter) {
+      item.classList.remove('d-none');
+      item.style.display = '';
+      visibleCount++;
+    } else {
+      item.classList.add('d-none');
+      item.style.display = 'none';
+    }
+    eventGrid.appendChild(item); // reordenar no DOM
+  });
+
+  if (visibleCount === 0 && selectedFilter !== 'todos') {
+    noFilterResultsDiv.querySelector('.alert').textContent =
+      `Nenhum evento encontrado para o filtro "${filterSelect.options[filterSelect.selectedIndex].text}".`;
+    noFilterResultsDiv.classList.remove('d-none');
+  } else {
+    noFilterResultsDiv.classList.add('d-none');
+  }
+}
+
+filterSelect.addEventListener('change', applyFiltersAndOrdering);
+ordenarSelect.addEventListener('change', applyFiltersAndOrdering);
+window.addEventListener('DOMContentLoaded', applyFiltersAndOrdering);
+
+// Abrir modal ao clicar no evento
+const items = document.querySelectorAll('.event-item');
+items.forEach(item => {
+  item.addEventListener('click', () => {
+    const eventId = item.dataset.eventId;
+    fetch(`/api/evento/${eventId}/`)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('edit-event-id').value = data.id;
+        document.getElementById('edit-nome').value = data.nome;
+        document.getElementById('edit-descricao').value = data.descricao;
+        document.getElementById('edit-texto').value = data.texto;
+        document.getElementById('edit-data').value = data.data;
+        new bootstrap.Modal(document.getElementById('editEventModal')).show();
+      });
+  });
+});
+
+// Submeter edição via AJAX
+const editForm = document.getElementById('editEventForm');
+editForm.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const formData = new FormData(this);
+
+  fetch('/api/evento/editar/', {
+    method: 'POST',
+    body: formData,
+    headers: {
+      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      window.location.reload();
+    } else {
+      alert('Erro ao editar evento.');
+    }
+  });
+});
+</script>
+{% endblock %}

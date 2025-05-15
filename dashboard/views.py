@@ -7,9 +7,15 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib import messages
-from .models import Newsletter
+from .models import Newsletter, Eventos, Contactos
 from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO
 from .news_scraper import get_isaca_news_py
+from django.utils.text import slugify
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+import json
 
 # Assume que analytics.client e forms estão corretamente no teu projeto
 from .analytics.client import (
@@ -194,6 +200,167 @@ def get_dashboard_data_api(request):
     }
     return JsonResponse(data)
 
+
+# --- API: Obter dados para modal ---
+@require_GET
+@login_required
+def api_get_evento(request, event_id):
+    try:
+        evento = Eventos.objects.get(id=event_id)
+        return JsonResponse({
+            'id': evento.id,
+            'nome': evento.nome,
+            'descricao': evento.descricao,
+            'texto': evento.texto,
+            'data': evento.data.isoformat(),
+        })
+    except Eventos.DoesNotExist:
+        return JsonResponse({'error': 'Evento não encontrado'}, status=404)
+    
+
+# --- API: Obter dados para modal ---
+@require_GET
+@login_required
+def api_get_evento(request, event_id):
+    try:
+        evento = Eventos.objects.get(id=event_id)
+        return JsonResponse({
+            'id': evento.id,
+            'nome': evento.nome,
+            'descricao': evento.descricao,
+            'texto': evento.texto,
+            'data': evento.data.isoformat(),
+        })
+    except Eventos.DoesNotExist:
+        return JsonResponse({'error': 'Evento não encontrado'}, status=404)
+
+# --- API: Editar evento via modal ---
+@csrf_exempt
+@require_POST
+@login_required
+def api_editar_evento(request):
+    try:
+        evento = Eventos.objects.get(id=request.POST.get('id'))
+        evento.nome = request.POST.get('nome')
+        evento.descricao = request.POST.get('descricao')
+        evento.texto = request.POST.get('texto')
+        evento.data = request.POST.get('data')
+        evento.save()
+        return JsonResponse({'success': True})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+# --- Eventos (Base de Dados) ---
+@login_required
+def event_dashboard(request):
+    eventos_queryset = Eventos.objects.all().order_by('-data', '-id')
+    eventos_list_for_template = []
+
+    for evento in eventos_queryset:
+        tags = evento.tags if isinstance(evento.tags, list) else []
+
+        image_url = None
+        if evento.imagem and hasattr(evento.imagem, 'url'):
+            image_url = evento.imagem.url
+
+        eventos_list_for_template.append({
+            'id': evento.id,
+            'title': evento.nome,
+            'image_url': image_url,
+            'normalized_tags_str': ' '.join(slugify(tag) for tag in tags if isinstance(tag, str)),
+            'original_tags': tags,
+            'is_hidden': evento.is_hidden,
+            'date': evento.data,
+            'description': evento.descricao,
+        })
+
+    context = {
+        'eventos': eventos_list_for_template,
+        'MEDIA_URL': settings.MEDIA_URL,
+    }
+    return render(request, 'eventos.html', context)
+
+# --- Página "Esconder Eventos" ---
+@login_required
+def hide_events_page_view(request):
+    eventos_queryset = Eventos.objects.all().order_by('-data', '-id')
+    eventos_list = []
+
+    for evento in eventos_queryset:
+        image_url = None
+        if evento.imagem and hasattr(evento.imagem, 'url'):
+            image_url = evento.imagem.url
+
+        eventos_list.append({
+            'id': evento.id,
+            'title': evento.nome,
+            'image_url': image_url,
+            'is_hidden': evento.is_hidden,
+            'description': evento.descricao,
+            'date': evento.data
+        })
+
+    return render(request, 'esconder_eventos.html', {'eventos': eventos_list})
+
+# --- AJAX para esconder/mostrar ---
+@csrf_exempt
+@require_POST
+@login_required
+def toggle_event_visibility(request):
+    try:
+        data = json.loads(request.body)
+        event_id = data.get('event_id')
+
+        if not event_id:
+            return JsonResponse({'success': False, 'error': 'Event ID not provided'}, status=400)
+
+        evento = Eventos.objects.get(pk=event_id)
+        evento.is_hidden = not evento.is_hidden
+        evento.save()
+        return JsonResponse({'status': 'success', 'is_hidden': evento.is_hidden, 'event_id': evento.id})
+    except Eventos.DoesNotExist:
+        return JsonResponse({'status': 'error', 'error': 'Evento não encontrado'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        print(f"Error in toggle_event_visibility: {e}")
+        return JsonResponse({'status': 'error', 'error': 'An unexpected error occurred'}, status=500)
+
+# --- Adicionar Evento ---
+@login_required
+def add_event_view(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+        data_str = request.POST.get('data')
+        descricao = request.POST.get('descricao')
+        texto = request.POST.get('texto')
+        imagem = request.FILES.get('imagem')
+        is_hidden_form = request.POST.get('is_hidden') == 'on'
+        tags_list = request.POST.getlist('tags')
+
+        data_obj = None
+        if data_str:
+            try:
+                data_obj = datetime.strptime(data_str, "%Y-%m-%d").date()
+            except ValueError:
+                print(f"Invalid date format received: {data_str}")
+
+        try:
+            novo_evento = Eventos.objects.create(
+                nome=nome,
+                data=data_obj,
+                descricao=descricao,
+                texto=texto,
+                imagem=imagem,
+                is_hidden=is_hidden_form,
+                tags=tags_list
+            )
+            return redirect('eventos')
+        except Exception as e:
+            print(f"Error creating event in DB: {e}")
+
+    return render(request, 'adicionar_evento.html')
+                             
 
 #---------------------------------------WEBSITE ISACA (PÚBLICO)-------------------------------------------- 
 # View da Página Inicial PÚBLICA

@@ -1,19 +1,14 @@
 from django.contrib import admin
-from .models import Eventos, Contactos, Newsletter, Comentarios
+from .models import Eventos, Contactos, Newsletter
 
 @admin.register(Eventos)
 class EventoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'data', 'visivel')
+    list_display = ('nome', 'data', 'visivel', 'is_hidden')
     search_fields = ('nome', 'descricao')
 
 @admin.register(Newsletter)
 class NewsletterAdmin(admin.ModelAdmin):
     list_display = ('nome','apelido')
-
-@admin.register(Comentarios)
-class ComentarioAdmin(admin.ModelAdmin):
-    list_display = ('email', 'mensagem', 'date', 'eventoid')
-    search_fields=('eventoid','mensagem')
 
 @admin.register(Contactos)
 class ContactosAdmin(admin.ModelAdmin):

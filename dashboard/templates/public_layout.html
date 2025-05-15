@@ -41,7 +41,7 @@
                      {# Verifica o nome da URL atual para definir a classe 'active' #}
                     <a href="{% url 'dashboard:sobrenos' %}" class="nav-link {% if request.resolver_match.url_name == 'sobrenos' %}active{% endif %} me-3">Sobre Nós</a>
                     <a href="{% url 'dashboard:noticias' %}" class="nav-link {% if request.resolver_match.url_name == 'noticias' %}active{% endif %} me-3">Notícias</a>
-                    <a href="{% url 'dashboard:eventos' %}" class="nav-link {% if request.resolver_match.url_name == 'eventos' %}active{% endif %} me-3">Eventos</a>
+                    <a href="{% url 'dashboard:eventospub' %}" class="nav-link {% if request.resolver_match.url_name == 'eventospub' %}active{% endif %} me-3">Eventos</a>
                     <a href="{% url 'dashboard:certificados' %}" class="nav-link {% if request.resolver_match.url_name == 'certificados' %}active{% endif %} me-3">Certificados</a>
                     <a href="{% url 'dashboard:contactos' %}" class="nav-link {% if request.resolver_match.url_name == 'contactos' %}active{% endif %} me-3">Contactos</a>
                 </div>
@@ -144,7 +144,7 @@
                     <li class="nav-item"><a href="{% url 'dashboard:index' %}" class="nav-link px-2 text-muted">Home</a></li>
                     <li class="nav-item"><a href="{% url 'dashboard:sobrenos' %}" class="nav-link px-2 text-muted">Sobre Nós</a></li>
                     <li class="nav-item"><a href="{% url 'dashboard:noticias' %}" class="nav-link px-2 text-muted">Notícias</a></li>
-                    <li class="nav-item"><a href="{% url 'dashboard:eventos' %}" class="nav-link px-2 text-muted">Eventos</a></li>
+                    <li class="nav-item"><a href="{% url 'dashboard:eventospub' %}" class="nav-link px-2 text-muted">Eventos</a></li>
                     <li class="nav-item"><a href="{% url 'dashboard:certificados' %}" class="nav-link px-2 text-muted">Certificados</a></li>
                     <li class="nav-item"><a href="{% url 'dashboard:contactos' %}" class="nav-link px-2 text-muted">Contactos</a></li>
                 </ul>

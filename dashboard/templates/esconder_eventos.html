@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<link rel="stylesheet" href="{% static 'dashboard/css/styles.css' %}">
+
+{% block title %}Esconder Evento{% endblock %}
+
+{% block content %}
+<div style="max-width: 1200px; margin: 2rem auto;">
+  <a href="{% url 'dashboard:eventos' %}" style="text-decoration: none; font-weight: bold; display: flex; align-items: center; margin-bottom: 1.5rem; font-size: 1.2rem; color: #2a3f54;">
+    <div style="background-color: #2a3f54; color: white; border-radius: 50%; width: 45px; height: 45px; display: inline-flex; align-items: center; justify-content: center; margin-right: 0.8rem; font-size: 1.4rem;">
+      <i class="bi bi-arrow-left"></i>
+    </div>
+    Esconder Evento
+  </a>
+
+  <div style="display: flex; flex-wrap: wrap; gap: 1.5rem;" id="hide-event-grid">
+    {% for event_data in eventos %}
+      <div class="event-item {% if event_data.is_hidden %}event-hidden{% endif %}"
+           data-event-id="{{ event_data.id }}"
+           data-is-hidden="{{ event_data.is_hidden|yesno:'true,false' }}"
+           style="flex: 0 0 calc(25% - 1.5rem); position: relative; cursor: pointer;">
+
+        <div style="position: relative; width: 100%; height: auto;">
+          <img src="{{ event_data.image.url }}"
+            alt="{{ event_data.title }}"
+            class="{% if event_data.is_hidden %}event-hidden{% else %}event-visible{% endif %}">
+
+          {% if event_data.is_hidden %}
+          <div class="event-hidden-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(40,40,40,0.65); display: flex; justify-content: center; align-items: center; z-index: 10;">
+            <i class="bi bi-eye-slash" style="color: white; font-size: 2.5rem; text-shadow: 1px 1px 4px rgba(0,0,0,0.6);"></i>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    {% empty %}
+      <div style="width: 100%;">
+        <div style="background-color: #f1f3f5; border-radius: 0.5rem; padding: 1rem; text-align: center; color: #6c757d;">
+          Nenhum evento encontrado.
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.event-item').forEach(item => {
+    item.addEventListener('click', async () => {
+      const eventId = item.dataset.eventId;
+      const isHidden = item.dataset.isHidden === "true";
+      const newHiddenState = !isHidden;
+
+      
+      item.classList.toggle('event-hidden', newHiddenState);
+      item.dataset.isHidden = newHiddenState ? "true" : "false";
+
+      const img = item.querySelector('img');
+      img.style.filter = newHiddenState ? "grayscale(80%) brightness(50%)" : "none";
+
+      let overlay = item.querySelector('.event-hidden-overlay');
+
+      if (newHiddenState) {
+        // Criar overlay se não existir
+        if (!overlay) {
+          overlay = document.createElement('div');
+          overlay.classList.add('event-hidden-overlay');
+          overlay.style.position = 'absolute';
+          overlay.style.top = 0;
+          overlay.style.left = 0;
+          overlay.style.width = '100%';
+          overlay.style.height = '100%';
+          overlay.style.backgroundColor = 'rgba(40,40,40,0.65)';
+          overlay.style.display = 'flex';
+          overlay.style.justifyContent = 'center';
+          overlay.style.alignItems = 'center';
+          overlay.style.zIndex = 10;
+
+          const icon = document.createElement('i');
+          icon.className = 'bi bi-eye-slash';
+          icon.style.color = 'white';
+          icon.style.fontSize = '2.5rem';
+          icon.style.textShadow = '1px 1px 4px rgba(0,0,0,0.6)';
+          overlay.appendChild(icon);
+
+          item.querySelector('div').appendChild(overlay);
+        }
+      } else {
+        if (overlay) {
+          overlay.remove();
+        }
+      }
+      
+      await fetch("{% url 'dashboard:toggle_event_visibility' %}", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ event_id: eventId })
+      });
+    });
+  });
+</script>
+
+{% endblock %}
