@@ -20,7 +20,7 @@
                     </p>
                 </div>
                 <div class="col-6 d-flex justify-content-end d-none d-lg-block">
-                    <img src="{% static 'imagens/Seccao1.png' %}" alt="Imagem Hero" class="img-fluid desktop-imagem">
+                    <img src="{% static 'imgs/Seccao1.png' %}" alt="Imagem Hero" class="img-fluid desktop-imagem">
                 </div>
 
                 <!--Conteúdo abaixo de lg (para mobile)-->
@@ -33,7 +33,7 @@
                     </p>
                 </div>
                 <div class="row d-block d-lg-none ms-auto me-auto mt-5" style="max-width: 100%;">
-                    <img src="{% static 'imagens/Seccao1.png' %}" class="img-fluid mobile-imagem" alt="Imagem Hero">
+                    <img src="{% static 'imgs/Seccao1.png' %}" class="img-fluid mobile-imagem" alt="Imagem Hero">
                 </div>
             </div>
         </div>
@@ -98,7 +98,7 @@
             <div class="row" style="max-width: 100%;">
                 <!--Conteúdo para lg (desktop)-->
                 <div class="col-5 d-flex justify-content-end d-none d-lg-block mt-5 mb-5" >
-                    <img src="{% static 'imagens/Seccao2.1.png' %}" alt="Imagem Sobre Nós" class="img-fluid" style="width: 100%; transform: translateX(-2%);">
+                    <img src="{% static 'imgs/Seccao2.1.png' %}" alt="Imagem Sobre Nós" class="img-fluid" style="width: 100%; transform: translateX(-2%);">
                 </div>
                 <div class="col-6 d-flex d-none d-lg-block mt-5">
                     <p style="font-size:22px; color: #35B390; margin-bottom: -5px;">SOBRE NÓS</p>
@@ -107,7 +107,7 @@
                     <p style="color:#000;font-size: 20px;">É formado por alunos que frequentam o mestrado ADSAD, da Pós graduação de Auditoria, Risco e Controlo de SI e da licenciatura em informática de gestão. O objetivo do grupo é
                         educar e tornar os alunos conscientes das tendências emergentes no SI / TI Auditoria e Assurance, de Segurança e de SI / TI governança. O grupo tem a oportunidade de participar em tudo o que a ISACA organiza.</p>
                     {# Atualizar este link quando tiveres a página/URL 'sobre nós' definida #}
-                    <a class="btn-sobre" href="{% url 'dashboard:about' %}">Saber Mais</a> {# Exemplo de como linkar #}
+                    <a class="btn-sobre" href="{% url 'dashboard:sobrenos' %}">Saber Mais</a> {# Exemplo de como linkar #}
                 </div>
                 <div class="col-1 d-none d-lg-block"></div>
 
@@ -118,13 +118,13 @@
                         ISACA STUDENT GROUP</h2>
                 </div>
                 <div class="row d-block d-lg-none ms-auto me-auto mt-3">
-                    <img src="{% static 'imagens/Seccao2.1.png' %}" class="img-fluid" style="max-width: 100%; transform: translateX(-5%);" alt="Imagem Sobre Nós">
+                    <img src="{% static 'imgs/Seccao2.1.png' %}" class="img-fluid" style="max-width: 100%; transform: translateX(-5%);" alt="Imagem Sobre Nós">
                 </div>
                 <div class="row d-block d-lg-none text-center ms-auto mt-3">
                     <p class="mb-5 mt-4" style="color:#000;font-size: 20px;">É formado por alunos que frequentam o mestrado ADSAD, da Pós graduação de Auditoria, Risco e Controlo de SI e da licenciatura em informática de gestão. O objetivo do grupo é
                         educar e tornar os alunos conscientes das tendências emergentes no SI / TI Auditoria e Assurance, de Segurança e de SI / TI governança. O grupo tem a opotunidade de participar em tudo o que a ISACA organiza.</p>
                     {# Atualizar este link quando tiveres a página/URL 'sobre nós' definida #}
-                    <a href="{% url 'dashboard:about' %}" class="mt-5" style="padding: 15px 25px; border-radius: 47px; background: #70B540; color: #fff; text-decoration: none; text-align: center;">Saber Mais</a> {# Exemplo #}
+                    <a href="{% url 'dashboard:sobrenos' %}" class="mt-5" style="padding: 15px 25px; border-radius: 47px; background: #70B540; color: #fff; text-decoration: none; text-align: center;">Saber Mais</a> {# Exemplo #}
                 </div>
             </div>
         </div>
@@ -163,7 +163,7 @@
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <a href="https://www.isaca.org/credentialing/crisc" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
                         <div class="carde p-4">
-                            <img src="{% static 'imagens/CRISC.png' %}" alt="CRISC Logo" class="img-fluid" style="background-color: #ffffff;">
+                            <img src="{% static 'imgs/CRISC.png' %}" alt="CRISC Logo" class="img-fluid" style="background-color: #ffffff;">
                             <p class="carde-text mt-3" style="background-color: #ffffff;">
                                 A certificação <strong>Certified in Risk and Information Systems Control™</strong> demonstra expertise na identificação e gestão de riscos de TI empresarial, bem como na implementação e manutenção de controlos de sistemas de informação.
                             </p>
@@ -177,7 +177,7 @@
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <a href="https://www.isaca.org/credentialing/cisa" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
                         <div class="carde p-4">
-                            <img src="{% static 'imagens/CISA.png' %}" alt="CISA Logo" class="img-fluid" style="background-color: #ffffff;">
+                            <img src="{% static 'imgs/CISA.png' %}" alt="CISA Logo" class="img-fluid" style="background-color: #ffffff;">
                             <p class="carde-text mt-3" style="background-color: #ffffff;">
                                 A certificação <strong>Certified Information Systems Auditor®</strong> é reconhecida mundialmente como o padrão de excelência para aqueles que auditam, controlam, monitoram e avaliam os sistemas de informação e negócios de uma organização.
                             </p>
@@ -191,7 +191,7 @@
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <a href="https://www.isaca.org/credentialing/cgeit" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
                         <div class="carde p-4">
-                            <img src="{% static 'imagens/CGEIT.png' %}" alt="CGEIT Logo" class="img-fluid" style="background-color: #ffffff;">
+                            <img src="{% static 'imgs/CGEIT.png' %}" alt="CGEIT Logo" class="img-fluid" style="background-color: #ffffff;">
                             <p class="carde-text mt-3" style="background-color: #ffffff;">
                                 A certificação <strong>Certified in the Governance of Enterprise IT®</strong> da ISACA é única e independente de frameworks. É a única certificação de governança de TI que proporciona a mentalidade necessária para avaliar, projetar, implementar e gerir sistemas de governança de TI alinhados aos objetivos gerais de negócios.
                             </p>
@@ -205,7 +205,7 @@
                 <div class="col-12 col-sm-6 col-md-4 col-lg-3">
                     <a href="https://www.isaca.org/credentialing/cism" target="_blank" rel="noopener noreferrer" class="text-decoration-none">
                         <div class="carde p-4">
-                            <img src="{% static 'imagens/CISM.png' %}" alt="CISM Logo" class="img-fluid" style="background-color: #ffffff;">
+                            <img src="{% static 'imgs/CISM.png' %}" alt="CISM Logo" class="img-fluid" style="background-color: #ffffff;">
                             <p class="carde-text mt-3" style="background-color: #ffffff;">
                                 A certificação <strong>Certified Information Security Manager®</strong> da ISACA demonstra expertise em governança de segurança da informação, desenvolvimento e gestão de programas, gestão de incidentes e gestão de riscos.
                             </p>
@@ -219,7 +219,7 @@
 
             <!-- Botão -->
             {# Atualizar este link quando tiveres a página/URL 'certificados' definida #}
-            <a href="{% url 'dashboard:certificates' %}" class="cta-button mt-lg-5 mt-3"> {# Exemplo #}
+            <a href="{% url 'dashboard:certificados' %}" class="cta-button mt-lg-5 mt-3"> {# Exemplo #}
                 CONHECE MAIS AQUI
             </a>
         </div>
@@ -246,20 +246,20 @@
                     <div class="d-flex justify-content-center align-items-center">
                         <!-- Poster 1 -->
                         <div class="poster-container">
-                            <img src="{% static 'imagens/Conferencia2024.jpg' %}" class="d-block mx-2" alt="Conferência 2024">
+                            <img src="{% static 'imgs/Conferencia2024.jpg' %}" class="d-block mx-2" alt="Conferência 2024">
                             <div class="poster-overlay">
                                 <h3>9ª Conferência Internacional ISACA Lisbon Chapter</h3>
                                 {# Atualizar este link quando tiveres a página/URL 'eventos' definida #}
-                                <a href="{% url 'dashboard:events' %}" class="btn btn-primary">Ver detalhes</a> {# Exemplo #}
+                                <a href="{% url 'dashboard:eventos' %}" class="btn btn-primary">Ver detalhes</a> {# Exemplo #}
                             </div>
                         </div>
                         <!-- Poster 2 -->
                         <div class="poster-container">
-                            <img src="{% static 'imagens/GREENIT.jpeg' %}" class="d-block mx-2" alt="Green IT">
+                            <img src="{% static 'imgs/GREENIT.jpeg' %}" class="d-block mx-2" alt="Green IT">
                             <div class="poster-overlay">
                                 <h3>Green IT</h3>
                                 {# Atualizar este link quando tiveres a página/URL 'eventos' definida #}
-                                <a href="{% url 'dashboard:events' %}" class="btn btn-primary">Ver detalhes</a> {# Exemplo #}
+                                <a href="{% url 'dashboard:eventos' %}" class="btn btn-primary">Ver detalhes</a> {# Exemplo #}
                             </div>
                         </div>
                     </div>
@@ -270,20 +270,20 @@
                     <div class="d-flex justify-content-center align-items-center">
                         <!-- Poster 3 -->
                         <div class="poster-container">
-                            <img src="{% static 'imagens/DLT.jpeg' %}" class="d-block mx-2" alt="Digital Leaders of Tomorrow">
+                            <img src="{% static 'imgs/DLT.jpeg' %}" class="d-block mx-2" alt="Digital Leaders of Tomorrow">
                             <div class="poster-overlay">
                                 <h3>Digital Leaders of Tomorrow</h3>
                                 {# Atualizar este link quando tiveres a página/URL 'eventos' definida #}
-                                <a href="{% url 'dashboard:events' %}" class="btn btn-primary">Ver detalhes</a> {# Exemplo #}
+                                <a href="{% url 'dashboard:eventos' %}" class="btn btn-primary">Ver detalhes</a> {# Exemplo #}
                             </div>
                         </div>
                         <!-- Poster 4 -->
                         <div class="poster-container">
-                            <img src="{% static 'imagens/AI.jpeg' %}" class="d-block mx-2" alt="Future Event">
+                            <img src="{% static 'imgs/AI.jpeg' %}" class="d-block mx-2" alt="Future Event">
                             <div class="poster-overlay">
                                 <h3>IA no serviço público</h3>
                                 {# Atualizar este link quando tiveres a página/URL 'eventos' definida #}
-                                <a href="{% url 'dashboard:events' %}" class="btn btn-primary">Ver detalhes</a> {# Exemplo #}
+                                <a href="{% url 'dashboard:eventos' %}" class="btn btn-primary">Ver detalhes</a> {# Exemplo #}
                             </div>
                         </div>
                     </div>
@@ -324,7 +324,7 @@
             {
                 question: "Como faço para me inscrever no grupo?",
                 // Atualizar este link quando tiveres a página/URL 'contactos' definida
-                answer: "Para entrar no grupo, basta enviar-nos mensagem através das nossas redes sociais ou através do nosso formulário de contactos <a href='{% url 'dashboard:contact' %}'>aqui</a>." // Exemplo
+                answer: "Para entrar no grupo, basta enviar-nos mensagem através das nossas redes sociais ou através do nosso formulário de contactos <a href='{% url 'dashboard:contactos' %}'>aqui</a>." // Exemplo
             },
             {
                 question: "Quais as vantagens de pertencer a este ISACA Student Group?",

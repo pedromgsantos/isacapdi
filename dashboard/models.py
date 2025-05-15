@@ -15,18 +15,28 @@ class Comentarios(models.Model):
 
 # Modelo de Contactos (Banco Externo, sem migração)
 class Contactos(models.Model):
-    nome = models.CharField(max_length=255, blank=True, null=True)
-    email = models.CharField(max_length=255, blank=True, null=True)
-    ano = models.CharField(max_length=255, blank=True, null=True)
-    categoria = models.CharField(max_length=255, blank=True, null=True)
-    curso = models.CharField(max_length=255, blank=True, null=True)
-    assunto = models.CharField(max_length=255, blank=True, null=True)
-    mensagem = models.TextField(blank=True, null=True)
-    data_envio = models.DateTimeField()
+    nome = models.CharField(max_length=100, verbose_name="Nome Completo")
+    email = models.EmailField(verbose_name="Endereço de Email")
+    assunto = models.CharField(max_length=100, verbose_name="Assunto da Mensagem")
+    mensagem = models.TextField(verbose_name="Conteúdo da Mensagem")
+    
+    # Campos que podem ser preenchidos se o assunto for "Ser Membro ISACA"
+    ano = models.CharField(max_length=20, blank=True, null=True, verbose_name="Ano (se aplicável)")
+    categoria = models.CharField(max_length=50, blank=True, null=True, verbose_name="Categoria (se aplicável)") # e.g., "Licenciatura", "Mestrado"
+    curso = models.CharField(max_length=100, blank=True, null=True, verbose_name="Curso (se aplicável)")
+    
+    data_envio = models.DateTimeField(default=timezone.now, editable=False, verbose_name="Data de Envio")
+    lido = models.BooleanField(default=False, verbose_name="Mensagem Lida")
 
     class Meta:
-        managed = False
-        db_table = 'contactos'
+        managed = True # Importante: Django vai gerir esta tabela
+        db_table = 'dashboard_contactos_mensagens' # Nome da tabela na base de dados
+        verbose_name = "Mensagem de Contacto"
+        verbose_name_plural = "Mensagens de Contacto"
+        ordering = ['-data_envio'] # Ordenar pela mais recente primeiro
+
+    def __str__(self):
+        return f"Mensagem de {self.nome} sobre '{self.assunto}' em {self.data_envio.strftime('%d/%m/%y %H:%M')}"
 
 # Modelo de Eventos (Gerenciado pelo Django)
 class Eventos(models.Model):
@@ -39,16 +49,23 @@ class Eventos(models.Model):
     local = models.CharField(max_length=256, blank=True, null=True)
 
     class Meta:
-        managed = True  # O Django pode criar e gerenciar esta tabela
+        managed = True 
         db_table = 'eventos'
 
-# Modelo de Newsletter (Gerenciado pelo Django)
 class Newsletter(models.Model):
-    id = models.AutoField(primary_key=True)
-    nome = models.CharField(max_length=30, db_collation='latin1_swedish_ci')
-    apelido = models.CharField(max_length=30, db_collation='latin1_swedish_ci')
-    email = models.CharField(max_length=250, db_collation='latin1_swedish_ci')
+    # O Django adiciona 'id = models.AutoField(primary_key=True)' automaticamente
+    nome = models.CharField(max_length=100)
+    apelido = models.CharField(max_length=100)
+    email = models.EmailField(max_length=254, unique=True) # Validação de email e unicidade
+    data_subscricao = models.DateTimeField(default=timezone.now, editable=False) # Regista quando foi subscrito
+    ativo = models.BooleanField(default=True) # Para gerir se a subscrição está ativa
 
     class Meta:
-        managed = True  # O Django pode criar e gerenciar esta tabela
-        db_table = 'newsletter'
+        managed = True # Importante: Django gere esta tabela
+        db_table = 'newsletter' # Mantém o nome da tua tabela existente
+        verbose_name = "Subscrição de Newsletter"
+        verbose_name_plural = "Subscrições de Newsletter"
+        ordering = ['-data_subscricao'] # Ordena pela data de subscrição mais recente primeiro
+
+    def __str__(self):
+        return f"{self.nome} {self.apelido} ({self.email})"

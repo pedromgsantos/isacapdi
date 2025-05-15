@@ -1,0 +1,100 @@
+{% extends 'public_layout.html' %}
+{% load static %}
+
+{% block title %}ISACA Student Group - Sobre Nós{% endblock %}
+
+{% block content %}
+<div class="page-sobrenos-wrapper" style="background-color: #f5f5f5; max-width: 100%;">
+
+    <!--Quem somos-->
+    <div class="container pt-5 pb-4"> 
+        <h1 style="text-align: center; font-weight: 600; font-size:67px ;color: #0D2C6C; font-family: 'Outfit';">Quem Somos?</h1>
+    </div>
+    
+    <!-- Conteúdo -->
+    <div class="container-fluid">
+        <div class="row">
+            <!--Coluna sem nada até lg, serve como "margem"-->
+            <div class="col-1 d-none d-lg-block">
+            </div>
+    
+            <!--Imagem até lg-->
+            <div class="col-lg-5 d-none d-lg-block mt-5">
+                <img src="{% static 'imgs/pessoas.jpg' %}" class="img-fluid" style="width: 100%;" alt="Membros ISACA Student Group do ISCAC">
+            </div>  
+    
+            <!--Texto até lg-->
+            <div class="col-lg-5 mt-5 d-none d-lg-block">
+                <p style="line-height: 27.5px;" class="mt-4 ms-lg-4 fs-5"> {# Ajustado ms-4 para ms-lg-4 #}
+                    O ISACA Student Group do ISCAC (ISG-ISCAC) é composto por Alunos de Informática de Gestão, Mestrado em Auditoria Empresarial e Pública, Mestrado em Sistemas de Informação de Gestão e Pós-graduação em Auditoria, Risco e Controlo de Sistemas de informação. <br>
+                    Qualquer aluno pode integrar o ISG-ISCAC desde que tenha interesse nestes temas. <br>
+                    Já existiram colaborações de alunos da Licenciatura em Gestão de Empresas, Contabilidade e Auditoria. O ISG-ISCAC está aberto a todos os alunos.
+                </p>
+            </div>
+    
+            <!--Coluna sem nada até lg-->
+            <div class="col-1 d-none d-lg-block">
+            </div>
+
+            <!--Conteúdo abaixo de lg (para mobile)-->
+            <div class="row d-block d-lg-none ms-auto me-auto mt-5 px-3"> {# Adicionado px-3 para padding lateral em mobile #}
+                <img src="{% static 'imgs/pessoas.jpg' %}" class="img-fluid" width="100%" alt="Membros ISACA Student Group do ISCAC">
+            </div>
+            <div class="row d-block d-lg-none ms-auto me-auto mt-4 px-3"> {# Adicionado px-3 e ajustado mt-5 para mt-4 #}
+                <p style="line-height: 27.5px; font-size: 16px;">
+                    O ISACA Student Group do ISCAC (ISG-ISCAC) é composto por Alunos de Informática de Gestão, Mestrado em Auditoria Empresarial e Pública, Mestrado em Sistemas de Informação de Gestão e Pós-graduação em Auditoria, Risco e Controlo de Sistemas de informação. <br>
+                    Qualquer aluno pode integrar o ISG-ISCAC desde que tenha interesse nestes temas. <br>
+                    Já existiram colaborações de alunos da Licenciatura em Gestão de Empresas, Contabilidade e Auditoria. O ISG-ISCAC está aberto a todos os alunos.
+                </p>
+            </div>
+        </div>
+
+        <!--IMAGEM GRANDE-->
+        <div class="row mt-5"> {# Adicionado mt-5 para espaçamento #}
+            <!--2 colunas sem nada-->
+            <div class="col-lg-2 d-none d-lg-block">
+            </div>
+    
+            <div class="col-12 col-lg-8 mb-5"> {# Ajustado para col-12 em mobile/tablet e col-lg-8 em desktop #}
+                <img src="{% static 'imgs/sei_la_num.svg' %}" class="img-fluid" style="width: 100%;" alt="Diagrama ilustrativo">
+            </div>
+            <div class="col-lg-2 d-none d-lg-block">
+            </div>
+        </div>
+    </div>  
+
+    <!-- ISACA BABYY -->
+    <div id="hino" class="estatisticas" style="height: auto; width: 100%; background-size: cover; background: rgb(15,105,160); background: linear-gradient(35deg, rgba(15,105,160,1) 0%, rgba(23,71,122,1) 15%, rgba(29,45,92,1) 30%, rgba(29,45,92,1) 60%, rgba(39,93,112,1) 85%, rgba(55,131,114,1) 100%);display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 40px 20px;"> {# Aumentado padding #}
+        <div style="text-align: center; margin: 10px; flex: 1 1 300px; max-width: 600px; background: none;">
+            <h2 class="display-3 mb-4" style="text-align: center; font-weight: 600; color: #ffffff; font-family: 'Outfit'; background: none;">E há muito mais!</h2>
+            <h2 class="display-3 " style="text-align: center; font-weight: 600; color: #ffffff; font-family: 'Outfit'; background: none;">A ISACA até tem um hino próprio.</h2>
+            <p style="line-height: 1.5; background: none; color: #f0f0f0;" class="fs-5 mt-3 ms-lg-4"> {# Melhor contraste para o texto e ajuste de margem #}
+                Que outra organização tem um hino?
+            </p>
+        </div>
+        <div style="display: flex; justify-content: center; align-items: center; margin: 10px; flex: 1 1 300px; max-width: 600px; background: none;">
+            <iframe width="100%" height="315" src="https://www.youtube.com/embed/qBshpf-ZpD4" 
+                title="YouTube video player" frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+
+    <!-- Ainda com dúvidas? -->
+    <div style="color: #35B390;" class = "mt-5 pt-4"> {# Adicionado padding-top #}
+        <h1 style="text-align: center; font-weight: bolder; font-size:57px ;">AINDA COM DÚVIDAS?</h1>
+    </div>
+
+    <div style="text-align: center;" class="button mb-5 pb-4"> {# Adicionado padding-bottom #}
+        <a href="{% url 'dashboard:contactos' %}" class="cta-button">
+            CONTACTA-NOS
+        </a>
+    </div>
+
+</div> {# Fim do .page-sobrenos-wrapper #}
+{% endblock %}
+
+{% block extra_scripts %}
+       <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+{% endblock %}

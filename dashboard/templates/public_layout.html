@@ -11,45 +11,11 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
     <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
     <link href='https://fonts.googleapis.com/css?family=Outfit' rel='stylesheet'>
-    <link rel="icon" href="{% static 'imagens/ISACA_logo.png' %}">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="icon" href="{% static 'imgs/ISACA_logo.png' %}">
+    <link rel="stylesheet" href="{% static 'css/stylespub.css' %}">
+    {% block extra_css %}{% endblock %} {# Para CSS específico da página #}
 
-    <style>
-        body {
-            font-family: 'Roboto';
-            overflow-x: hidden;
-            /* Evita estilos inline excessivos, move-os para styles.css se possível */
-        }
-        .footer, .footer .container, .footer .row, .footer .col-md-6, .footer p, .footer a, .footer i, .footer img, .footer h5, .footer .social-links, .footer form, .footer .row.g-2, .footer .col, .footer div, .footer .text-end, .footer ul {
-            background-color: #D9D9D9 !important; /* Mantém o fundo cinza do footer original, !important pode ser necessário para sobrescrever Bootstrap */
-        }
-        .footer a.link1 {
-            text-decoration: underline;
-            font-size: 18px;
-            color: #000; /* Garante cor visível */
-        }
-        .footer .social-links a {
-            margin-right: 20px;
-            text-decoration: none; /* Remove sublinhado de ícones */
-        }
-        .footer .social-links i {
-            font-size: 26px;
-        }
-        .footer .social-links .instagram img {
-            height: 26px; /* Ajusta tamanho do logo do insta para alinhar melhor */
-            margin-bottom: 0;
-            vertical-align: middle;
-        }
-        /* Estilo para link ativo na navbar (pode ir para styles.css) */
-        .navbar-nav .nav-link.active {
-            /* text-decoration: underline; /* Exemplo, ajuste como preferir */
-             font-weight: bold; /* Torna o link ativo mais destacado */
-             color: #0D2C6C !important; /* Cor mais escura para o link ativo */
-        }
-        /* Remove a margem superior negativa estranha */
-        /* .navbar { margin-top: -20px; } */
-
-    </style>
+    
     {% block extra_head %}{% endblock %} {# Espaço para CSS/JS extra por página #}
 </head>
 <body style="background-color: #f5f5f5; max-width: 100%;">
@@ -60,7 +26,7 @@
             {# URL para a página inicial do dashboard #}
             <a class="navbar-brand" style="margin-top: 10px" href="{% url 'dashboard:index' %}">
                  {# Usa static para a logo #}
-                <img src="{% static 'imagens/LOGO1.2.png' %}" alt="ISACA Student Group Logo" class="img-fluid ms-lg-5 ms-2" style="max-width: 200px; width: auto;">
+                <img src="{% static 'imgs/LOGO1.2.png' %}" alt="ISACA Student Group Logo" class="img-fluid ms-lg-5 ms-2" style="max-width: 200px; width: auto;">
             </a>
 
             <!-- Hamburger -->
@@ -78,10 +44,6 @@
                     <a href="{% url 'dashboard:eventos' %}" class="nav-link {% if request.resolver_match.url_name == 'eventos' %}active{% endif %} me-3">Eventos</a>
                     <a href="{% url 'dashboard:certificados' %}" class="nav-link {% if request.resolver_match.url_name == 'certificados' %}active{% endif %} me-3">Certificados</a>
                     <a href="{% url 'dashboard:contactos' %}" class="nav-link {% if request.resolver_match.url_name == 'contactos' %}active{% endif %} me-3">Contactos</a>
-                    {# Link para inglês - placeholder, requer lógica de internacionalização (i18n) ou link estático #}
-                    <a href="#" class="nav-link me-3" title="Mudar para Inglês (funcionalidade futura)">
-                        <img src="https://flagcdn.com/w40/gb.png" alt="English" style="width: 30px; height: auto;">
-                    </a>
                 </div>
             </div>
         </nav>
@@ -118,7 +80,7 @@
                     {# URL para a página inicial #}
                     <a class="navbar-brand" href="{% url 'dashboard:index' %}">
                          {# Usa static para a logo #}
-                        <img src="{% static 'imagens/LOGO2.png' %}" alt="ISACA Student Group Logo" class="img-fluid" style="max-width: 270px; width: auto;">
+                        <img src="{% static 'imgs/LOGO2.png' %}" alt="ISACA Student Group Logo" class="img-fluid" style="max-width: 270px; width: auto;">
                     </a>
 
                     <p style="font-size: 16px; color: #000; margin: 0;" class="mt-2">
@@ -140,7 +102,7 @@
                         </a>
                         <a href="https://www.instagram.com/isaca_sg_iscac/?hl=en" target="_blank" class="social-link instagram">
                              {# Usa static para a imagem do instagram #}
-                            <img src="{% static 'imagens/instagram.png' %}" alt="Instagram Logo" >
+                            <img src="{% static 'imgs/instagram.png' %}" alt="Instagram Logo" style="height: 40px; background-color: #D9D9D9; margin-bottom: 8px;">
                         </a>
                         <a href="mailto:isaca.isg@gmail.com" target="_blank">
                             <i class="bi bi-envelope" style="color: black;"></i>

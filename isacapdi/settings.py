@@ -136,6 +136,6 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-LOGIN_URL = "login"  # Forces users to go to /login/ when not authenticated
-LOGIN_REDIRECT_URL = "dashboard"  # After login, redirect users to /dashboard/
-LOGOUT_REDIRECT_URL = "login"  # After logout, send them back to /login/
+LOGIN_URL = "dashboard:login"         # Aponta para a TUA view de login
+LOGIN_REDIRECT_URL = "dashboard:home" # Aponta para a TUA home do painel de admin
+LOGOUT_REDIRECT_URL = "dashboard:index" # Após logout do painel, volta para o login do painel
