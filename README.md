@@ -67,11 +67,6 @@ FLUSH PRIVILEGES;
 
 ```
 
-```bash
-pip install -r requirements.txt
-```
-
-
 ## 📁 Estrutura do Projeto
 
 ```bash
