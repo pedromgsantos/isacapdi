@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from .models import Newsletter, Eventos, Contactos
+from .models import Newsletter, Eventos, Contactos, Comentarios 
 from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO
 from .news_scraper import get_isaca_news_py
 from django.utils.text import slugify
@@ -411,31 +411,41 @@ def eventos_public_view(request):
 
     return render(request, "eventospub.html", {"eventos": eventos})
 
-
-# ---------- DETALHE PÚBLICO (opcional) ----------
 def evento_detail_view(request, pk):
-    ev = get_object_or_404(Eventos, pk=pk, visivel=1, is_hidden=False)
+    """
+    Detalhe público de um evento.
+    • aceita visivel == 1 **ou** NULL
+    • ignora eventos escondidos (is_hidden=True)
+    • trata submissão de comentário (POST)
+    """
+    evento = get_object_or_404(Eventos, pk=pk, is_hidden=False)
 
-    if ev.imagem and hasattr(ev.imagem, "url"):
-        img_url = ev.imagem.url
-    else:
-        img_url = str(ev.imagem) if ev.imagem else ""
+    # ----- Submissão de comentário -----
+    if request.method == "POST":
+        mensagem = request.POST.get("mensagem", "").strip()
+        consent  = request.POST.get("consentimento")
+        email    = request.POST.get("email", "").strip() or "Anónimo"
 
-    contexto = {"evento": ev, "image_url": img_url}
-    return render(request, "evento_detail.html", contexto)
+        if not consent:
+            messages.error(request, "É necessário aceitar os termos de uso.")
+        elif not mensagem:
+            messages.error(request, "O comentário não pode estar vazio.")
+        else:
+            Comentarios.objects.create(
+                evento   = evento,
+                email    = email,
+                mensagem = mensagem,
+            )
+            messages.success(request, "Comentário enviado com sucesso!")
+            return redirect(request.path)   # evita re-submit em refresh
 
+    comentarios = Comentarios.objects.filter(evento=evento).order_by("-created")
 
-# ---------- DETALHE PÚBLICO (opcional) ----------
-def evento_detail_view(request, pk):
-    ev = get_object_or_404(Eventos, pk=pk, visivel=1, is_hidden=False)
-
-    if ev.imagem and hasattr(ev.imagem, "url"):
-        img_url = ev.imagem.url
-    else:
-        img_url = str(ev.imagem) if ev.imagem else ""
-
-    contexto = {"evento": ev, "image_url": img_url}
-    return render(request, "evento_detail.html", contexto)
+    context = {
+        "evento": evento,
+        "comentarios": comentarios,
+    }
+    return render(request, "evento_detail.html", context)
 
 def certificados_view(request):
     # Dados para a lista de certificados principal
@@ -593,6 +603,10 @@ def api_isaca_news_view(request):
 
     news_data = get_isaca_news_py(limit=limit)
     return JsonResponse(news_data, safe=False) # safe=False é necessário porque news_data é uma lista
+
+def termos_de_uso_view(request):
+    """Página estática com os Termos de Uso / Política de Privacidade."""
+    return render(request, "termos_de_uso.html")
 
 
 #---------------------------------------FIM DO WEBSITE ISACA --------------------------------------------------

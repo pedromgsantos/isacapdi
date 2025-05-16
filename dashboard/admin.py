@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Eventos, Contactos, Newsletter
+from .models import Eventos, Contactos, Newsletter, Comentarios
 
 @admin.register(Eventos)
 class EventoAdmin(admin.ModelAdmin):
@@ -12,9 +12,12 @@ class NewsletterAdmin(admin.ModelAdmin):
 
 @admin.register(Contactos)
 class ContactosAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'email', 'assunto', 'data_envio', 'lido')
-    list_filter = ('data_envio', 'lido', 'assunto', 'categoria')
-    search_fields = ('nome', 'email', 'assunto', 'mensagem', 'curso')
+    list_display  = ("nome", "email", "assunto",
+                     "ano", "categoria", "curso",
+                     "data_envio", "lido")
+    list_filter   = ("lido", "assunto", "ano", "categoria")
+    search_fields = ("nome", "email","assunto","mensagem", "curso")
+    readonly_fields = ("data_envio",)
     list_editable = ('lido',) 
     readonly_fields = ('data_envio',)
 
@@ -28,3 +31,11 @@ class ContactosAdmin(admin.ModelAdmin):
             'description': "Estes campos são preenchidos se o assunto for 'Ser Membro ISACA'."
         }),
     )
+
+@admin.register(Comentarios)
+class ComentariosAdmin(admin.ModelAdmin):
+    list_display  = ("evento", "email", "created")
+    list_filter   = ("created",)
+    search_fields = ("email", "mensagem", "evento__nome")
+    date_hierarchy = "created"
+    autocomplete_fields = ("evento",)

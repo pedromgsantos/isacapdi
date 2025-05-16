@@ -16,6 +16,7 @@ urlpatterns = [
     path('certificados/', views.certificados_view, name='certificados'),
     path('contactos/', views.contactos_view, name='contactos'),
     path('newsletter/subscribe/', views.newsletter_subscribe_view, name='newsletter_subscribe'),
+    path("termos-de-uso/", views.termos_de_uso_view, name="termos_de_uso"),
 
     #URLS DO DASBOARD
     path('login/', views.user_login, name='login'),

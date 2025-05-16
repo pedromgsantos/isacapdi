@@ -2,7 +2,6 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
 
-
 class Eventos(models.Model):
     nome = models.CharField(max_length=128)
     data = models.DateField(blank=True, null=True)
@@ -34,7 +33,7 @@ class Contactos(models.Model):
 
     class Meta:
         managed = True # Importante: Django vai gerir esta tabela
-        db_table = 'dashboard_contactos_mensagens' # Nome da tabela na base de dados
+        db_table = "contactos"
         verbose_name = "Mensagem de Contacto"
         verbose_name_plural = "Mensagens de Contacto"
         ordering = ['-data_envio'] # Ordenar pela mais recente primeiro
@@ -59,3 +58,13 @@ class Newsletter(models.Model):
 
     def __str__(self):
         return f"{self.nome} {self.apelido} ({self.email})"
+    
+class Comentarios(models.Model):
+    evento = models.ForeignKey(Eventos, on_delete=models.CASCADE)
+    email    = models.CharField(max_length=250, blank=True, default="")
+    mensagem = models.TextField()
+    created  = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created"]
+        db_table = "comentarios"
