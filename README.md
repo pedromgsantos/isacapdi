@@ -50,19 +50,19 @@ O ISACA Student Group é uma organização liderada por estudantes, focada em pr
 │   ├── /views.py            # (pode ser dividido por funcionalidades, se necessário)
 │
 │   ├── /templates/          # Templates HTML (interface)
-│   │   ├── adicionar_evento.html
-│   │   ├── base.html
-│   │   ├── certificados.html
-│   │   ├── contactos.html
-│   │   ├── esconder_eventos.html
-│   │   ├── eventos.html
-│   │   ├── eventospub.html
-│   │   ├── home.html
-│   │   ├── index.html
-│   │   ├── login.html
-│   │   ├── noticias.html
-│   │   ├── public_layout.html
-│   │   └── sobrenos.html
+│   │   ├── adicionar_evento.html #pertence ao painel de administração
+│   │   ├── base.html             #pertence ao painel de administração
+│   │   ├── certificados.html     #pertence ao website ISACA
+│   │   ├── contactos.html        #pertence ao website ISACA
+│   │   ├── esconder_eventos.html #pertence ao painel de administração
+│   │   ├── eventos.html          #pertence ao painel de administração
+│   │   ├── eventospub.html       #pertence ao website ISACA
+│   │   ├── home.html             #pertence ao painel de administração
+│   │   ├── index.html            #pertence ao website ISACA
+│   │   ├── login.html            #pertence ao painel de administração
+│   │   ├── noticias.html         #pertence ao website ISACA
+│   │   ├── public_layout.html    #pertence ao website ISACA
+│   │   └── sobrenos.html         #pertence ao website ISACA
 │
 │   ├── /static/             # Ficheiros estáticos (CSS, JS, imagens)
 │   │   ├── /css/
