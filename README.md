@@ -94,16 +94,21 @@ Senha: mariasantos
 │   ├── models.py            # Modelos da base de dados
 │   ├── views.py             # Views principais (página inicial, etc.)
 │   ├── urls.py              # URL routing da app
+│   ├── scheduler.py         # Dá schedule na frequencia com que o scrape ativa para ir buscar os dados das noticias
 │   ├── forms.py             # Formulários Django
 │   ├── tests.py             # Testes automatizados
 │   ├── news_scraper.py      # Script de scraping de notícias de apoio ao template "noticias.html"
+│
+│   ├── /management/          # Diretório necessário para definir comandos personalizados do Django
+│   │     └──/commands/       # Diretório onde os comandos personalizados são implementados
+│   │          └── fetch_news.py  #  Script Python que implementa um comando personalizado, que neste caso é a busca de noticias
 │
 │   ├── /analytics/          # Lógica associada à API Google Analytics
 │   │   └── client.py        # Cliente para autenticação e pedidos à API
 │
 │   ├── /views.py            # (pode ser dividido por funcionalidades, se necessário)
 │
-│   ├── /templates/          # Templates HTML (interface)
+│   ├── /templates/               # Templates HTML (interface)
 │   │   ├── adicionar_evento.html #pertence ao painel de administração
 │   │   ├── base.html             #pertence ao painel de administração
 │   │   ├── certificados.html     #pertence ao website ISACA
@@ -113,11 +118,14 @@ Senha: mariasantos
 │   │   ├── eventospub.html       #pertence ao website ISACA
 │   │   ├── home.html             #pertence ao painel de administração
 │   │   ├── index.html            #pertence ao website ISACA
+│   │   ├── confirm_delete.html   #pertence ao painel de administração
+│   │   ├── gerirnoticias.html    #pertence ao painel de administração
+│   │   ├── news_form.html        #pertence ao painel de administração
 │   │   ├── login.html            #pertence ao painel de administração
 │   │   ├── noticias.html         #pertence ao website ISACA
 │   │   ├── public_layout.html    #pertence ao website ISACA
 │   │   ├── sobrenos.html         #pertence ao website ISACA
-│   │   └── termos_de_uso.html         #pertence ao website ISACA
+│   │   └── termos_de_uso.html    #pertence ao website ISACA
 │
 │   ├── /static/             # Ficheiros estáticos (CSS, JS, imagens)
 │   │   ├── /css/
