@@ -1,0 +1,11 @@
+# requirements.txt
+Django==5.1.7
+PyMySQL==1.1.0          # ligação a MariaDB / MySQL sem compilação
+Pillow==10.3.0          # ImageField / manipulação de imagens
+google-analytics-data==0.17.0   # GA4 Reporting API
+google-auth==2.29.0              # credenciação para GA4
+requests==2.31.0         # HTTP client (scraper, integrações)
+beautifulsoup4==4.12.3   # parsing HTML (news_scraper.py)
+python-dotenv==1.0.1     # variáveis ambiente locais (.env)
+whitenoise[brotli]==6.6.0  # servir estáticos em produção
+gunicorn==22.0.0         # WSGI server (deploy Linux)
