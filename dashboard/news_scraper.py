@@ -5,11 +5,16 @@ Requisitos:
     pip install requests beautifulsoup4 lxml
 """
 
+# ─────────────────────────────────AO FAZER 'python manage.py fetch_news' DÁ PARA FAZER O SCRAPER, EM VEZ DE ESPERAR PELO SCHEDULED─────────────────────────────────────────────────────────
+
 from __future__ import annotations
 import json
 import logging
 import re
 from typing import List, Dict
+from datetime import datetime
+from django.utils import timezone
+from dateutil import parser as date_parser
 
 import requests
 from bs4 import BeautifulSoup
@@ -104,3 +109,65 @@ def get_isaca_news_py(limit: int = 18) -> List[Dict[str, str | None]]:
 if __name__ == "__main__":
     # Exemplo de uso
     print(json.dumps(get_isaca_news_py(), ensure_ascii=False, indent=2))
+
+
+# ─────────────────────────────────────────────────────────
+# 1) Função que devolve uma lista de dicionários
+#    Cada item deve ter: title, link, summary, published (datetime)
+# ─────────────────────────────────────────────────────────
+def fetch_news(limit: int = 50):
+    """Wrapper simples para manter compatibilidade com o comando de gestão."""
+    return get_isaca_news_py(limit=limit)
+
+
+def save_news_to_db(news_list):
+    """
+    Recebe a lista devolvida por fetch_news() e faz UPSERT na BD.
+    A data é extraída de forma robusta; se falhar, faz-se fallback para agora().
+    """
+    from dashboard.models import NewsArticle
+
+    DATE_RE = re.compile(
+        r"(?P<d>\d{1,2})[/-](?P<m>\d{1,2})[/-](?P<y>\d{4})|"      # 16/05/2025
+        r"(?P<d2>\d{1,2})\s+(?P<mon>[A-Za-z]{3,})\s+(?P<y2>\d{4})" # 16 May 2025
+    )
+
+    for art in news_list:
+        raw_date = (art.get("date") or "").strip()
+        published = None
+
+        # 1) tenta o dateutil (com dayfirst=True)
+        if raw_date:
+            try:
+                published = date_parser.parse(raw_date, dayfirst=True, fuzzy=True)
+            except (ValueError, TypeError):
+                pass
+
+        # 2) regex fallback
+        if not published:
+            m = DATE_RE.search(raw_date)
+            if m and m.group("mon"):  # formato “16 May 2025”
+                published = date_parser.parse(
+                    f"{m.group('d2')} {m.group('mon')} {m.group('y2')}",
+                    dayfirst=True,
+                )
+            elif m:  # formato “16/05/2025”
+                published = datetime.strptime(
+                    f"{m.group('d')}/{m.group('m')}/{m.group('y')}",
+                    "%d/%m/%Y",
+                )
+
+        # 3) último recurso → agora()
+        if not published:
+            published = timezone.now()
+
+        NewsArticle.objects.update_or_create(
+            url=art["link"],
+            defaults={
+                "title":     art["title"],
+                "summary":   art["summary"],
+                "image":     art.get("image") or "",
+                "published": published,
+                "is_active": True,
+            },
+        )

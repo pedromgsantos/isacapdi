@@ -1,6 +1,7 @@
 # dashboard/forms.py
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
+from .models import NewsArticle
 
 # -------------------------------------------------
 #  FORMULÁRIO DE LOGIN
@@ -150,3 +151,19 @@ class ContactForm(forms.Form):
         # que o JS mete em option.value são precisamente estes.
         all_courses = [(name, name) for _, name in CURSOS_LICENCIATURA + CURSOS_MESTRADO]
         self.fields["curso"].choices += all_courses
+    
+class NewsArticleForm(forms.ModelForm):
+    class Meta:
+        model = NewsArticle
+        fields = ["title", "url", "summary", "image", "published", "is_active"]
+        widgets = {
+            # input type=datetime-local → compatível com HTML5
+            "published": forms.DateTimeInput(
+                attrs={"type": "datetime-local"}, format="%Y-%m-%dT%H:%M"
+            ),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.pk and self.instance.published:
+            self.initial["published"] = self.instance.published.strftime("%Y-%m-%dT%H:%M")

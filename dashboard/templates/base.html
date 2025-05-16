@@ -33,7 +33,7 @@
                     {# Se "Análises e Estatísticas" é a home do painel, e a home do painel tem name='home' em dashboard.urls #}
                     <li style="padding: 10px;"><a href="{% url 'dashboard:home' %}" style="text-decoration: none; color: black;">Análises e Estatísticas</a></li>
                     <li style="padding: 10px;"><a href="{% url 'dashboard:eventos' %}" style="text-decoration: none; color: black;">Eventos</a></li>
-                    <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Notícias</a></li>
+                    <li style="padding: 10px;"><a href="{% url 'dashboard:gerir_noticias'%}" style="text-decoration: none; color: black;">Notícias</a></li>
                     <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Mensagens</a></li>
                     <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Utilizadores</a></li>
                     <li style="padding: 10px;"><a href="#" style="text-decoration: none; color: black;">Certificados</a></li>

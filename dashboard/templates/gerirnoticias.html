@@ -1,0 +1,74 @@
+{% extends 'base.html' %}   {# usa o teu layout de administração #}
+{% load static %}
+{% block title %}Gerir Notícias{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">Gerir Notícias</h1>
+
+  <div class="d-flex justify-content-end mb-3">
+    <a href="{% url 'dashboard:news_create' %}" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i> Nova Notícia
+    </a>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <table class="table table-striped align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>Título</th>
+        <th class="d-none d-md-table-cell" style="width:15%;">Data</th>
+        <th class="text-center" style="width:10%;">Ativa</th>
+        <th class="text-center" style="width:15%;">Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for article in news %}
+      <tr>
+        <td>
+          <a href="{{ article.url }}" target="_blank">{{ article.title }}</a><br>
+          <small class="text-muted d-md-none">{{ article.published|date:"d/m/Y" }}</small>
+        </td>
+        <td class="d-none d-md-table-cell">{{ article.published|date:"d/m/Y" }}</td>
+
+        {# ─── Toggle Ativo ─── #}
+        <td class="text-center">
+          <form action="{% url 'dashboard:news_toggle' article.pk %}" method="post" class="d-inline">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-sm {{ article.is_active|yesno:'btn-success,btn-outline-secondary' }}">
+              {% if article.is_active %}Sim{% else %}Não{% endif %}
+            </button>
+          </form>
+        </td>
+
+        {# ─── Ações ─── #}
+        <td class="text-center">
+          <a href="{% url 'dashboard:news_edit' article.pk %}" class="btn btn-sm btn-outline-primary me-1">
+            <i class="bi bi-pencil"></i>
+          </a>
+          <form action="{% url 'dashboard:news_delete' article.pk %}" method="post"
+                class="d-inline"
+                onsubmit="return confirm('Tens a certeza que queres apagar esta notícia?');">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-trash"></i>
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="4" class="text-center py-4">Sem notícias guardadas.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

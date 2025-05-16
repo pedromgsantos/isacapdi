@@ -30,8 +30,16 @@ urlpatterns = [
     path('api/evento/editar/', views.api_editar_evento, name='api_editar_evento'),
     path('eventos/adicionar/', views.add_event_view, name='add_event'),
 
+    path("noticias/gerir/", views.gerir_noticias, name="gerir_noticias"),
+    path("noticias/gerir/nova/", views.news_create, name="news_create"),
+    path("noticias/gerir/<int:pk>/editar/", views.news_edit, name="news_edit"),
+    path("noticias/gerir/<int:pk>/remover/", views.news_delete, name="news_delete"),
+    path("noticias/gerir/<int:pk>/toggle/",  views.news_toggle, name="news_toggle"),
+
+
     path('api/data/', views.get_dashboard_data_api, name='dashboard_api_data'),
     path('api/isaca-news/', views.api_isaca_news_view, name='api_isaca_news'),
+    path("api/news/", views.api_isaca_news, name="api_isaca_news"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

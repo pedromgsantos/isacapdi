@@ -1,14 +1,14 @@
 # dashboard/views.py
 
 from datetime import datetime, timedelta
-
+from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from .models import Newsletter, Eventos, Contactos, Comentarios 
-from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO
+from .models import Newsletter, Eventos, Contactos, Comentarios , NewsArticle
+from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO, NewsArticleForm
 from .news_scraper import get_isaca_news_py
 from django.utils.text import slugify
 from django.http import JsonResponse
@@ -363,6 +363,78 @@ def add_event_view(request):
     return render(request, 'adicionar_evento.html')
                              
 
+@require_GET
+def api_isaca_news(request):
+    """
+    Devolve as notícias activas em JSON, no formato esperado pelo JavaScript
+    de templates/noticias.html.
+    """
+    qs = (
+        NewsArticle.objects
+        .filter(is_active=True)
+        .values("title", "summary", "url", "image", "published")
+    )
+
+    data = [
+        {
+            "title": art["title"],
+            "summary": art["summary"],
+            "link": art["url"],
+            "image": art["image"] or "",
+            "date": art["published"].strftime("%d/%m/%Y") if art["published"] else "",
+        }
+        for art in qs
+    ]
+    return JsonResponse(data, safe=False)
+
+@login_required
+def gerir_noticias(request):
+    news = (
+        NewsArticle.objects
+        .order_by("-published", "-id")
+    )
+    return render(request, "gerirnoticias.html", {"news": news})
+
+
+@login_required
+def news_create(request):
+    form = NewsArticleForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Notícia criada com sucesso.")
+        return redirect("dashboard:gerir_noticias")
+    return render(request, "news_form.html", {"form": form, "title": "Nova Notícia"})
+
+
+@login_required
+def news_edit(request, pk):
+    article = get_object_or_404(NewsArticle, pk=pk)
+    form = NewsArticleForm(request.POST or None, instance=article)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Notícia atualizada.")
+        return redirect("dashboard:gerir_noticias")
+    return render(request, "news_form.html", {"form": form, "title": "Editar Notícia"})
+
+
+@login_required
+def news_delete(request, pk):
+    article = get_object_or_404(NewsArticle, pk=pk)
+    if request.method == "POST":
+        article.delete()
+        messages.success(request, "Notícia removida.")
+        return redirect(request.POST.get("next") or "dashboard:gerir_noticias")
+    return render(request, "confirm_delete.html", {"object": article, "type": "notícia"})
+
+
+@login_required
+def news_toggle(request, pk):
+    article = get_object_or_404(NewsArticle, pk=pk)
+    if request.method == "POST":
+        article.is_active = not article.is_active
+        article.save()
+    return redirect(request.POST.get("next") or "dashboard:gerir_noticias")
+
 #---------------------------------------WEBSITE ISACA (PÚBLICO)-------------------------------------------- 
 # View da Página Inicial PÚBLICA
 # @login_required # Se a home pública precisar de login, esta linha usará settings.LOGIN_URL
@@ -591,18 +663,38 @@ def newsletter_subscribe_view(request):
     messages.error(request, 'Pedido inválido para subscrição.')
     return redirect('dashboard:index') # Redireciona para a home PÚBLICA
 
+@require_GET
 def api_isaca_news_view(request):
     """
-    View de API para fornecer as notícias da ISACA em formato JSON.
+    Devolve as notícias guardadas na BD em JSON.
+    Aceita ?limit=N  (default = 18) e vem sempre ordenado pela data de publicação
+    mais recente. Só devolve artigos com is_active=True.
     """
-    limit_str = request.GET.get('limit', '18') # Pega o limite da query string, default 18
+    # --- ler o parâmetro 'limit' ---
     try:
-        limit = int(limit_str)
-    except ValueError:
-        limit = 18 # Default em caso de erro
+        limit = int(request.GET.get("limit", 18))
+    except (TypeError, ValueError):
+        limit = 18
 
-    news_data = get_isaca_news_py(limit=limit)
-    return JsonResponse(news_data, safe=False) # safe=False é necessário porque news_data é uma lista
+    # --- queryset ordenado e cortado ---
+    qs = (
+        NewsArticle.objects
+        .filter(is_active=True)
+        .order_by("-published")[:limit]
+        .values("title", "summary", "url", "image", "published")
+    )
+
+    data = [
+        {
+            "title":     art["title"],
+            "summary":   art["summary"],
+            "link":      art["url"],
+            "image":     art["image"] or "",
+            "date":      art["published"].strftime("%d/%m/%Y") if art["published"] else "",
+        }
+        for art in qs
+    ]
+    return JsonResponse(data, safe=False)
 
 def termos_de_uso_view(request):
     """Página estática com os Termos de Uso / Política de Privacidade."""

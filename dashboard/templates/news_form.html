@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h1 class="mb-4">{{ title }}</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Guardar</button>
+    <a href="{% url 'dashboard:gerir_noticias' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}

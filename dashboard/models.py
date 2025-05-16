@@ -68,3 +68,22 @@ class Comentarios(models.Model):
     class Meta:
         ordering = ["-created"]
         db_table = "comentarios"
+
+class NewsArticle(models.Model):
+    title = models.CharField("Título", max_length=255)
+    url = models.URLField("Ligação", unique=True)
+    summary = models.TextField("Resumo", blank=True)
+    image = models.URLField("URL da imagem", blank=True, null=True)
+    published = models.DateTimeField("Data de publicação")
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField("Visível no site público", default=True)
+
+    class Meta:
+        ordering = ["-published"]
+        indexes = [
+            models.Index(fields=["-published"])]
+        verbose_name = "Notícia"
+        verbose_name_plural = "Notícias"
+
+    def __str__(self):
+        return self.title

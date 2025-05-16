@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Eventos, Contactos, Newsletter, Comentarios
+from .models import Eventos, Contactos, Newsletter, Comentarios, NewsArticle
 
 @admin.register(Eventos)
 class EventoAdmin(admin.ModelAdmin):
@@ -39,3 +39,10 @@ class ComentariosAdmin(admin.ModelAdmin):
     search_fields = ("email", "mensagem", "evento__nome")
     date_hierarchy = "created"
     autocomplete_fields = ("evento",)
+
+@admin.register(NewsArticle)
+class NewsArticleAdmin(admin.ModelAdmin):
+    list_display = ("title", "published", "is_active")
+    list_filter = ("is_active",)
+    search_fields = ("title", "summary")
+    ordering = ("-published",)
