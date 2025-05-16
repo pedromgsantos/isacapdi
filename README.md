@@ -87,9 +87,3 @@ O ISACA Student Group é uma organização liderada por estudantes, focada em pr
 │   ├── urls.py              # URL routing principal
 │   ├── wsgi.py
 │   └── asgi.py
-├── /isacapdi/  # Diretório do projeto (configurações globais Django)
-│   ├── __init__.py
-│   ├── settings.py  # Configurações globais (BD, apps, etc.)
-│   ├── urls.py  # URL routing principal
-│   ├── wsgi.py
-│   └── asgi.py
