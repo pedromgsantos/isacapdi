@@ -22,6 +22,56 @@ O ISACA Student Group é uma organização liderada por estudantes, focada em pr
 - **JavaScript**: Funcionalidades interativas.
 - **Bootstrap**: Framework para os elementos do design.
 
+## 1 · Pré-requisitos e instalação (em windows)
+
+| Ferramenta | Versão | Verificar |
+|------------|--------|-----------|
+| **Python** | ≥ 3.10 | `python --version` |
+| **Git** | — | `git --version` |
+| **MariaDB / MySQL** | ≥ 10.5 / 8 | cliente + servidor |
+
+---
+
+## 2 · Clonar o repositório
+
+```bash
+git clone https://github.com/pedromgsantos/isacapdi.git
+cd isacapdi
+```
+
+## 3 · Ambiente Virtual
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
+
+## 4 · Instalar Dependências
+
+```bash
+pip install requirements.txt
+```
+
+## 5 · Base de Dados
+
+```plaintext
+CREATE DATABASE isacapdi
+  CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;
+
+CREATE USER 'isaca'@'localhost'
+  IDENTIFIED BY 'Strong!Password123';
+
+GRANT ALL PRIVILEGES ON isacapdi.* TO 'isaca'@'localhost';
+FLUSH PRIVILEGES;
+
+```
+
+```bash
+pip install -r requirements.txt
+```
+
+
 ## 📁 Estrutura do Projeto
 
 ```bash
