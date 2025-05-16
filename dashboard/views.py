@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
 from .models import Newsletter, Eventos, Contactos
 from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO
@@ -16,6 +16,7 @@ from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import json
+from django.db.models import Q 
 
 # Assume que analytics.client e forms estão corretamente no teu projeto
 from .analytics.client import (
@@ -377,9 +378,64 @@ def noticias_view(request):
     context = {}
     return render(request, 'noticias.html', context)
 
-def eventos_view(request):
-    context = {}
-    return render(request, 'eventos.html', context)
+def eventos_public_view(request):
+    """
+    Mostra apenas eventos visíveis (visivel = 1 e não escondidos).
+    Não requer autenticação.
+    """
+    # Já não é preciso, mas deixo aqui à mesma, caso dê para o torto outra vez 
+    # print("DEBUG – a view correcta foi chamada!")
+    # print("DEBUG – eventos na BD:", Eventos.objects.count())
+
+    qs = Eventos.objects.filter(is_hidden=False).order_by("data")
+
+    # e igualmente. Isto deu uma chatice
+    # print("DEBUG – total de eventos BD:", Eventos.objects.count())
+    # print("DEBUG – eventos depois do filtro:", qs.count())
+    eventos = []
+
+    for ev in qs:
+        # Resolve o URL da imagem (upload ou URL absoluto)
+        if ev.imagem and hasattr(ev.imagem, "url"):
+            img_url = ev.imagem.url
+        else:
+            img_url = str(ev.imagem) if ev.imagem else ""
+
+        eventos.append({
+            "id": ev.id,
+            "nome": ev.nome,
+            "descricao": ev.descricao,
+            "data": ev.data,
+            "image_url": img_url,
+        })
+
+    return render(request, "eventospub.html", {"eventos": eventos})
+
+
+# ---------- DETALHE PÚBLICO (opcional) ----------
+def evento_detail_view(request, pk):
+    ev = get_object_or_404(Eventos, pk=pk, visivel=1, is_hidden=False)
+
+    if ev.imagem and hasattr(ev.imagem, "url"):
+        img_url = ev.imagem.url
+    else:
+        img_url = str(ev.imagem) if ev.imagem else ""
+
+    contexto = {"evento": ev, "image_url": img_url}
+    return render(request, "evento_detail.html", contexto)
+
+
+# ---------- DETALHE PÚBLICO (opcional) ----------
+def evento_detail_view(request, pk):
+    ev = get_object_or_404(Eventos, pk=pk, visivel=1, is_hidden=False)
+
+    if ev.imagem and hasattr(ev.imagem, "url"):
+        img_url = ev.imagem.url
+    else:
+        img_url = str(ev.imagem) if ev.imagem else ""
+
+    contexto = {"evento": ev, "image_url": img_url}
+    return render(request, "evento_detail.html", contexto)
 
 def certificados_view(request):
     # Dados para a lista de certificados principal
