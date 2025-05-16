@@ -62,7 +62,8 @@ O ISACA Student Group é uma organização liderada por estudantes, focada em pr
 │   │   ├── login.html            #pertence ao painel de administração
 │   │   ├── noticias.html         #pertence ao website ISACA
 │   │   ├── public_layout.html    #pertence ao website ISACA
-│   │   └── sobrenos.html         #pertence ao website ISACA
+│   │   ├── sobrenos.html         #pertence ao website ISACA
+│   │   └── termos_de_uso.html         #pertence ao website ISACA
 │
 │   ├── /static/             # Ficheiros estáticos (CSS, JS, imagens)
 │   │   ├── /css/
