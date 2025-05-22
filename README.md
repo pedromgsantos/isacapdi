@@ -83,7 +83,10 @@ Senha: mariasantos
 
 ├── manage.py                 # Ficheiro principal para comandos Django
 ├── .gitignore               # Ignorados pelo Git (ex: .venv, __pycache__, etc. e também o analytics_key, por questões de segurança)
+├── db_full_fixture.json     # Cópia da base de dados em formato JSON
+├── isacapdi.sql             # Dump da base de dados 
 ├── analytics_key.json       # Chave da conta de serviço para API do Google Analytics
+├── requirements.txt         # Requisitos para correr o projeto
 
 ├── /media/                  # Diretório para uploads (imagens enviadas pelos administradores)
 
@@ -106,7 +109,6 @@ Senha: mariasantos
 │   ├── /analytics/          # Lógica associada à API Google Analytics
 │   │   └── client.py        # Cliente para autenticação e pedidos à API
 │
-│   ├── /views.py            # (pode ser dividido por funcionalidades, se necessário)
 │
 │   ├── /templates/               # Templates HTML (interface)
 │   │   ├── adicionar_evento.html #pertence ao painel de administração
@@ -123,6 +125,7 @@ Senha: mariasantos
 │   │   ├── news_form.html        #pertence ao painel de administração
 │   │   ├── login.html            #pertence ao painel de administração
 │   │   ├── noticias.html         #pertence ao website ISACA
+│   │   ├── evento_detail.html    #pertence ao website ISACA
 │   │   ├── public_layout.html    #pertence ao website ISACA
 │   │   ├── sobrenos.html         #pertence ao website ISACA
 │   │   └── termos_de_uso.html    #pertence ao website ISACA
