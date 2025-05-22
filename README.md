@@ -132,7 +132,8 @@ Senha: mariasantos
 │
 │   ├── /static/             # Ficheiros estáticos (CSS, JS, imagens)
 │   │   ├── /css/
-│   │   │   ├── estilo.css
+│   │   │   ├── styles.css        # estilos do website dashboard
+│   │   │   ├── stylespub.css     # estilos do website publico
 │   │   │   └── ...
 │   │   ├── /js/
 │   │   │   ├── scripts.js
