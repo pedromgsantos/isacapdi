@@ -24,6 +24,8 @@ O ISACA Student Group é uma organização liderada por estudantes, focada em pr
 
 ## 1 · Pré-requisitos e instalação (em windows)
 
+Deve-se ter em atenção que as variáveis secretas (secret_key, DJANGO_EMAIL e DJANGO_PASS) estão no ficheiro .env (presente no gitignore). Estas variáveis devem ser obtidas de forma pessoal
+
 | Ferramenta | Versão | Verificar |
 |------------|--------|-----------|
 | **Python** | ≥ 3.10 | `python --version` |
