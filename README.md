@@ -24,7 +24,7 @@ O ISACA Student Group é uma organização liderada por estudantes, focada em pr
 
 ## 1 · Pré-requisitos e instalação (em windows)
 
-Deve-se ter em atenção que as variáveis secretas (secret_key, DJANGO_EMAIL e DJANGO_PASS) estão no ficheiro .env (presente no gitignore). Estas variáveis devem ser obtidas de forma pessoal
+Deve-se ter em atenção que as variáveis secretas (DJANGO_EMAIL e DJANGO_PASS) estão no ficheiro .env (presente no gitignore). Estas variáveis devem ser transmitidas de forma pessoal
 
 | Ferramenta | Versão | Verificar |
 |------------|--------|-----------|
@@ -83,12 +83,14 @@ Senha: mariasantos
 ```bash
 /isacapdi/  # Diretório raiz do projeto
 
-├── manage.py                 # Ficheiro principal para comandos Django
+├── manage.py                # Ficheiro principal para comandos Django
 ├── .gitignore               # Ignorados pelo Git (ex: .venv, __pycache__, etc. e também o analytics_key, por questões de segurança)
 ├── db_full_fixture.json     # Cópia da base de dados em formato JSON
 ├── isacapdi.sql             # Dump da base de dados 
 ├── analytics_key.json       # Chave da conta de serviço para API do Google Analytics
 ├── requirements.txt         # Requisitos para correr o projeto
+├── .env                     # Define variáveis de ambiente usadas pela aplicação localmente
+├── .env.example             # Modelo do .env com variáveis sem valores definidos
 
 ├── /media/                  # Diretório para uploads (imagens enviadas pelos administradores)
 
@@ -126,6 +128,9 @@ Senha: mariasantos
 │   │   ├── gerirnoticias.html    #pertence ao painel de administração
 │   │   ├── news_form.html        #pertence ao painel de administração
 │   │   ├── login.html            #pertence ao painel de administração
+│   │   ├── mensagem_detail.html  #pertence ao painel de administração
+│   │   ├── mensagem_reply.html   #pertence ao painel de administração
+│   │   ├── mensagens.html        #pertence ao painel de administração
 │   │   ├── noticias.html         #pertence ao website ISACA
 │   │   ├── evento_detail.html    #pertence ao website ISACA
 │   │   ├── public_layout.html    #pertence ao website ISACA
