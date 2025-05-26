@@ -36,6 +36,13 @@ urlpatterns = [
     path("noticias/gerir/<int:pk>/remover/", views.news_delete, name="news_delete"),
     path("noticias/gerir/<int:pk>/toggle/",  views.news_toggle, name="news_toggle"),
 
+    path("mensagens/", views.mensagens, name="mensagens"),
+    path("mensagens/<int:pk>/", views.mensagem_detail, name="mensagem_detail"),
+    path("mensagens/<int:pk>/toggle/", views.mensagem_toggle, name="mensagem_toggle"),
+    path("mensagens/<int:pk>/delete/", views.mensagem_delete, name="mensagem_delete"),
+    path("mensagens/<int:pk>/reply/", views.mensagem_reply, name="mensagem_reply"),
+
+
 
     path('api/data/', views.get_dashboard_data_api, name='dashboard_api_data'),
     path('api/isaca-news/', views.api_isaca_news_view, name='api_isaca_news'),

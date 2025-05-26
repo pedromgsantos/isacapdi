@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Mensagem de {{ mensagem.nome }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h1 class="mb-3">Mensagem de {{ mensagem.nome }}</h1>
+
+  <!-- CARTÃO COM OS DETALHES -->
+  <div class="card mb-3">
+    <div class="card-body">
+      <p><strong>Nome:</strong> {{ mensagem.nome }}</p>
+      <p><strong>Email:</strong> <a href="mailto:{{ mensagem.email }}">{{ mensagem.email }}</a></p>
+      <p><strong>Assunto:</strong> {{ mensagem.assunto }}</p>
+      {% if mensagem.ano %}<p><strong>Ano:</strong> {{ mensagem.ano }}</p>{% endif %}
+      {% if mensagem.categoria %}<p><strong>Categoria:</strong> {{ mensagem.categoria }}</p>{% endif %}
+      {% if mensagem.curso %}<p><strong>Curso:</strong> {{ mensagem.curso }}</p>{% endif %}
+      <hr>
+      <p>{{ mensagem.mensagem|linebreaks }}</p>
+      <hr>
+      <p class="text-muted">Recebida em {{ mensagem.data_envio|date:"d/m/Y H:i" }}</p>
+    </div>
+  </div>
+
+  <!-- BOTÕES DE NAVEGAÇÃO E AÇÕES -->
+  <div class="d-flex gap-2 flex-wrap">
+    <a href="{% url 'dashboard:mensagens' %}" class="btn btn-secondary">Voltar</a>
+
+    {% if anterior %}
+      <a href="{% url 'dashboard:mensagem_detail' anterior.pk %}" class="btn btn-outline-secondary">← Anterior</a>
+    {% else %}
+      <button class="btn btn-outline-secondary" disabled>← Anterior</button>
+    {% endif %}
+
+    {% if seguinte %}
+      <a href="{% url 'dashboard:mensagem_detail' seguinte.pk %}" class="btn btn-outline-secondary">Seguinte →</a>
+    {% else %}
+      <button class="btn btn-outline-secondary" disabled>Seguinte →</button>
+    {% endif %}
+
+    <a href="{% url 'dashboard:mensagem_reply' mensagem.pk %}" class="btn btn-warning">Responder</a>
+    <a href="{% url 'dashboard:mensagem_toggle' mensagem.pk %}" class="btn btn-outline-primary">
+      {% if mensagem.lido %}Marcar não-lida{% else %}Marcar lida{% endif %}
+    </a>
+    <a href="{% url 'dashboard:mensagem_delete' mensagem.pk %}" class="btn btn-danger">Eliminar</a>
+  </div>
+</div>
+{% endblock %}

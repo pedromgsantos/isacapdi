@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Responder a {{ destinatario }}{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 720px;">
+  <h1 class="mb-4">Responder a {{ destinatario }}</h1>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="mb-3">
+      {{ form.subject.label_tag }} {{ form.subject }}
+      {% for err in form.subject.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
+    </div>
+
+    <div class="mb-3">
+      {{ form.message.label_tag }} {{ form.message }}
+      {% for err in form.message.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
+    </div>
+
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-primary">Enviar</button>
+      <a href="{% url 'dashboard:mensagem_detail' mensagem.pk %}" class="btn btn-secondary">Cancelar</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

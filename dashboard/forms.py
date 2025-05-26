@@ -167,3 +167,18 @@ class NewsArticleForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.pk and self.instance.published:
             self.initial["published"] = self.instance.published.strftime("%Y-%m-%dT%H:%M")
+
+# -------------------------------------------------
+#  FORMULÁRIO DE RESPOSTA A CONTACTOS
+# -------------------------------------------------
+class ContactReplyForm(forms.Form):
+    subject = forms.CharField(
+        label="Assunto",
+        max_length=150,
+        widget=forms.TextInput(attrs={"class": "form-control"})
+    )
+    message = forms.CharField(
+        label="Mensagem",
+        widget=forms.Textarea(attrs={"class": "form-control", "rows": 6})
+    )
+

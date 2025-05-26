@@ -1,13 +1,38 @@
 {% extends 'base.html' %}
-{% block title %}Eliminar {{ type }}{% endblock %}
+{% load i18n %}
+
+{# … cabeçalhos omitidos para brevidade … #}
+
 {% block content %}
-<div class="container mt-4">
+<div class="container py-5" style="max-width: 720px;">
+
+  {# DEFINE a fallback antes de qualquer uso #}
+  {% url 'dashboard:mensagens' as default_cancel %}
+
   <h1 class="text-danger mb-4">Eliminar {{ type }}</h1>
-  <p>Tens a certeza que queres eliminar “{{ object }}”?</p>
-  <form method="post">
+
+  <p>
+    Tens a certeza que queres eliminar
+    {% if type == "mensagem" %}
+        “Mensagem de {{ object.nome }} sobre '{{ object.assunto }}'
+        em {{ object.data_envio|date:"d/m/Y H:i" }}”?
+    {% elif type == "notícia" %}
+        “Notícia '{{ object.title }}'
+        publicada em {{ object.published|date:"d/m/Y H:i" }}”?
+    {% else %}
+        este registo?
+    {% endif %}
+  </p>
+
+  <form method="post" class="d-inline">
     {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Sim, eliminar</button>
-    <a href="{% url 'dashboard:gerir_noticias' %}" class="btn btn-secondary">Cancelar</a>
+    <button type="submit" class="btn btn-danger me-2">Sim, eliminar</button>
   </form>
+
+  {# link Cancelar usa agora default_cancel já definido #}
+  <a href="{{ request.GET.next|default_if_none:request.headers.referer|default:default_cancel }}"
+     class="btn btn-secondary">
+    Cancelar
+  </a>
 </div>
 {% endblock %}

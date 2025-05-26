@@ -3,12 +3,12 @@
 from datetime import datetime, timedelta
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
 from .models import Newsletter, Eventos, Contactos, Comentarios , NewsArticle
-from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO, NewsArticleForm
+from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO, NewsArticleForm, ContactReplyForm
 from .news_scraper import get_isaca_news_py
 from django.utils.text import slugify
 from django.http import JsonResponse
@@ -16,7 +16,8 @@ from django.views.decorators.http import require_POST, require_GET
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import json
-from django.db.models import Q 
+from django.db.models import Q
+from django.core.mail import send_mail
 
 # Assume que analytics.client e forms estão corretamente no teu projeto
 from .analytics.client import (
@@ -434,6 +435,105 @@ def news_toggle(request, pk):
         article.is_active = not article.is_active
         article.save()
     return redirect(request.POST.get("next") or "dashboard:gerir_noticias")
+
+
+# -------------------------------------------------
+#  GESTÃO DE MENSAGENS DE CONTACTO
+# -------------------------------------------------
+
+def _staff_only(user):
+    return user.is_active and user.is_staff
+
+
+@login_required
+@user_passes_test(_staff_only)
+def mensagens(request):
+    msgs = Contactos.objects.all()
+    return render(request, "mensagens.html", {"mensagens": msgs})
+
+
+@login_required
+@user_passes_test(_staff_only)
+def mensagem_detail(request, pk):
+    msg = get_object_or_404(Contactos, pk=pk)
+
+    # marca como lida
+    if not msg.lido:
+        msg.lido = True
+        msg.save(update_fields=["lido"])
+
+    # ordenar por data_envio DESC, depois id DESC
+    qs = Contactos.objects.order_by("-data_envio", "-id")
+
+    # obter anterior e seguinte dentro do mesmo queryset
+    seguinte = qs.filter(id__lt=msg.id).first()   # próxima mais “nova”
+    anterior = qs.filter(id__gt=msg.id).last()    # mais “antiga”
+
+    return render(
+        request,
+        "mensagem_detail.html",
+        {
+            "mensagem": msg,
+            "anterior": anterior,
+            "seguinte": seguinte,
+        },
+    )
+
+
+@login_required
+@user_passes_test(_staff_only)
+def mensagem_toggle(request, pk):
+    msg = get_object_or_404(Contactos, pk=pk)
+    msg.lido = not msg.lido
+    msg.save(update_fields=["lido"])
+    return redirect("dashboard:mensagens")
+
+
+@login_required
+@user_passes_test(_staff_only)
+def mensagem_delete(request, pk):
+    msg = get_object_or_404(Contactos, pk=pk)
+    if request.method == "POST":
+        msg.delete()
+        messages.success(request, "Mensagem eliminada.")
+        return redirect(request.POST.get("next") or "dashboard:mensagens")
+    return render(request, "confirm_delete.html", {"object": msg, "type": "mensagem"})
+
+@login_required
+@user_passes_test(_staff_only)
+def mensagem_reply(request, pk):
+    """
+    Envia uma resposta por e-mail ao remetente da mensagem.
+    """
+    msg = get_object_or_404(Contactos, pk=pk)
+
+    initial = {
+        "subject": f"Re: {msg.assunto}",
+        "message": f"\n\n--- Mensagem original ---\n{msg.mensagem}",
+    }
+    form = ContactReplyForm(request.POST or None, initial=initial)
+
+    if request.method == "POST" and form.is_valid():
+        try:
+            send_mail(
+                subject        = form.cleaned_data["subject"],
+                message        = form.cleaned_data["message"],
+                from_email     = settings.DEFAULT_FROM_EMAIL,
+                recipient_list = [msg.email],
+                fail_silently  = False,
+            )
+            messages.success(request, "Resposta enviada com sucesso.")
+        except Exception as e:
+            messages.error(request, f"Ocorreu um erro ao enviar: {e}")
+
+        return redirect("dashboard:mensagem_detail", pk=pk)
+
+    return render(request, "mensagem_reply.html", {
+        "form": form,
+        "destinatario": msg.email,
+        "mensagem": msg,
+    })
+
 
 #---------------------------------------WEBSITE ISACA (PÚBLICO)-------------------------------------------- 
 # View da Página Inicial PÚBLICA

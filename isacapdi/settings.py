@@ -12,6 +12,9 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -80,10 +83,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": 'isacapdi',
-        'USER': 'pedro',  # Your MariaDB user
-        'PASSWORD': 'mariasantos',  # Replace with your actual password
+        'USER': 'pedro', 
+        'PASSWORD': 'mariasantos', 
         'HOST': 'localhost',
-        'PORT': '3306',  # Default MariaDB port
+        'PORT': '3306',  
         'OPTIONS':{
             'charset': 'utf8mb4', 
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
@@ -111,12 +114,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+# ---------------- EMAIL ----------------
+EMAIL_BACKEND  = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST     = "smtp.gmail.com"
+EMAIL_PORT     = 587
+EMAIL_USE_TLS  = True
+
+EMAIL_HOST_USER     = os.getenv("DJANGO_EMAIL_USER")
+EMAIL_HOST_PASSWORD = os.getenv("DJANGO_EMAIL_PASS")
+DEFAULT_FROM_EMAIL  = EMAIL_HOST_USER
+
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = "pt-PT"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Lisbon"
 
 USE_I18N = True
 

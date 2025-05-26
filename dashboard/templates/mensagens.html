@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Mensagens Recebidas{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ---------- estilos para os cards mobile ---------- */
+.msg-card + .msg-card { margin-top: 1rem; }
+
+.msg-card-header { cursor: pointer; }
+
+.msg-card-body { display: none; }          /* fechado por defeito   */
+.msg-card-body.open { display: block; }    /* mostrado quando aberto */
+
+.msg-card .badge-nova {                    /* “Novo” no canto sup. dir. */
+  right: 0.5rem;
+  top:   0.5rem;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold fs-2 mb-0">Mensagens Recebidas</h2>
+  </div>
+
+  {# ---------- ALERTAS / FLASH-MESSAGES ---------- #}
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {# ---------- TABELA (≥ md) ---------- #}
+  <div class="table-responsive d-none d-md-block">
+    <table class="table table-striped align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>Nome</th>
+          <th>Email</th>
+          <th>Assunto</th>
+          <th>Data</th>
+          <th class="text-center">Lida</th>
+          <th class="text-end">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for msg in mensagens %}
+        <tr class="{% if not msg.lido %}fw-bold{% endif %}">
+          <td>{{ msg.nome }}</td>
+          <td><a href="mailto:{{ msg.email }}">{{ msg.email }}</a></td>
+          <td>{{ msg.assunto }}</td>
+          <td>{{ msg.data_envio|date:"d/m/Y H:i" }}</td>
+          <td class="text-center">
+            {% if msg.lido %}
+              <i class="bi bi-check-circle-fill text-success"></i>
+            {% else %}
+              <i class="bi bi-circle text-muted"></i>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{% url 'dashboard:mensagem_detail' msg.pk %}" class="btn btn-sm btn-primary">Ver</a>
+            <a href="{% url 'dashboard:mensagem_reply' msg.pk %}" class="btn btn-sm btn-warning">Responder</a>
+            <a href="{% url 'dashboard:mensagem_toggle' msg.pk %}" class="btn btn-sm btn-outline-secondary">
+              {% if msg.lido %}Não-lida{% else %}Lida{% endif %}
+            </a>
+            <a href="{% url 'dashboard:mensagem_delete' msg.pk %}?next={{ request.get_full_path|urlencode }}"
+               class="btn btn-sm btn-danger">
+              Eliminar
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {# ---------- CARDS (< md) ---------- #}
+  <div>
+    {% for msg in mensagens %}
+    <div class="card msg-card position-relative d-md-none">
+      {% if not msg.lido %}
+        <span class="badge bg-success position-absolute badge-nova">Novo</span>
+      {% endif %}
+
+      <div class="card-header d-flex justify-content-between align-items-center msg-card-header"
+           onclick="toggleCardBody('{{ msg.pk }}')">
+        <div>
+          <strong>{{ msg.nome }}</strong><br>
+          <small class="text-muted">{{ msg.data_envio|date:"d/m/Y H:i" }}</small>
+        </div>
+        <i class="bi bi-chevron-down"></i>
+      </div>
+
+      <div class="card-body msg-card-body" id="body-{{ msg.pk }}">
+        <p><strong>Email:</strong> <a href="mailto:{{ msg.email }}">{{ msg.email }}</a></p>
+        <p><strong>Assunto:</strong> {{ msg.assunto }}</p>
+        <p class="mb-2">{{ msg.mensagem|truncatechars:120 }}</p>
+
+        <div class="d-grid gap-2">
+          <a href="{% url 'dashboard:mensagem_detail' msg.pk %}" class="btn btn-primary btn-sm">Detalhe</a>
+          <a href="{% url 'dashboard:mensagem_reply' msg.pk %}" class="btn btn-warning btn-sm">Responder</a>
+          <a href="{% url 'dashboard:mensagem_toggle' msg.pk %}" class="btn btn-outline-secondary btn-sm">
+            {% if msg.lido %}Marcar não-lida{% else %}Marcar lida{% endif %}
+          </a>
+          <a href="{% url 'dashboard:mensagem_delete' msg.pk %}?next={{ request.get_full_path|urlencode }}"
+             class="btn btn-danger btn-sm">
+            Eliminar
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if not mensagens %}
+    <p class="text-muted">Ainda não existem mensagens.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+/* abre/fecha o corpo do card mobile */
+function toggleCardBody(id) {
+  const body = document.getElementById('body-' + id);
+  if (body) body.classList.toggle('open');
+}
+</script>
+{% endblock %}
