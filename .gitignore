@@ -1,2 +1,4 @@
 analytics_key.json
 .env
+__pycache__/
+*.pyc
