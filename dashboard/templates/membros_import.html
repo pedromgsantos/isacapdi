@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<h1>Importar Membros</h1>
+
+{% if messages %}
+  {% for msg in messages %}
+    <div class="alert 
+                {% if 'error'   in msg.tags %}alert-danger
+                {% elif 'warning' in msg.tags %}alert-warning
+                {% elif 'success' in msg.tags %}alert-success
+                {% else %}alert-info{% endif %}
+                mb-3">
+        {{ msg }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form|crispy }}
+  <button class="btn btn-primary">Importar</button>
+  <a href="{% url 'dashboard:membros_list' %}" class="btn btn-link">Voltar</a>
+</form>
+
+<p class="mt-4 small text-muted">
+  Exemplo CSV:&nbsp;
+  <code>full_name,email,date_of_birth,phone_number,study_cycle,course,year,interests</code>
+</p>
+{% endblock %}

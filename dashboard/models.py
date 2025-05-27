@@ -87,3 +87,24 @@ class NewsArticle(models.Model):
 
     def __str__(self):
         return self.title
+
+class Membro(models.Model):
+    full_name     = models.CharField("Nome completo", max_length=255)
+    email         = models.EmailField("E-mail", unique=True)
+    date_of_birth = models.DateField("Data de nascimento")
+    phone_number  = models.CharField("Telemóvel", max_length=20, blank=True)
+    study_cycle   = models.CharField("Ciclo de estudos", max_length=100)
+    course        = models.CharField("Curso", max_length=255)
+    year          = models.PositiveIntegerField("Ano")
+    interests     = models.TextField("Interesses", blank=True)
+
+    created_at    = models.DateTimeField(auto_now_add=True)
+    updated_at    = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering            = ["full_name"]
+        verbose_name        = "Membro"
+        verbose_name_plural = "Membros"
+
+    def __str__(self):
+        return self.full_name

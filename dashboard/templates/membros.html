@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+<div class="container-fluid px-4 py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold fs-2 mb-0">
+            Membros ISACA
+        </h2>
+    </div>
+</div>
+
+{% if messages %}
+  {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }} mb-3">{{ msg }}</div>
+  {% endfor %}
+{% endif %}
+
+
+<form method="get" class="mb-3">
+  <input class="form-control" name="q" value="{{ query }}" placeholder="Procurar…">
+</form>
+
+<a href="{% url 'dashboard:membro_create' %}" class="btn btn-primary me-2">+ Novo</a>
+<a href="{% url 'dashboard:membros_import' %}" class="btn btn-secondary">Importar CSV/Excel</a>
+
+<table class="table table-striped mt-3">
+  <thead>
+    <tr>
+      <th>Nome</th>
+      <th>Email</th>
+      <th>Curso</th>
+      <th>Ano</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in page_obj %}
+      <tr>
+        <td>{{ m.full_name }}</td>
+        <td>{{ m.email }}</td>
+        <td>{{ m.course }}</td>
+        <td>{{ m.year }}</td>
+        <td class="text-end">
+          <a href="{% url 'dashboard:membro_edit' m.pk %}"
+             class="btn btn-sm btn-outline-primary">Editar</a>
+          <a href="{% url 'dashboard:membro_delete' m.pk %}"
+             class="btn btn-sm btn-outline-danger">Apagar</a>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5">Sem membros.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{# ---------- PAGINAÇÃO DIRETA ---------- #}
+{% if page_obj.has_other_pages %}
+<nav aria-label="Paginação">
+  <ul class="pagination justify-content-center">
+
+    {# Anterior #}
+    {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"
+           aria-label="Anterior">
+          <span aria-hidden="true">&laquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+    {% endif %}
+
+    {# Números (mostra ±2) #}
+    {% for num in page_obj.paginator.page_range %}
+      {% if num == page_obj.number %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+      {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+        <li class="page-item">
+          <a class="page-link"
+             href="?{% if query %}q={{ query }}&{% endif %}page={{ num }}">{{ num }}</a>
+        </li>
+      {% endif %}
+    {% endfor %}
+
+    {# Seguinte #}
+    {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"
+           aria-label="Seguinte">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+    {% else %}
+      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+    {% endif %}
+
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

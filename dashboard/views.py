@@ -1,23 +1,26 @@
 # dashboard/views.py
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.urls import reverse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from .models import Newsletter, Eventos, Contactos, Comentarios , NewsArticle
-from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO, NewsArticleForm, ContactReplyForm
+from .models import Newsletter, Eventos, Contactos, Comentarios , NewsArticle, Membro
+from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO, NewsArticleForm, ContactReplyForm, MembroForm, MembroImportForm
+import pandas as pd, io, csv
+from django.core.paginator import Paginator
 from .news_scraper import get_isaca_news_py
 from django.utils.text import slugify
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST, require_GET
+from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import json
 from django.db.models import Q
 from django.core.mail import send_mail
+
 
 # Assume que analytics.client e forms estão corretamente no teu projeto
 from .analytics.client import (
@@ -201,25 +204,7 @@ def get_dashboard_data_api(request):
         "selected_period_label": period["label"],
     }
     return JsonResponse(data)
-
-
-# --- API: Obter dados para modal ---
-@require_GET
-@login_required
-def api_get_evento(request, event_id):
-    try:
-        evento = Eventos.objects.get(id=event_id)
-        return JsonResponse({
-            'id': evento.id,
-            'nome': evento.nome,
-            'descricao': evento.descricao,
-            'texto': evento.texto,
-            'data': evento.data.isoformat(),
-        })
-    except Eventos.DoesNotExist:
-        return JsonResponse({'error': 'Evento não encontrado'}, status=404)
     
-
 # --- API: Obter dados para modal ---
 @require_GET
 @login_required
@@ -466,8 +451,8 @@ def mensagem_detail(request, pk):
     qs = Contactos.objects.order_by("-data_envio", "-id")
 
     # obter anterior e seguinte dentro do mesmo queryset
-    seguinte = qs.filter(id__lt=msg.id).first()   # próxima mais “nova”
-    anterior = qs.filter(id__gt=msg.id).last()    # mais “antiga”
+    seguinte = qs.filter(id__lt=msg.id).first()
+    anterior = qs.filter(id__gt=msg.id).last()
 
     return render(
         request,
@@ -534,6 +519,110 @@ def mensagem_reply(request, pk):
         "mensagem": msg,
     })
 
+# -----------------------------------------------------------------------
+#  MEMBROS – Funções auxiliares
+# -----------------------------------------------------------------------
+
+_REQUIRED_HEADERS = {
+    "full_name", "email", "date_of_birth", "phone_number",
+    "study_cycle", "course", "year", "interests",
+}
+
+def _parse_membros_file(uploaded):
+    name = uploaded.name.lower()
+    if name.endswith(".csv"):
+        decoded = uploaded.read().decode("utf-8")
+        reader  = csv.DictReader(io.StringIO(decoded))
+        rows    = list(reader)
+    elif name.endswith((".xls", ".xlsx")):
+        df   = pd.read_excel(uploaded)
+        rows = df.to_dict(orient="records")
+    else:
+        raise ValueError("Formato não suportado. Usa CSV ou Excel.")
+
+    if not rows:
+        raise ValueError("Ficheiro vazio.")
+
+    missing = _REQUIRED_HEADERS - set(rows[0].keys())
+    if missing:
+        raise ValueError(f"Faltam cabeçalhos: {', '.join(missing)}")
+
+    for r in rows:
+        r["date_of_birth"] = _parse_data(r["date_of_birth"])
+        r["year"]          = int(r["year"])
+    return rows
+
+def _parse_data(value):
+    if isinstance(value, date):
+        return value
+    for fmt in ("%Y-%m-%d", "%d/%m/%Y", "%d-%m-%Y"):
+        try:
+            return datetime.strptime(str(value), fmt).date()
+        except ValueError:
+            continue
+    raise ValueError(f"Data inválida: {value}")
+
+def _bulk_upsert_membros(rows):
+    criados = atualizados = 0
+    for r in rows:
+        obj, is_new = Membro.objects.update_or_create(
+            email=r["email"],
+            defaults=r,
+        )
+        criados    += is_new
+        atualizados += 0 if is_new else 1
+    return criados, atualizados
+
+@login_required
+def membros_list(request):
+    q     = request.GET.get("q", "")
+    qs    = Membro.objects.filter(full_name__icontains=q) if q else Membro.objects.all()
+    page  = Paginator(qs, 20).get_page(request.GET.get("page"))
+    return render(request, "membros.html", {"page_obj": page, "query": q})
+
+@login_required
+def membro_edit(request, pk=None):
+    instance = get_object_or_404(Membro, pk=pk) if pk else None
+    form = MembroForm(request.POST or None, instance=instance)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Membro guardado com sucesso.")
+        return redirect("dashboard:membros_list")
+    return render(request, "membros_form.html", {"form": form})
+
+@login_required
+@user_passes_test(_staff_only)
+def membro_delete(request, pk):
+    obj = get_object_or_404(Membro, pk=pk)
+    if request.method == "POST":
+        obj.delete()
+        messages.success(request, "Membro eliminado.")
+        return redirect("dashboard:membros_list")
+    return render(request, "confirm_delete.html", {"object": obj, "type": "membro"})
+
+@login_required
+@user_passes_test(_staff_only)
+@require_http_methods(["GET", "POST"])
+def membros_import(request):
+    form = MembroImportForm(request.POST or None, request.FILES or None)
+
+    if request.method == "POST" and form.is_valid():
+        try:
+            rows = _parse_membros_file(form.cleaned_data["file"])
+            criados, atualizados = _bulk_upsert_membros(rows)
+            messages.success(
+                request,
+                f"Importação concluída – {criados} novos, {atualizados} atualizados."
+            )
+            # —­­ redirecciona para a listagem
+            return redirect("dashboard:membros_list")
+
+        except ValueError as e:
+            # fica na página e mostra o erro
+            messages.error(request, str(e))
+
+    # GET inicial ou POST inválido → renderiza a própria página
+    return render(request, "membros_import.html", {"form": form})
 
 #---------------------------------------WEBSITE ISACA (PÚBLICO)-------------------------------------------- 
 # View da Página Inicial PÚBLICA

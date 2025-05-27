@@ -1,7 +1,8 @@
 # dashboard/forms.py
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from .models import NewsArticle
+from .models import NewsArticle, Membro
+import pandas as pd, io, csv, datetime
 
 # -------------------------------------------------
 #  FORMULÁRIO DE LOGIN
@@ -182,3 +183,24 @@ class ContactReplyForm(forms.Form):
         widget=forms.Textarea(attrs={"class": "form-control", "rows": 6})
     )
 
+class MembroForm(forms.ModelForm):
+    class Meta:
+        model  = Membro
+        fields = [
+            "full_name", "email", "date_of_birth", "phone_number",
+            "study_cycle", "course", "year", "interests",
+        ]
+        widgets = {
+            "date_of_birth": forms.DateInput(attrs={"type": "date"}),
+            "interests":     forms.Textarea(attrs={"rows": 3}),
+        }
+
+class MembroImportForm(forms.Form):
+    file = forms.FileField(
+        label="Ficheiro CSV ou Excel",
+        help_text=(
+            "Cabeçalhos obrigatórios: "
+            "full_name, email, date_of_birth, phone_number, "
+            "study_cycle, course, year, interests"
+        ),
+    )

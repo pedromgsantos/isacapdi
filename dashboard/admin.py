@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Eventos, Contactos, Newsletter, Comentarios, NewsArticle
+from .models import Eventos, Contactos, Newsletter, Comentarios, NewsArticle, Membro
 
 @admin.register(Eventos)
 class EventoAdmin(admin.ModelAdmin):
@@ -46,3 +46,9 @@ class NewsArticleAdmin(admin.ModelAdmin):
     list_filter = ("is_active",)
     search_fields = ("title", "summary")
     ordering = ("-published",)
+
+@admin.register(Membro)
+class MembroAdmin(admin.ModelAdmin):
+    list_display  = ("full_name", "email", "course", "year")
+    list_filter   = ("study_cycle", "course", "year")
+    search_fields = ("full_name", "email", "course", "interests")
