@@ -550,6 +550,7 @@ def _parse_membros_file(uploaded):
     for r in rows:
         r["date_of_birth"] = _parse_data(r["date_of_birth"])
         r["year"]          = int(r["year"])
+        r["status"]        = r.get("status", "atual").lower()
     return rows
 
 def _parse_data(value):
@@ -575,10 +576,48 @@ def _bulk_upsert_membros(rows):
 
 @login_required
 def membros_list(request):
-    q     = request.GET.get("q", "")
-    qs    = Membro.objects.filter(full_name__icontains=q) if q else Membro.objects.all()
-    page  = Paginator(qs, 20).get_page(request.GET.get("page"))
-    return render(request, "membros.html", {"page_obj": page, "query": q})
+    qs = Membro.objects.all()
+
+    # -------------- filtros --------------
+    q         = request.GET.get("q", "").strip()
+    curso     = request.GET.get("curso", "").strip()
+    ano       = request.GET.get("ano", "").strip() 
+    estado    = request.GET.get("estado", "atual").strip() # apenas lista membros atuais
+    idade_min = request.GET.get("idade_min", "").strip()
+    idade_max = request.GET.get("idade_max", "").strip()
+    interesse = request.GET.get("interesse", "").strip()
+
+    if q:
+        qs = qs.filter(Q(full_name__icontains=q) | Q(email__icontains=q))
+    if curso:
+        qs = qs.filter(course=curso)
+    if ano:
+        qs = qs.filter(year=ano)
+    if estado:
+        qs = qs.filter(status=estado)
+    if interesse:
+        qs = qs.filter(interests__icontains=interesse)
+
+    today = date.today()
+    if idade_min:
+        dob_max = date(today.year - int(idade_min), today.month, today.day)
+        qs = qs.filter(date_of_birth__lte=dob_max)
+    if idade_max:
+        dob_min = date(today.year - int(idade_max) - 1, today.month, today.day) + timedelta(days=1)
+        qs = qs.filter(date_of_birth__gte=dob_min)
+
+    page = Paginator(qs, 20).get_page(request.GET.get("page"))
+
+    ctx = {
+        "page_obj": page,
+        "cursos":   Membro.objects.values_list("course", flat=True).distinct().order_by("course"),
+        "anos":     Membro.objects.values_list("year",  flat=True).distinct().order_by("year"),
+        "f": {      # devolve filtros para o template
+            "q": q, "curso": curso, "ano": ano, "estado": estado,
+            "idade_min": idade_min, "idade_max": idade_max, "interesse": interesse,
+        },
+    }
+    return render(request, "membros.html", ctx)
 
 @login_required
 def membro_edit(request, pk=None):

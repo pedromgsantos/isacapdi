@@ -188,11 +188,12 @@ class MembroForm(forms.ModelForm):
         model  = Membro
         fields = [
             "full_name", "email", "date_of_birth", "phone_number",
-            "study_cycle", "course", "year", "interests",
+            "study_cycle", "course", "year", "interests", "status",
         ]
         widgets = {
             "date_of_birth": forms.DateInput(attrs={"type": "date"}),
             "interests":     forms.Textarea(attrs={"rows": 3}),
+            "status":       forms.Select(),
         }
 
 class MembroImportForm(forms.Form):
@@ -202,5 +203,6 @@ class MembroImportForm(forms.Form):
             "Cabeçalhos obrigatórios: "
             "full_name, email, date_of_birth, phone_number, "
             "study_cycle, course, year, interests"
+            "(status opcional)"
         ),
     )

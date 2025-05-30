@@ -89,6 +89,11 @@ class NewsArticle(models.Model):
         return self.title
 
 class Membro(models.Model):
+    STATUS_CHOICES = [
+        ("atual", "Membro atual"),
+        ("ex",    "Ex-membro"),
+    ]
+
     full_name     = models.CharField("Nome completo", max_length=255)
     email         = models.EmailField("E-mail", unique=True)
     date_of_birth = models.DateField("Data de nascimento")
@@ -97,6 +102,10 @@ class Membro(models.Model):
     course        = models.CharField("Curso", max_length=255)
     year          = models.PositiveIntegerField("Ano")
     interests     = models.TextField("Interesses", blank=True)
+
+    status        = models.CharField(
+        "Estado", max_length=5, choices=STATUS_CHOICES, default="atual"
+    )
 
     created_at    = models.DateTimeField(auto_now_add=True)
     updated_at    = models.DateTimeField(auto_now=True)

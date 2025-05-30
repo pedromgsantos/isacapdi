@@ -3,102 +3,213 @@
 {% block content %}
 
 <div class="container-fluid px-4 py-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold fs-2 mb-0">
-            Membros ISACA
-        </h2>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold fs-2 mb-0">Membros ISACA</h2>
+  </div>
+
+  {# ---------- Mensagens / alerts ---------- #}
+  {% if messages %}
+    {% for msg in messages %}
+      <div class="alert alert-{{ msg.tags }} mb-3">{{ msg }}</div>
+    {% endfor %}
+  {% endif %}
+
+  {# ---------- Filtros ---------- #}
+  <form class="row g-2 mb-3" method="get">
+    <div class="col-md">
+      <input class="form-control" name="q" placeholder="Nome ou email"
+             value="{{ f.q }}">
     </div>
-</div>
 
-{% if messages %}
-  {% for msg in messages %}
-    <div class="alert alert-{{ msg.tags }} mb-3">{{ msg }}</div>
-  {% endfor %}
+    <div class="col-md">
+      <select name="curso" class="form-select">
+        <option value="">— Curso —</option>
+        {% for c in cursos %}
+          <option {% if c == f.curso %}selected{% endif %}>{{ c }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md">
+      <select name="ano" class="form-select">
+        <option value="">— Ano —</option>
+        {% for a in anos %}
+          <option value="{{ a }}"
+                  {% if a|stringformat:'s' == f.ano %}selected{% endif %}>
+            {{ a }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="col-md">
+      <input type="number" min="0" class="form-control"
+             name="idade_min" placeholder="Idade ≥"
+             value="{{ f.idade_min }}">
+    </div>
+
+    <div class="col-md">
+      <input type="number" min="0" class="form-control"
+             name="idade_max" placeholder="Idade ≤"
+             value="{{ f.idade_max }}">
+    </div>
+
+    <div class="col-md">
+      <input class="form-control" name="interesse"
+             placeholder="Interesses" value="{{ f.interesse }}">
+    </div>
+
+    <div class="col-md">
+      <select name="estado" class="form-select">
+        <option value="">— Estado —</option>
+        <option value="atual"
+                {% if f.estado == 'atual' %}selected{% endif %}>
+          Atual
+        </option>
+        <option value="ex"
+                {% if f.estado == 'ex' %}selected{% endif %}>
+          Ex-membro
+        </option>
+      </select>
+    </div>
+
+    <div class="col-auto">
+      <button class="btn btn-primary">Filtrar</button>
+    </div>
+    <div class="col-auto">
+      <a href="{% url 'dashboard:membros_list' %}" class="btn btn-secondary">
+        Limpar
+      </a>
+    </div>
+  </form>
+
+{# ---------- Alternar vista «membros / ex-membros» ---------- #}
+{% if f.estado == 'ex' %}
+  <a href="{% url 'dashboard:membros_list' %}" class="btn btn-link">
+    Voltar a membros atuais
+  </a>
+{% else %}
+  <a href="{% url 'dashboard:membros_list' %}?estado=ex" class="btn btn-link">
+    Ver ex-membros
+  </a>
 {% endif %}
 
+  {# ---------- Acções ---------- #}
+  <a href="{% url 'dashboard:membro_create' %}" class="btn btn-primary me-2">
+    + Novo
+  </a>
+  <a href="{% url 'dashboard:membros_import' %}" class="btn btn-secondary">
+    Importar CSV/Excel
+  </a>
 
-<form method="get" class="mb-3">
-  <input class="form-control" name="q" value="{{ query }}" placeholder="Procurar…">
-</form>
-
-<a href="{% url 'dashboard:membro_create' %}" class="btn btn-primary me-2">+ Novo</a>
-<a href="{% url 'dashboard:membros_import' %}" class="btn btn-secondary">Importar CSV/Excel</a>
-
-<table class="table table-striped mt-3">
-  <thead>
-    <tr>
-      <th>Nome</th>
-      <th>Email</th>
-      <th>Curso</th>
-      <th>Ano</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for m in page_obj %}
+  {# ---------- Tabela ---------- #}
+  <table class="table table-striped mt-3">
+    <thead>
       <tr>
-        <td>{{ m.full_name }}</td>
-        <td>{{ m.email }}</td>
-        <td>{{ m.course }}</td>
-        <td>{{ m.year }}</td>
-        <td class="text-end">
-          <a href="{% url 'dashboard:membro_edit' m.pk %}"
-             class="btn btn-sm btn-outline-primary">Editar</a>
-          <a href="{% url 'dashboard:membro_delete' m.pk %}"
-             class="btn btn-sm btn-outline-danger">Apagar</a>
-        </td>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>Curso</th>
+        <th>Ano</th>
+        <th>Estado</th>
+        <th></th>
       </tr>
-    {% empty %}
-      <tr><td colspan="5">Sem membros.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      {% for m in page_obj %}
+        <tr>
+          <td>{{ m.full_name }}</td>
+          <td>{{ m.email }}</td>
+          <td>{{ m.course }}</td>
+          <td>{{ m.year }}</td>
+          <td>
+            {% if m.status == "atual" %}
+              <span class="badge bg-success">Atual</span>
+            {% else %}
+              <span class="badge bg-secondary">Ex-membro</span>
+            {% endif %}
+          </td>
+          <td class="text-end">
+            <a href="{% url 'dashboard:membro_edit' m.pk %}"
+               class="btn btn-sm btn-outline-primary">Editar</a>
+            <a href="{% url 'dashboard:membro_delete' m.pk %}"
+               class="btn btn-sm btn-outline-danger">Apagar</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6">Sem membros.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
 
-{# ---------- PAGINAÇÃO DIRETA ---------- #}
-{% if page_obj.has_other_pages %}
-<nav aria-label="Paginação">
-  <ul class="pagination justify-content-center">
+  {# ---------- Paginação ---------- #}
+  {% if page_obj.has_other_pages %}
+    <nav aria-label="Paginação">
+      <ul class="pagination justify-content-center">
 
-    {# Anterior #}
-    {% if page_obj.has_previous %}
-      <li class="page-item">
-        <a class="page-link"
-           href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"
-           aria-label="Anterior">
-          <span aria-hidden="true">&laquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
-    {% endif %}
+        {# anterior #}
+        {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link"
+               href="?{% if f.q %}q={{ f.q }}&{% endif %}
+                      {% if f.curso %}curso={{ f.curso }}&{% endif %}
+                      {% if f.ano %}ano={{ f.ano }}&{% endif %}
+                      {% if f.idade_min %}idade_min={{ f.idade_min }}&{% endif %}
+                      {% if f.idade_max %}idade_max={{ f.idade_max }}&{% endif %}
+                      {% if f.interesse %}interesse={{ f.interesse }}&{% endif %}
+                      {% if f.estado %}estado={{ f.estado }}&{% endif %}
+                      page={{ page_obj.previous_page_number }}"
+               aria-label="Anterior">
+              <span aria-hidden="true">&laquo;</span>
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
+        {% endif %}
 
-    {# Números (mostra ±2) #}
-    {% for num in page_obj.paginator.page_range %}
-      {% if num == page_obj.number %}
-        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-      {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-        <li class="page-item">
-          <a class="page-link"
-             href="?{% if query %}q={{ query }}&{% endif %}page={{ num }}">{{ num }}</a>
-        </li>
-      {% endif %}
-    {% endfor %}
+        {# números ±2 #}
+        {% for num in page_obj.paginator.page_range %}
+          {% if num == page_obj.number %}
+            <li class="page-item active">
+              <span class="page-link">{{ num }}</span>
+            </li>
+          {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
+            <li class="page-item">
+              <a class="page-link"
+                 href="?{% if f.q %}q={{ f.q }}&{% endif %}
+                        {% if f.curso %}curso={{ f.curso }}&{% endif %}
+                        {% if f.ano %}ano={{ f.ano }}&{% endif %}
+                        {% if f.idade_min %}idade_min={{ f.idade_min }}&{% endif %}
+                        {% if f.idade_max %}idade_max={{ f.idade_max }}&{% endif %}
+                        {% if f.interesse %}interesse={{ f.interesse }}&{% endif %}
+                        {% if f.estado %}estado={{ f.estado }}&{% endif %}
+                        page={{ num }}">{{ num }}</a>
+            </li>
+          {% endif %}
+        {% endfor %}
 
-    {# Seguinte #}
-    {% if page_obj.has_next %}
-      <li class="page-item">
-        <a class="page-link"
-           href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"
-           aria-label="Seguinte">
-          <span aria-hidden="true">&raquo;</span>
-        </a>
-      </li>
-    {% else %}
-      <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
-    {% endif %}
+        {# seguinte #}
+        {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link"
+               href="?{% if f.q %}q={{ f.q }}&{% endif %}
+                      {% if f.curso %}curso={{ f.curso }}&{% endif %}
+                      {% if f.ano %}ano={{ f.ano }}&{% endif %}
+                      {% if f.idade_min %}idade_min={{ f.idade_min }}&{% endif %}
+                      {% if f.idade_max %}idade_max={{ f.idade_max }}&{% endif %}
+                      {% if f.interesse %}interesse={{ f.interesse }}&{% endif %}
+                      {% if f.estado %}estado={{ f.estado }}&{% endif %}
+                      page={{ page_obj.next_page_number }}"
+               aria-label="Seguinte">
+              <span aria-hidden="true">&raquo;</span>
+            </a>
+          </li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
+        {% endif %}
 
-  </ul>
-</nav>
-{% endif %}
+      </ul>
+    </nav>
+  {% endif %}
+</div>
 
 {% endblock %}
