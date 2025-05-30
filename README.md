@@ -131,6 +131,9 @@ Senha: mariasantos
 │   │   ├── mensagem_detail.html  #pertence ao painel de administração
 │   │   ├── mensagem_reply.html   #pertence ao painel de administração
 │   │   ├── mensagens.html        #pertence ao painel de administração
+│   │   ├── membros.html          #pertence ao painel de administração
+│   │   ├── membros_form.html     #pertence ao painel de administração
+│   │   ├── membros_import.html   #pertence ao painel de administração
 │   │   ├── noticias.html         #pertence ao website ISACA
 │   │   ├── evento_detail.html    #pertence ao website ISACA
 │   │   ├── public_layout.html    #pertence ao website ISACA
