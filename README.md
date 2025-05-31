@@ -105,6 +105,9 @@ Senha: mariasantos
 │   ├── forms.py             # Formulários Django
 │   ├── tests.py             # Testes automatizados
 │   ├── news_scraper.py      # Script de scraping de notícias de apoio ao template "noticias.html"
+│   ├── utils.py             # Funções utilitárias reutilizadas em várias views/scripts
+│   ├── middleware.py        # Middleware customizado (ex.: marca requests, trata headers, etc.)
+│   ├── context_processors.py # Injeta variáveis globais nos templates (ex.: ano corrente, versão)
 │
 │   ├── /management/          # Diretório necessário para definir comandos personalizados do Django
 │   │     └──/commands/       # Diretório onde os comandos personalizados são implementados
@@ -117,6 +120,7 @@ Senha: mariasantos
 │   ├── /templates/               # Templates HTML (interface)
 │   │   ├── adicionar_evento.html #pertence ao painel de administração
 │   │   ├── base.html             #pertence ao painel de administração
+│   │   ├── 403.html              #pertence ao painel de administração - Página de erro 403 (Forbidden) personalizada
 │   │   ├── certificados.html     #pertence ao website ISACA
 │   │   ├── contactos.html        #pertence ao website ISACA
 │   │   ├── esconder_eventos.html #pertence ao painel de administração
