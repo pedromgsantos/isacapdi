@@ -1,27 +1,35 @@
 {% extends "base.html" %}
 {% load static %}
+{% block title %}Membros ISACA{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ---------- cartões mobile (< md) ---------- */
+.m-card + .m-card      { margin-top: 1rem; }
+.m-card-header         { cursor:pointer; }
+.m-card-body           { display:none; }
+.m-card-body.open      { display:block; }
+</style>
+{% endblock %}
+
 {% block content %}
-
 <div class="container-fluid px-4 py-4">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="fw-bold fs-2 mb-0">Membros ISACA</h2>
-  </div>
+  <h2 class="fw-bold fs-2 mt-3 mb-4">Membros ISACA</h2>
 
-  {# ---------- Mensagens / alerts ---------- #}
+  {# ---------- mensagens flash ---------- #}
   {% if messages %}
     {% for msg in messages %}
       <div class="alert alert-{{ msg.tags }} mb-3">{{ msg }}</div>
     {% endfor %}
   {% endif %}
 
-  {# ---------- Filtros ---------- #}
-  <form class="row g-2 mb-3" method="get">
-    <div class="col-md">
-      <input class="form-control" name="q" placeholder="Nome ou email"
-             value="{{ f.q }}">
+  {# ---------- filtros ---------- #}
+  <form class="row gy-2 gx-2 align-items-end mb-3" method="get">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <input type="text" class="form-control" name="q" placeholder="Nome ou email" value="{{ f.q }}">
     </div>
 
-    <div class="col-md">
+    <div class="col-12 col-sm-6 col-lg-3">
       <select name="curso" class="form-select">
         <option value="">— Curso —</option>
         {% for c in cursos %}
@@ -30,186 +38,150 @@
       </select>
     </div>
 
-    <div class="col-md">
+    <div class="col-6 col-sm-3 col-lg-2">
       <select name="ano" class="form-select">
         <option value="">— Ano —</option>
         {% for a in anos %}
-          <option value="{{ a }}"
-                  {% if a|stringformat:'s' == f.ano %}selected{% endif %}>
-            {{ a }}
-          </option>
+          <option value="{{ a }}" {% if a|stringformat:'s' == f.ano %}selected{% endif %}>{{ a }}</option>
         {% endfor %}
       </select>
     </div>
 
-    <div class="col-md">
-      <input type="number" min="0" class="form-control"
-             name="idade_min" placeholder="Idade ≥"
-             value="{{ f.idade_min }}">
+    <div class="col-6 col-sm-3 col-lg-2">
+      <input type="number" min="0" class="form-control" name="idade_min" placeholder="Idade ≥" value="{{ f.idade_min }}">
     </div>
 
-    <div class="col-md">
-      <input type="number" min="0" class="form-control"
-             name="idade_max" placeholder="Idade ≤"
-             value="{{ f.idade_max }}">
+    <div class="col-6 col-sm-3 col-lg-2">
+      <input type="number" min="0" class="form-control" name="idade_max" placeholder="Idade ≤" value="{{ f.idade_max }}">
     </div>
 
-    <div class="col-md">
-      <input class="form-control" name="interesse"
-             placeholder="Interesses" value="{{ f.interesse }}">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <input type="text" class="form-control" name="interesse" placeholder="Interesses" value="{{ f.interesse }}">
     </div>
 
-    <div class="col-md">
+    <div class="col-6 col-sm-3 col-lg-2">
       <select name="estado" class="form-select">
         <option value="">— Estado —</option>
-        <option value="atual"
-                {% if f.estado == 'atual' %}selected{% endif %}>
-          Atual
-        </option>
-        <option value="ex"
-                {% if f.estado == 'ex' %}selected{% endif %}>
-          Ex-membro
-        </option>
+        <option value="atual" {% if f.estado == 'atual' %}selected{% endif %}>Atual</option>
+        <option value="ex"    {% if f.estado == 'ex' %}selected{% endif %}>Ex-membro</option>
       </select>
     </div>
 
-    <div class="col-auto">
-      <button class="btn btn-primary">Filtrar</button>
+    <div class="col-6 col-sm-auto d-grid">
+      <button class="btn btn-primary w-100">Filtrar</button>
     </div>
-    <div class="col-auto">
-      <a href="{% url 'dashboard:membros_list' %}" class="btn btn-secondary">
-        Limpar
-      </a>
+    <div class="col-6 col-sm-auto d-grid">
+      <a href="{% url 'dashboard:membros_list' %}" class="btn btn-secondary w-100">Limpar</a>
     </div>
   </form>
 
-{# ---------- Alternar vista «membros / ex-membros» ---------- #}
-{% if f.estado == 'ex' %}
-  <a href="{% url 'dashboard:membros_list' %}" class="btn btn-link">
-    Voltar a membros atuais
-  </a>
-{% else %}
-  <a href="{% url 'dashboard:membros_list' %}?estado=ex" class="btn btn-link">
-    Ver ex-membros
-  </a>
-{% endif %}
+  {# ---------- ações & toggle ---------- #}
+  <div class="d-flex flex-wrap gap-2 mb-3">
+    {% if f.estado == 'ex' %}
+      <a href="{% url 'dashboard:membros_list' %}" class="btn btn-link p-0">Voltar a membros atuais</a>
+    {% else %}
+      <a href="{% url 'dashboard:membros_list' %}?estado=ex" class="btn btn-link p-0">Ver ex-membros</a>
+    {% endif %}
+    <a href="{% url 'dashboard:membro_create' %}" class="btn btn-primary">+ Novo</a>
+    <a href="{% url 'dashboard:membros_import' %}" class="btn btn-secondary">Importar CSV/Excel</a>
+  </div>
 
-  {# ---------- Acções ---------- #}
-  <a href="{% url 'dashboard:membro_create' %}" class="btn btn-primary me-2">
-    + Novo
-  </a>
-  <a href="{% url 'dashboard:membros_import' %}" class="btn btn-secondary">
-    Importar CSV/Excel
-  </a>
-
-  {# ---------- Tabela ---------- #}
-  <table class="table table-striped mt-3">
-    <thead>
-      <tr>
-        <th>Nome</th>
-        <th>Email</th>
-        <th>Curso</th>
-        <th>Ano</th>
-        <th>Estado</th>
-        <th></th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for m in page_obj %}
+  {# ---------- tabela desktop (>= md) ---------- #}
+  <div class="table-responsive d-none d-md-block">
+    <table class="table table-striped align-middle">
+      <thead class="table-light">
+        <tr><th>Nome</th><th>Email</th><th>Curso</th><th>Ano</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for m in page_obj %}
         <tr>
           <td>{{ m.full_name }}</td>
-          <td>{{ m.email }}</td>
+          <td><a href="mailto:{{ m.email }}">{{ m.email }}</a></td>
           <td>{{ m.course }}</td>
           <td>{{ m.year }}</td>
           <td>
-            {% if m.status == "atual" %}
-              <span class="badge bg-success">Atual</span>
-            {% else %}
-              <span class="badge bg-secondary">Ex-membro</span>
-            {% endif %}
+            <span class="badge {% if m.status == 'atual' %}bg-success{% else %}bg-secondary{% endif %}">
+              {{ m.status|capfirst }}
+            </span>
           </td>
           <td class="text-end">
-            <a href="{% url 'dashboard:membro_edit' m.pk %}"
-               class="btn btn-sm btn-outline-primary">Editar</a>
-            <a href="{% url 'dashboard:membro_delete' m.pk %}"
-               class="btn btn-sm btn-outline-danger">Apagar</a>
+            <a href="{% url 'dashboard:membro_edit' m.pk %}" class="btn btn-sm btn-outline-primary">Editar</a>
+            <a href="{% url 'dashboard:membro_delete' m.pk %}" class="btn btn-sm btn-outline-danger">Apagar</a>
           </td>
         </tr>
-      {% empty %}
+        {% empty %}
         <tr><td colspan="6">Sem membros.</td></tr>
-      {% endfor %}
-    </tbody>
-  </table>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 
-  {# ---------- Paginação ---------- #}
+  {# ---------- cartões mobile (< md) ---------- #}
+  <div class="d-md-none">
+    {% for m in page_obj %}
+    <div class="card m-card">
+      <div class="card-header d-flex justify-content-between align-items-center m-card-header"
+           onclick="toggleMember('{{ m.pk }}')">
+        <div>
+          <strong>{{ m.full_name }}</strong><br>
+          <small class="text-muted">{{ m.course }} · {{ m.year }}</small>
+        </div>
+        <span class="badge {% if m.status == 'atual' %}bg-success{% else %}bg-secondary{% endif %}">
+          {{ m.status|capfirst }}
+        </span>
+      </div>
+
+      <div class="card-body m-card-body" id="body-{{ m.pk }}">
+        <p><strong>Email:</strong> <a href="mailto:{{ m.email }}">{{ m.email }}</a></p>
+        <p><strong>Interesses:</strong> {{ m.interests|default:"—" }}</p>
+
+        <div class="d-grid gap-2">
+          <a href="{% url 'dashboard:membro_edit' m.pk %}" class="btn btn-outline-primary btn-sm">Editar</a>
+          <a href="{% url 'dashboard:membro_delete' m.pk %}" class="btn btn-outline-danger  btn-sm">Apagar</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if not page_obj %}
+    <p class="text-muted">Ainda não existem membros.</p>
+  {% endif %}
+
+  {# ---------- paginação ---------- #}
   {% if page_obj.has_other_pages %}
-    <nav aria-label="Paginação">
-      <ul class="pagination justify-content-center">
-
-        {# anterior #}
+    <nav class="mt-3" aria-label="Paginação">
+      <ul class="pagination justify-content-center flex-wrap">
         {% if page_obj.has_previous %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?{% if f.q %}q={{ f.q }}&{% endif %}
-                      {% if f.curso %}curso={{ f.curso }}&{% endif %}
-                      {% if f.ano %}ano={{ f.ano }}&{% endif %}
-                      {% if f.idade_min %}idade_min={{ f.idade_min }}&{% endif %}
-                      {% if f.idade_max %}idade_max={{ f.idade_max }}&{% endif %}
-                      {% if f.interesse %}interesse={{ f.interesse }}&{% endif %}
-                      {% if f.estado %}estado={{ f.estado }}&{% endif %}
-                      page={{ page_obj.previous_page_number }}"
-               aria-label="Anterior">
-              <span aria-hidden="true">&laquo;</span>
-            </a>
-          </li>
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">&laquo;</a></li>
         {% else %}
           <li class="page-item disabled"><span class="page-link">&laquo;</span></li>
         {% endif %}
 
-        {# números ±2 #}
         {% for num in page_obj.paginator.page_range %}
           {% if num == page_obj.number %}
-            <li class="page-item active">
-              <span class="page-link">{{ num }}</span>
-            </li>
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
           {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-            <li class="page-item">
-              <a class="page-link"
-                 href="?{% if f.q %}q={{ f.q }}&{% endif %}
-                        {% if f.curso %}curso={{ f.curso }}&{% endif %}
-                        {% if f.ano %}ano={{ f.ano }}&{% endif %}
-                        {% if f.idade_min %}idade_min={{ f.idade_min }}&{% endif %}
-                        {% if f.idade_max %}idade_max={{ f.idade_max }}&{% endif %}
-                        {% if f.interesse %}interesse={{ f.interesse }}&{% endif %}
-                        {% if f.estado %}estado={{ f.estado }}&{% endif %}
-                        page={{ num }}">{{ num }}</a>
-            </li>
+            <li class="page-item"><a class="page-link" href="?page={{ num }}&{{ request.GET.urlencode }}">{{ num }}</a></li>
           {% endif %}
         {% endfor %}
 
-        {# seguinte #}
         {% if page_obj.has_next %}
-          <li class="page-item">
-            <a class="page-link"
-               href="?{% if f.q %}q={{ f.q }}&{% endif %}
-                      {% if f.curso %}curso={{ f.curso }}&{% endif %}
-                      {% if f.ano %}ano={{ f.ano }}&{% endif %}
-                      {% if f.idade_min %}idade_min={{ f.idade_min }}&{% endif %}
-                      {% if f.idade_max %}idade_max={{ f.idade_max }}&{% endif %}
-                      {% if f.interesse %}interesse={{ f.interesse }}&{% endif %}
-                      {% if f.estado %}estado={{ f.estado }}&{% endif %}
-                      page={{ page_obj.next_page_number }}"
-               aria-label="Seguinte">
-              <span aria-hidden="true">&raquo;</span>
-            </a>
-          </li>
+          <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">&raquo;</a></li>
         {% else %}
           <li class="page-item disabled"><span class="page-link">&raquo;</span></li>
         {% endif %}
-
       </ul>
     </nav>
   {% endif %}
 </div>
+{% endblock %}
 
+{% block extra_scripts %}
+<script>
+function toggleMember(id){
+  const body = document.getElementById('body-'+id);
+  if(body) body.classList.toggle('open');
+}
+</script>
 {% endblock %}

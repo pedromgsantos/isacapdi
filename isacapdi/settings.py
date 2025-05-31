@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import uuid
 
 load_dotenv()
 
@@ -46,7 +47,7 @@ INSTALLED_APPS = [
     "crispy_forms",
     "crispy_bootstrap5"
 ]
-
+# Crispy Forms settings
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 
@@ -57,6 +58,7 @@ MIDDLEWARE = [
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
+    "dashboard.middleware.InactivityLogoutMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
@@ -73,6 +75,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "dashboard.context_processors.inactivity_timeout",
             ],
         },
     },
@@ -138,7 +141,7 @@ TIME_ZONE = "Europe/Lisbon"
 
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -160,3 +163,8 @@ LOGIN_REDIRECT_URL = "dashboard:home" # Aponta para a TUA home do painel de admi
 LOGOUT_REDIRECT_URL = "dashboard:index" # Após logout do painel, volta para o login do painel
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+INACTIVITY_TIMEOUT = int(os.getenv("INACTIVITY_TIMEOUT", "1800"))  # 30 min
+SESSION_COOKIE_AGE = INACTIVITY_TIMEOUT
+SESSION_SAVE_EVERY_REQUEST = True
+SERVER_UUID = os.getenv("ISACAPDI_SERVER_UUID") or str(uuid.uuid4())

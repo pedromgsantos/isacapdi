@@ -2,7 +2,9 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.conf.urls import handler403
 
+handler403 = "dashboard.views.permission_denied_view"
 
 app_name = 'dashboard'
 
@@ -52,4 +54,5 @@ urlpatterns = [
     path("api/news/", views.api_isaca_news, name="api_isaca_news"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
 

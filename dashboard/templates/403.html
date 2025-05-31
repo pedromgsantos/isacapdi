@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Acesso negado{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+  <h1 class="display-4 mb-3">Acesso negado</h1>
+  <p class="lead mb-4">
+    Não tem permissões para ver esta página.<br>
+    Se acha que isto é um erro, contacte o administrador.
+  </p>
+
+  <a href="{% url 'dashboard:home' %}" class="btn btn-primary me-2">
+    Ir para o dashboard
+  </a>
+  <a href="{% url 'dashboard:logout' %}" class="btn btn-outline-secondary">
+    Terminar sessão
+  </a>
+</div>
+{% endblock %}

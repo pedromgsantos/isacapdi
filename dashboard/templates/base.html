@@ -17,87 +17,124 @@
     <!-- jsVectorMap (GA4) -->
     <link href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" rel="stylesheet" />
 
-    <!-- Bibliotecas para exportar PDF (devem ficar no <head>) -->
+    <!-- Bibliotecas para exportar PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.23/jspdf.plugin.autotable.min.js"></script>
+
+    <!-- Valor injectado pelo Django (lido mais abaixo em JS) -->
+    <meta name="inactivity-timeout-ms" content="{{ INACTIVITY_TIMEOUT_MS|default:1800000 }}">
 </head>
+
 
 <body class="d-flex min-vh-100">
 
-    <!-- ===== BOTÃO-HAMBÚRGUER (mostra-se apenas em ecrãs < md) ===== -->
-    <button class="btn btn-primary d-md-none position-fixed top-0 start-0 m-2 z-3"
-            type="button"
-            data-bs-toggle="offcanvas"
-            data-bs-target="#mobileSidebar"
-            aria-controls="mobileSidebar">
-        <i class="bi bi-list fs-3"></i>
-    </button>
-
-    <!-- ===== SIDEBAR DESKTOP (>= md) ===== -->
-    <nav id="sidebar"
-         class="sidebar d-none d-md-flex flex-column justify-content-between">
-
-        <!-- Menu superior -->
-        <div>
-            <div class="text-center mb-4">
-                <a href="{% url 'dashboard:home' %}">
-                    <img src="{% static 'imgs/Logo.png' %}" alt="Logo" class="img-fluid" style="max-width: 200px;">
-                </a>
-            </div>
-
-            <ul class="nav flex-column">
-                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:home' %}">Análises e Estatísticas</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:eventos' %}">Eventos</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:gerir_noticias' %}">Notícias</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:mensagens' %}">Mensagens</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Utilizadores</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Certificados</a></li>
-
-                <hr>
-
-                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:membros_list' %}">Membros ISACA</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Calendário</a></li>
-            </ul>
+{# ---------- Flash-messages ---------- #}
+  {% if messages %}
+    <div class="position-fixed top-0 start-50 translate-middle-x mt-3"
+         style="z-index: 1080; width: 100%; max-width: 480px;">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow"
+             role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"
+                  aria-label="Fechar"></button>
         </div>
-
-        <!-- Menu inferior -->
-        <ul class="nav flex-column border-top pt-3">
-            <li class="nav-item"><a class="nav-link" href="#">Definições</a></li>
-            <li class="nav-item"><a class="nav-link text-danger" href="{% url 'dashboard:logout' %}">Logout</a></li>
-        </ul>
-    </nav>
-
-    <!-- ===== SIDEBAR MOBILE (Bootstrap Offcanvas) ===== -->
-    <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar">
-        <div class="offcanvas-header">
-            <h5 class="offcanvas-title">Menu</h5>
-            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
-        </div>
-        <div class="offcanvas-body p-0">
-            <!-- Exactamente o mesmo markup da sidebar desktop -->
-            <ul class="nav flex-column px-3">
-                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:home' %}">Análises e Estatísticas</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:eventos' %}">Eventos</a></li>
-                <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:gerir_noticias' %}">Notícias</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Mensagens</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Utilizadores</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Certificados</a></li>
-                <hr>
-                <li class="nav-item"><a class="nav-link" href="#">Membros ISACA</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">Calendário</a></li>
-                <hr>
-                <li class="nav-item"><a class="nav-link" href="#">Definições</a></li>
-                <li class="nav-item"><a class="nav-link text-danger" href="{% url 'dashboard:logout' %}">Logout</a></li>
-            </ul>
-        </div>
+      {% endfor %}
     </div>
+  {% endif %}
 
-    <!-- ===== CONTEÚDO PRINCIPAL ===== -->
-    <main id="mainContent" class="content flex-grow-1 p-4">
-        {% block content %}{% endblock %}
-    </main>
+  <!-- ───── Auto-logout por inatividade (front-end) ───── -->
+  <script>
+  (function () {
+    const meta    = document.querySelector('meta[name="inactivity-timeout-ms"]');
+    const TIMEOUT = Number(meta?.content || 1800000);   // ms, fallback 30 min
 
-    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    let timer = setTimeout(expire, TIMEOUT + 500);      // 0.5 s de folga
+
+    function reset() {
+      clearTimeout(timer);
+      timer = setTimeout(expire, TIMEOUT + 500);
+    }
+
+    function expire() {
+      const loginUrl = "{% url 'dashboard:login' %}?expired=1";
+      location.href = loginUrl;                         // -> /login/?expired=1
+    }
+
+    ["click","mousemove","keydown","scroll","touchstart"].forEach(evt =>
+      document.addEventListener(evt, reset, true)
+    );
+  })();
+</script>
+
+
+  <!-- ===== BOTÃO-HAMBÚRGUER (mobile) ===== -->
+  <button class="btn btn-primary d-md-none position-fixed top-0 start-0 m-2 z-3 mb-4"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#mobileSidebar"
+          aria-controls="mobileSidebar">
+      <i class="bi bi-list fs-3"></i>
+  </button>
+
+  <!-- ===== SIDEBAR DESKTOP ===== -->
+  <nav id="sidebar" class="sidebar d-none d-md-flex flex-column justify-content-between">
+      <div>
+          <div class="text-center mb-4">
+              <a href="{% url 'dashboard:home' %}">
+                  <img src="{% static 'imgs/Logo.png' %}" alt="Logo" class="img-fluid" style="max-width: 200px;">
+              </a>
+          </div>
+
+          <ul class="nav flex-column">
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:home' %}">Análises e Estatísticas</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:eventos' %}">Eventos</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:gerir_noticias' %}">Notícias</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:mensagens' %}">Mensagens</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Certificados</a></li>
+
+              <hr>
+
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:membros_list' %}">Membros ISACA</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Calendário</a></li>
+          </ul>
+      </div>
+
+      <ul class="nav flex-column border-top pt-3">
+          <li class="nav-item"><a class="nav-link" href="#">Definições</a></li>
+          <li class="nav-item"><a class="nav-link text-danger" href="{% url 'dashboard:logout' %}">Logout</a></li>
+      </ul>
+  </nav>
+
+  <!-- ===== SIDEBAR MOBILE (Offcanvas) ===== -->
+  <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="mobileSidebar">
+      <div class="offcanvas-header">
+          <h5 class="offcanvas-title">Menu</h5>
+          <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div class="offcanvas-body p-0">
+          <ul class="nav flex-column px-3">
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:home' %}">Análises e Estatísticas</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:eventos' %}">Eventos</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:gerir_noticias' %}">Notícias</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:mensagens' %}">Mensagens</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Certificados</a></li>
+              <hr>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:membros_list' %}">Membros ISACA</a></li>
+              <li class="nav-item"><a class="nav-link" href="#">Calendário</a></li>
+              <hr>
+              <li class="nav-item"><a class="nav-link" href="#">Definições</a></li>
+              <li class="nav-item"><a class="nav-link text-danger" href="{% url 'dashboard:logout' %}">Logout</a></li>
+          </ul>
+      </div>
+  </div>
+
+  <!-- ===== CONTEÚDO PRINCIPAL ===== -->
+  <main id="mainContent" class="content flex-grow-1 p-4">
+      {% block content %}{% endblock %}
+  </main>
+
+  <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
 </body>
 </html>

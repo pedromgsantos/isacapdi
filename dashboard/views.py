@@ -20,6 +20,8 @@ from django.conf import settings
 import json
 from django.db.models import Q
 from django.core.mail import send_mail
+from django.core.exceptions import PermissionDenied
+from .utils import staff_required
 
 
 # Assume que analytics.client e forms estão corretamente no teu projeto
@@ -430,15 +432,13 @@ def _staff_only(user):
     return user.is_active and user.is_staff
 
 
-@login_required
-@user_passes_test(_staff_only)
+@staff_required
 def mensagens(request):
     msgs = Contactos.objects.all()
     return render(request, "mensagens.html", {"mensagens": msgs})
 
 
-@login_required
-@user_passes_test(_staff_only)
+@staff_required
 def mensagem_detail(request, pk):
     msg = get_object_or_404(Contactos, pk=pk)
 
@@ -465,8 +465,7 @@ def mensagem_detail(request, pk):
     )
 
 
-@login_required
-@user_passes_test(_staff_only)
+@staff_required
 def mensagem_toggle(request, pk):
     msg = get_object_or_404(Contactos, pk=pk)
     msg.lido = not msg.lido
@@ -474,8 +473,7 @@ def mensagem_toggle(request, pk):
     return redirect("dashboard:mensagens")
 
 
-@login_required
-@user_passes_test(_staff_only)
+@staff_required
 def mensagem_delete(request, pk):
     msg = get_object_or_404(Contactos, pk=pk)
     if request.method == "POST":
@@ -484,8 +482,7 @@ def mensagem_delete(request, pk):
         return redirect(request.POST.get("next") or "dashboard:mensagens")
     return render(request, "confirm_delete.html", {"object": msg, "type": "mensagem"})
 
-@login_required
-@user_passes_test(_staff_only)
+@staff_required
 def mensagem_reply(request, pk):
     """
     Envia uma resposta por e-mail ao remetente da mensagem.
@@ -518,6 +515,9 @@ def mensagem_reply(request, pk):
         "destinatario": msg.email,
         "mensagem": msg,
     })
+
+def permission_denied_view(request, exception: PermissionDenied):
+    return render(request, "403.html", status=403)
 
 # -----------------------------------------------------------------------
 #  MEMBROS – Funções auxiliares
