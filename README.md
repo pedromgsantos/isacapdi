@@ -24,7 +24,7 @@ O ISACA Student Group é uma organização liderada por estudantes, focada em pr
 
 ## 1 · Pré-requisitos e instalação (em windows)
 
-Deve-se ter em atenção que as variáveis secretas (DJANGO_EMAIL e DJANGO_PASS) estão no ficheiro .env (presente no gitignore). Estas variáveis devem ser transmitidas de forma pessoal
+Deve-se ter em atenção que as variáveis secretas (DJANGO_EMAIL_USER e DJANGO_EMAIL_PASS) estão no ficheiro .env (presente no gitignore). Estas variáveis devem ser transmitidas de forma pessoal
 
 | Ferramenta | Versão | Verificar |
 |------------|--------|-----------|
@@ -51,7 +51,7 @@ python -m venv .venv
 ## 4 · Instalar Dependências
 
 ```bash
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 ## 5 · Base de Dados
