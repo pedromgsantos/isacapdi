@@ -1,0 +1,175 @@
+<!-- isacapdi/website/templates/noticias.html -->
+{% extends 'website/public_layout.html' %} {# Ou o teu layout base público #}
+{% load static %}
+
+{% block title %}Notícias - ISACA Student Group{% endblock %}
+
+{% block extra_head %}
+    {# Se tiveres CSS específico para esta página, podes adicionar aqui ou no public_layout #}
+    <style>
+        /* Estilos do teu noticias.php podem vir para cá ou para um ficheiro CSS separado */
+        .news-section .news-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background-color: #fff;
+            text-decoration: none; /* Garante que o link não tem sublinhado por defeito */
+            color: inherit; /* Herda a cor do texto, para não ficar azul por defeito */
+            display: flex; /* Para alinhar imagem e conteúdo */
+            margin-bottom: 1.5rem; /* Espaçamento entre cards */
+        }
+        .news-section .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .news-section .news-card img {
+            width: 100%;
+            height: auto;          /* deixa a imagem na proporção original */
+            object-fit: contain;   /* mostra a imagem inteira, sem cortar */
+        }
+        .news-section .news-card-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between; /* Distribui o espaço */
+            flex-grow: 1; /* Permite que o corpo do card cresça */
+        }
+        .news-section .news-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            color: #0D2C6C;
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem; /* Ajuste o tamanho conforme necessário */
+        }
+        .news-section .news-card-text {
+            font-size: 0.9rem; /* Ajuste o tamanho conforme necessário */
+            color: #555;
+            line-height: 1.5;
+        }
+        .news-section .news-card-date {
+            font-size: 0.8rem;
+            color: #07649D;
+            font-weight: 700;
+            margin-top: auto; /* Empurra a data para baixo */
+        }
+
+        /* Para layout em linha (imagem à esquerda, texto à direita) */
+        @media (min-width: 768px) { /* md breakpoint ou o que preferires */
+            .news-section .news-card {
+                flex-direction: row;
+            }
+            .news-section .news-card img {
+                border-top-right-radius: 0;
+                border-bottom-left-radius: 10px; /* Ajusta se a imagem estiver à esquerda */
+                 width: 220px; /* Largura fixa para a imagem no desktop */
+                 height: auto; /* Altura automática para manter a proporção */
+                 max-height: 200px; /* Limite de altura se necessário */
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<section class="news-section content py-5">
+    <div class="container">
+        <h1 class="mb-4 text-center" style="font-weight: 600; font-size:clamp(2.5rem, 5vw, 3.8rem); color: #0D2C6C; font-family: 'Outfit';">
+            Notícias ISACA
+        </h1>
+        <!-- Mensagem de carregamento -->
+        <div id="loading-message" class="text-center my-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">A carregar...</span>
+            </div>
+            <p class="mt-2">Carregando as notícias, por favor aguarde...</p>
+        </div>
+        <div id="news-container" class="row">
+            <!-- As notícias serão inseridas aqui pelo JavaScript -->
+        </div>
+        <div id="error-message" class="text-center my-5" style="display: none;">
+             <p class="text-danger">Lamentamos, ocorreu um erro ao carregar as notícias. Tente novamente mais tarde.</p>
+        </div>
+        <div id="extra-info" class="text-center mt-5" style="display: none;">
+            <p style="font-family: 'Roboto', sans-serif; font-size: 1.1rem; color: #0D2C6C;">
+                Chegou ao fim das notícias que disponibilizamos. Para estas e muitas mais, visite o Site Oficial da ISACA!
+            </p>
+            <a href="https://www.isaca.org/resources/news-and-trends#sort=%40searchdate%20descending&layout=card" target="_blank" class="btn btn-outline-primary mt-2">
+                Visitar Website da ISACA
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const newsContainer = document.getElementById('news-container');
+    const loadingMessage = document.getElementById('loading-message');
+    const extraInfo = document.getElementById('extra-info');
+    const errorMessage = document.getElementById('error-message');
+
+    // URL da tua API Django para buscar as notícias
+    const apiUrl = "{% url 'website:api_isaca_news' %}"; // Usa a tag de URL do Django
+
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            loadingMessage.style.display = 'none';
+            if (data && data.length > 0) {
+                let newsHTML = '';
+                data.forEach(item => {
+                    // Garante que a imagem tem um URL válido ou usa um placeholder
+                    const imageUrl = item.image ? item.image : '{% static "imgs/placeholder_news.png" %}'; // Adiciona um placeholder
+                    const itemTitle = item.title || "Título não disponível";
+                    const itemSummary = item.summary || "Resumo não disponível.";
+                    const itemDate = item.date || "";
+
+                    newsHTML += `
+                        <div class="col-md-6 mb-4"> {# Cada notícia ocupa metade da largura em telas médias e acima #}
+                            <a href="${item.link}" target="_blank" class="news-card text-decoration-none d-block h-100">
+                                <div class="d-flex flex-column flex-md-row h-100">
+                                    <div class="flex-shrink-0 text-center text-md-start mt-4" style="flex-basis: 220px;">
+                                        <img src="${imageUrl}" alt="Imagem da Notícia: ${itemTitle}"
+                                             class="img-fluid" style="width: 100%; max-height: 180px; object-fit: contain; border-radius: 10px 0 0 10px;" loading="lazy"
+                                             onerror="this.onerror=null;this.src='{% static "imgs/placeholder_news.png" %}';"> {# Fallback para imagem quebrada #}
+                                    </div>
+                                    <div class="news-card-body p-3 d-flex flex-column">
+                                        <h5 class="news-card-title">
+                                            ${itemTitle}
+                                        </h5>
+                                        <p class="news-card-text text-muted mb-2 flex-grow-1" style="font-size: 0.9em;">
+                                            ${itemSummary.substring(0, 150)}${itemSummary.length > 150 ? '...' : ''} {# Limita o resumo #}
+                                        </p>
+                                        <div class="news-card-date mt-auto">
+                                            <small>${itemDate}</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    `;
+                });
+                newsContainer.innerHTML = newsHTML;
+                extraInfo.style.display = 'block';
+            } else {
+                newsContainer.innerHTML = '<p class="text-center col-12">Nenhuma notícia encontrada no momento.</p>';
+                extraInfo.style.display = 'none'; // Não mostrar "chegou ao fim" se não houver notícias
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar notícias:', error);
+            loadingMessage.style.display = 'none';
+            errorMessage.style.display = 'block';
+            // newsContainer.innerHTML = `
+            //     <p class="text-danger text-center col-12">Lamentamos, ocorreu um erro ao carregar as notícias. Tente novamente mais tarde.</p>
+            // `;
+        });
+});
+</script>
+{% endblock %}

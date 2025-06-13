@@ -1,0 +1,612 @@
+/* dashboard/static/css/stylespub.css */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
+/* Reset */
+
+body {
+    font-family: 'Roboto', sans-serif;
+    overflow-x: hidden;
+    background-color: #f5f5f5;
+    display: flex; /* Para sticky footer */
+    flex-direction: column; /* Para sticky footer */
+    min-height: 100vh; /* Para sticky footer */
+}
+
+main {
+    flex-grow: 1; /* Para sticky footer, faz o main crescer */
+}
+
+/* Header / Navbar */
+.navbar {
+    background-color: #f5f5f5; /* Cor de fundo da navbar, se diferente do body */
+    /* Outros estilos da navbar se necessário */
+}
+
+.navbar-nav .nav-link {
+    color: #333; /* Cor padrão dos links da navbar */
+    margin-right: 0.5rem; /* Espaçamento original era me-3, ajuste aqui */
+}
+.navbar-nav .nav-link:hover {
+    color: #0D2C6C; /* Cor ao passar o mouse */
+}
+.navbar-nav .nav-link.active {
+    font-weight: bold;
+    color: #0D2C6C !important; /* Cor principal para link ativo, !important para garantir sobreposição se necessário */
+    /* border-bottom: 2px solid #0D2C6C; /* Alternativa ao nav-underline do Bootstrap 5.3+ */
+}
+
+/* Ajuste para o logo do Instagram nas redes sociais se necessário */
+.social-links .social-link-instagram img {
+    height: 24px; /* Ajusta tamanho */
+    vertical-align: middle;
+}
+.social-links i {
+    font-size: 24px; /* Tamanho dos ícones Bootstrap */
+    color: #333; /* Cor padrão para ícones */
+    transition: color 0.2s ease-in-out;
+}
+.social-links a:hover i.bi-linkedin { color: #0A66C2; }
+.social-links a:hover i.bi-envelope { color: #c71610; } /* Exemplo para email */
+.social-links .social-link-instagram:hover img { opacity: 0.7; }
+
+
+/* Footer */
+.footer {
+    background-color: #D9D9D9;
+    color: #333; /* Cor de texto padrão para o footer */
+    font-size: 0.9rem;
+}
+
+.footer h5 {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #000;
+}
+
+.footer .footer-link { /* Classe para links de texto no footer */
+    text-decoration: none; /* Remove sublinhado por padrão */
+    color: #000;
+    font-size: 0.95rem;
+}
+.footer .footer-link:hover,
+.footer .nav-link.text-muted:hover {
+    text-decoration: underline;
+    color: #000;
+}
+
+.footer .social-links a {
+    margin-right: 15px;
+    text-decoration: none;
+}
+.footer .social-links a:last-child {
+    margin-right: 0;
+}
+
+.footer .nav-link.text-muted {
+    font-size: 0.9rem;
+}
+
+.footer .form-control-sm { /* Para inputs menores no form do footer */
+    font-size: 0.875rem;
+}
+.footer .btn-sm { /* Para botão menor no form do footer */
+    font-size: 0.875rem;
+    padding: 0.25rem 0.5rem;
+}
+
+/* Para garantir que os elementos dentro do footer herdem o background se necessário,
+   mas idealmente o .footer já deve cobrir tudo. Evitar .!important sempre que possível.
+.footer, .footer .container, .footer .row, .footer .col-md-6, .footer p, .footer a, .footer i, .footer img, .footer h5, .footer .social-links, .footer form, .footer .row.g-2, .footer .col, .footer div, .footer .text-end, .footer ul {
+    background-color: #D9D9D9 !important;
+}
+*/
+
+/*NABVAR*/
+/*Centrar os itens da nav, quando está no hamburger */
+.navbar-collapse {
+    justify-content:center;
+}
+
+.navbar-nav {
+    flex-direction: column;
+    align-items: center;   
+}
+
+/*---------------------------------------------------------INDEX.HTML---------------------------------------------------------------------------*/
+/*Hero Section*/
+.desktop-imagem {
+    max-width: 120%;
+    position: relative;
+    left: 10%;
+}
+
+.mobile-imagem {
+    max-width: 100%; 
+    position: relative; 
+    transform: translateX(10.6%);
+    overflow-x: hidden;
+}
+
+
+/*Beneficios Section*/
+.beneficios .card h3{
+    font-size: 27px;
+}
+
+.beneficios .card p{
+    font-size: 20px;
+}
+
+@media (max-width: 1400px) {
+    .beneficios .card h3{
+        font-size: 20px;
+    }
+
+    .beneficios .card p{
+        font-size: 17px;
+    }
+}
+
+@media (max-width: 1120px) {
+    .beneficios .card h3{
+        font-size: 18px;
+    }
+
+    .beneficios .card p{
+        font-size: 16px;
+    }
+}
+
+
+/*Estatisticas section*/
+.estatisticas h3 {
+    color: #0D2C6C;
+    font-weight: bold;
+    font-style: 'Outfit';
+    font-size:72px;
+}
+
+.estatisticas p{
+    color: #ffffff;
+    font-family: 'Roboto';
+    font-weight: bold;
+    font-size: 15px;
+    margin-top:-15px;
+}
+@media (max-width: 750px) {
+    .estatisticas h3 {
+        font-size: 45px;
+    }
+    
+    .estatisticas p{
+        font-size: 15px;
+    }
+}
+@media (max-width: 450px) {
+    .estatisticas h3 {
+        font-size: 35px;
+    }
+    
+    .estatisticas p{
+        font-size: 11px;
+    }
+}
+
+
+/* Sobre Nós Section*/
+.btn-sobre {
+    padding: 10px 20px;
+    border-radius: 47px;
+    background: #70B540;
+    color: #fff;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: background-color 0.3s ease; 
+}
+
+.btn-sobre:hover {
+    background-color: #34756F; 
+    color: #fff; 
+}
+
+/*Certificados*/
+.carde {
+    border: 1px solid #ddd; 
+    border-radius: 10px; 
+    background-color: #ffffff; 
+    padding: 20px; 
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%; 
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between;
+}
+
+.carde:hover {
+    transform: translateY(-10px);
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.carde img {
+    max-width: 180px; 
+    margin: 0 auto;
+}
+
+.carde-text {
+    font-size: 16px; 
+    color: #000;
+}
+
+.cta-button {
+    background-color: #02A7EA; 
+    color: white; 
+    font-size: 16px; 
+    font-weight: bold; 
+    border: none; 
+    padding: 15px 30px; 
+    border-radius: 50px; 
+    transition: background-color 0.3s ease; 
+    display: inline-block;
+    text-decoration: none;
+}
+
+.cta-button:hover {
+    background-color: #0D2C6C; 
+}
+
+
+/* Eventos e posters */
+.carousel-item img {
+    max-height: 600px; 
+    max-width: 450px; 
+    height: auto;
+    width: 100%;
+    object-fit: contain;
+    border-radius: 10px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.carousel-item .d-flex {
+    justify-content: center;
+    gap: 60px; 
+}
+  
+.poster-container {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    transition: transform 0.3s ease;
+}
+  
+.poster-container:hover {
+    transform: scale(1.05);
+}
+  
+.poster-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    border-radius: 10px;
+}
+  
+.poster-container:hover .poster-overlay {
+    opacity: 1;
+}
+  
+.poster-overlay h3 {
+    background-color: transparent;
+    color: #fff;
+    font-size: 40px;
+    margin-bottom: 10px;
+    text-align: center;
+}
+  
+.poster-overlay a {
+    color: #fff;
+    text-decoration: none;
+    background: #02A7EA;
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+  
+.poster-overlay a:hover {
+    background: #0D2C6C;
+}
+  
+.custom-arrow {
+    background-color: rgba(0, 0, 0, 0.5); 
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    margin: 0;
+    width: 60px;
+}
+  
+.custom-arrow .carousel-control-prev-icon,
+.custom-arrow .carousel-control-next-icon {
+    height: 40px; 
+    width: 40px;
+    background-color: #d9d9d9;
+}
+  
+@media (max-width: 1230px) {
+    .carousel-item img {
+      max-width: 400px;
+    }
+}
+  
+@media (max-width: 1100px) {
+    .carousel-item img {
+      max-width: 300px;
+    }
+}
+  
+@media (max-width: 855px) {
+    .carousel-item img {
+      max-width: 200px;
+    }
+    .poster-overlay h3 {
+      font-size: 1.2rem;
+    }
+    .poster-overlay a {
+      font-size: 0.9rem;
+      padding: 6px 12px;
+    }
+    .carousel-item .d-flex {
+        justify-content: center;
+        gap: 30px;
+    }
+      
+    .custom-arrow .carousel-control-prev-icon,
+    .custom-arrow .carousel-control-next-icon {
+    height: 40px;
+    width: 40px;
+    background-color: #d9d9d9;
+    }
+}
+  
+@media (max-width: 610px) {
+    .carousel-item img {
+      max-width: 140px;
+    }
+    .poster-container:hover {
+      transform: none;
+    }
+
+    .carousel-item .d-flex {
+        justify-content: center;
+        gap: 0px; 
+    }
+
+    .custom-arrow .carousel-control-prev-icon,
+    .custom-arrow .carousel-control-next-icon {
+    height: 20px; 
+    width: 20px;
+    background-color: #d9d9d9;
+    }
+
+}
+
+/*----------------------------------------------------------------------------------------------------------------------------------------------*/
+/* Página de Certificados */
+
+.S1-text {
+    font-size: 54px; 
+    margin-top: 40px; 
+    font-weight: bold;
+    color: #2a9d8f;
+}
+
+.S1-subtext {
+    color: #3b82f6;
+    font-weight: 500;
+    font-size: 27px;
+}
+
+.background-section {
+    padding: 50px;
+    text-align: center;
+}
+
+.S1-img-left,
+.S1-img-right {
+    max-width: 93%;
+}
+
+
+
+@media (max-width: 450px) {
+
+    .forms-title {
+        
+        font-size: 20 px; 
+
+    }
+}
+
+.certificado-text {
+    margin-left: 50px;
+}
+
+.retangulo-azul h2{
+    font-size: 20px;
+    font-weight: bold; 
+    margin-bottom: 20px;
+}
+.duvida {
+    color: #40AA92;
+    text-align: center;
+    font-size: 48px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 27.5px;
+}
+
+.btn-duvida {
+    background-color: #00aaff; 
+    color: white;            
+    border-radius: 50px;
+    padding: 10px 30px;
+    font-size: 20px;
+    font-weight: bold;        
+    border: none;            
+    width: 1000px;
+    display: inline-block;    
+}
+
+.contact-info {
+    margin-bottom: 0;
+}
+
+.form-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+} 
+
+.form-control, .form-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc; 
+    border-radius: 5px;
+}
+
+.forms-title {
+    color: #000;
+    font-size: 36 px; 
+    font-style: normal;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-bottom: 20 px; 
+}
+
+.btn-forms {
+    background-color: #0170B9;
+    color: white;
+    font-size: 18px;
+    padding: 10px;
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+}
+
+.btn-forms:hover {
+    background-color: #70B540;
+}
+
+.text-image-section {
+    padding: 40px;
+}
+
+.certificados-img {
+    width: 200px;
+    max-width: 200px;
+    height: auto;
+    object-fit: cover;
+}
+
+.Faixa-title {
+    color: #ffffff;
+    font-style: normal;
+    font-size: 32px;
+    font-weight: bold;
+    margin-bottom: 0;
+    height: 134px;
+    display: flex; 
+    flex-direction: column;
+    justify-content: center; 
+    align-items: center;
+    text-align: center;
+    background-color: #0170B9;
+}
+.border-bottom-1{
+    border-bottom: 5px #35B390;
+}
+
+/*------------------------------------------------------------------------------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------------------------------------------------------*/
+/* Footer */
+.footer {
+    background-color: #D9D9D9;
+    padding: 20px 0;
+}
+
+.footer h5 {
+    font-size: 20px;
+    font-weight: bold;
+    color: #000;
+    margin-bottom: 15px;
+}
+
+.footer a {
+    font-size: 20px;
+    color: #000;
+}
+
+.footer .social-links a {
+    color: #0D2C6C;
+    margin-right: 10px;
+    text-decoration: none;
+    display: inline-block;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.footer .social-links a:hover {
+    color: #000; 
+    transform: scale(1.3) rotate(10deg); 
+    text-shadow: 0 0 10px rgb(152, 152, 152 , 1);
+}
+
+
+.footer .form-control {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.footer .btn-success {
+    background-color: #58A037;
+    color: #fff;
+    border: none;
+    padding: 10px;
+}
+
+.footer .btn-success:hover {
+    background-color: #2c5c16;
+}
+
+.footer .nav-link {
+    color: #000;
+    font-family: 'Roboto';
+    transition: color 0.3s;
+    background-color: #d9d9d9;
+  }
+
+.footer .nav-link:hover {
+    color: #35B390;
+}
+
+.footer .link1{
+    color: #000;
+}
+
+.footer .link1:hover{
+    color: #35B390;
+}

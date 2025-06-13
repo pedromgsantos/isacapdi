@@ -1,0 +1,70 @@
+{% extends "website/public_layout.html" %}
+{% load static %}
+{% block title %}ISACA Student Group – Eventos{% endblock %}
+
+{% block extra_head %}
+<style>
+  body { font-family:'Roboto',sans-serif; overflow-x:hidden; }
+  .card        { display:flex; flex-direction:row; align-items:center; gap:15px; }
+  .card img    { width:200px; height:auto; object-fit:cover; }
+  .card-body   { flex:1; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <h1 class="text-center fw-bold mb-5">Eventos</h1>
+
+  {% if eventos %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+
+      {% for evento in eventos %}
+        <div class="col d-flex">
+          <div class="card shadow-sm flex-grow-1">
+
+            <!-- imagem (lado esquerdo em lg) -->
+            <div class="d-none d-lg-block">
+              <img src="{{ evento.image_url }}"
+                   alt="{{ evento.nome }}"
+                   class="card-img-top border-end border-5"
+                   style="object-fit: cover; width: 200px; height: 100%;">
+            </div>
+
+            <!-- imagem (acima em sm/md) -->
+            <div class="d-lg-none text-center">
+              <img src="{{ evento.image_url }}"
+                   alt="{{ evento.nome }}"
+                   class="card-img-top img-fluid mb-3 mx-auto"
+                   style="max-height: 200px; object-fit: cover;">
+            </div>
+
+            <div class="card-body">
+              <h5 class="card-title fw-bold">{{ evento.nome }}</h5>
+              {% if evento.data %}
+                <p class="card-text text-muted">
+                  Data: {{ evento.data|date:"d/m/Y" }}
+                </p>
+              {% endif %}
+              {% if evento.descricao %}
+                <p class="card-text">
+                  <strong>Descrição:&nbsp;</strong>{{ evento.descricao }}
+                </p>
+              {% endif %}
+              <a href="{% url 'website:evento_detail' pk=evento.id %}"
+                 class="btn btn-primary">
+                 Detalhes
+              </a>
+            </div>
+
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  {% else %}
+    <div class="alert alert-info text-center">
+      Nenhum evento disponível no momento.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

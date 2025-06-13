@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "website",
     "dashboard",
     "django_apscheduler",
     "crispy_forms",
@@ -152,15 +153,17 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "dashboard/static"),
 ]
 
+STATIC_ROOT = BASE_DIR / 'staticfiles' 
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
-LOGIN_URL = "dashboard:login"         # Aponta para a TUA view de login
-LOGIN_REDIRECT_URL = "dashboard:home" # Aponta para a TUA home do painel de admin
-LOGOUT_REDIRECT_URL = "dashboard:index" # Após logout do painel, volta para o login do painel
+LOGIN_URL            = "/dashboard/login/"
+LOGOUT_REDIRECT_URL  = "/dashboard/login/"
+LOGIN_REDIRECT_URL   = "/dashboard/home/"
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
