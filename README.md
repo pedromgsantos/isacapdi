@@ -92,6 +92,8 @@ Senha: mariasantos
 ├── .env                     # Define variáveis de ambiente usadas pela aplicação localmente
 ├── .env.example             # Modelo do .env com variáveis sem valores definidos
 
+├── /staticfiles/             # saída do collectstatic
+
 ├── /media/                  # Diretório para uploads (imagens enviadas pelos administradores)
 
 ├── /dashboard/              # Aplicação principal do projeto (Django app)
@@ -121,13 +123,9 @@ Senha: mariasantos
 │   │   ├── adicionar_evento.html #pertence ao painel de administração
 │   │   ├── base.html             #pertence ao painel de administração
 │   │   ├── 403.html              #pertence ao painel de administração - Página de erro 403 (Forbidden) personalizada
-│   │   ├── certificados.html     #pertence ao website ISACA
-│   │   ├── contactos.html        #pertence ao website ISACA
 │   │   ├── esconder_eventos.html #pertence ao painel de administração
 │   │   ├── eventos.html          #pertence ao painel de administração
-│   │   ├── eventospub.html       #pertence ao website ISACA
 │   │   ├── home.html             #pertence ao painel de administração
-│   │   ├── index.html            #pertence ao website ISACA
 │   │   ├── confirm_delete.html   #pertence ao painel de administração
 │   │   ├── gerirnoticias.html    #pertence ao painel de administração
 │   │   ├── news_form.html        #pertence ao painel de administração
@@ -137,13 +135,8 @@ Senha: mariasantos
 │   │   ├── mensagens.html        #pertence ao painel de administração
 │   │   ├── membros.html          #pertence ao painel de administração
 │   │   ├── membros_form.html     #pertence ao painel de administração
-│   │   ├── membros_import.html   #pertence ao painel de administração
-│   │   ├── noticias.html         #pertence ao website ISACA
-│   │   ├── evento_detail.html    #pertence ao website ISACA
-│   │   ├── public_layout.html    #pertence ao website ISACA
-│   │   ├── sobrenos.html         #pertence ao website ISACA
-│   │   └── termos_de_uso.html    #pertence ao website ISACA
-│
+│   │   └── membros_import.html   #pertence ao painel de administração
+
 │   ├── /static/             # Ficheiros estáticos (CSS, JS, imagens)
 │   │   ├── /css/
 │   │   │   ├── styles.css        # estilos do website dashboard
@@ -161,6 +154,29 @@ Senha: mariasantos
 │   │   ├── __init__.py
 │   │   ├── 0001_initial.py
 │   │   └── ...
+
+├── website/                    # app do site público
+│   ├── __init__.py
+│   ├── urls.py                 # URLs
+│   ├── admin.py
+│   ├── apps.py
+│   ├── models.py
+│   ├── views.py
+│   ├── tests.py
+│
+│   ├── templates/website/
+│   │   ├── certificados.html
+│   │   ├── contactos.html
+│   │   ├── evento_detail.html
+│   │   ├── eventospub.html
+│   │   ├── index.html
+│   │   ├── noticias.html
+│   │   ├── public_layout.html
+│   │   ├── sobrenos.html
+│   │   └── termos_de_uso.html
+│
+│   └── migrations/
+│       └── __init__.py
 
 ├── /isacapdi/               # Diretório do projeto (configurações globais Django)
 │   ├── __init__.py
