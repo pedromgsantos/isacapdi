@@ -907,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => { // Aguarda o carregamento 
                         theme: 'striped', headStyles: { fillColor: [41, 128, 185] }, margin: { left: leftMargin, right: rightMargin },
                         columnStyles: { 
                             0: { cellWidth: 'auto' }, 
-                            1: { halign: 'right', cellWidth: 40 } // MODIFICADO: halign: 'right'
+                            1: { halign: 'right', cellWidth: 40 }
                         }
                     });
                     currentY = pdf.lastAutoTable.finalY + 5; // Espaço menor antes do mapa
@@ -947,7 +947,6 @@ document.addEventListener('DOMContentLoaded', () => { // Aguarda o carregamento 
                     pdf.setTextColor(0,0,0);
                 }
             }
-            // Adicionar outras seções aqui se necessário, usando checkAndAddPage()
 
             // Salva o PDF
             pdf.save(`Relatorio_Dashboard_${new Date().toISOString().slice(0,10)}.pdf`);

@@ -12,12 +12,12 @@ from google.analytics.data_v1beta.types import (
 )
 from google.oauth2 import service_account
 
-# Caminho seguro para a chave do serviço (ajusta se usares .env)
+# Caminho seguro para a chave do serviço
 KEY_PATH = os.path.join(
     os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
     "analytics_key.json",
 )
-DEFAULT_PROPERTY_ID = "482751837"  # Substitui pelo teu ID GA4
+DEFAULT_PROPERTY_ID = "482751837"
 
 
 def _get_ga_client():

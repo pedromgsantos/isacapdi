@@ -32,7 +32,7 @@ from .analytics.client import (
     get_page_views_by_title,
     get_users_by_country,
 )
-from .forms import CustomLoginForm # Garante que este form existe e está importado
+from .forms import CustomLoginForm
 
 ALLOWED_PERIODS = {
     "7d": {"days": 7, "api_str": "7daysAgo", "label": "Últimos 7 dias"},
@@ -57,12 +57,10 @@ def user_login(request): # Esta view será chamada para /login/ (se isacapdi/url
         
         next_url = request.GET.get("next")
         if next_url:
-            # É importante validar o next_url para evitar Open Redirect Vulnerabilities
-            # Para simplificar, vamos assumir que é seguro ou que validarás depois.
             return redirect(next_url)
         return redirect('dashboard:home') # Redireciona para a home do painel como fallback
 
-    return render(request, "login.html", {"form": form}) # Usa o teu login.html
+    return render(request, "login.html", {"form": form})
 
 
 def user_logout(request): # Esta view será chamada para /logout/ (se isacapdi/urls.py for ajustado)
@@ -71,7 +69,7 @@ def user_logout(request): # Esta view será chamada para /logout/ (se isacapdi/u
     return redirect('dashboard:login')
 
 
-@login_required(login_url='dashboard:login') # Usa namespace aqui
+@login_required(login_url='dashboard:login')
 def home(request):
     period_key = request.GET.get("period", "7d")
     if period_key not in ALLOWED_PERIODS:
@@ -133,8 +131,8 @@ def home(request):
         "allowed_periods": ALLOWED_PERIODS,
         "selected_period_key": period_key,
         "selected_period_label": period_label,
-        "new_visitor_count": new_vs_returning.get("new", 0), # Adicionado .get()
-        "returning_visitor_count": new_vs_returning.get("returning", 0), # Adicionado .get()
+        "new_visitor_count": new_vs_returning.get("new", 0), 
+        "returning_visitor_count": new_vs_returning.get("returning", 0), 
         "new_visitor_percentage": f"{new_pct_val:.1f}%",
         "returning_visitor_percentage": f"{ret_pct_val:.1f}%",
         "country_data": country_data, 
@@ -714,7 +712,7 @@ def generate_certificates(request):
                     defaults={"participant_email": email},
                 )
                 if not created:
-                    continue  # já existia
+                    continue
 
                 fname, content = generate_certificate_image(nome, template)
                 cert.certificate_file.save(fname, content, save=True)

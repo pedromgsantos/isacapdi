@@ -22,7 +22,6 @@ class Eventos(models.Model):
         managed = True
         db_table = 'eventos'
 
-# Modelo de Contactos (Banco Externo, sem migração)
 class Contactos(models.Model):
     nome = models.CharField(max_length=100, verbose_name="Nome Completo")
     email = models.EmailField(verbose_name="Endereço de Email")
@@ -38,7 +37,7 @@ class Contactos(models.Model):
     lido = models.BooleanField(default=False, verbose_name="Mensagem Lida")
 
     class Meta:
-        managed = True # Importante: Django vai gerir esta tabela
+        managed = True
         db_table = "contactos"
         verbose_name = "Mensagem de Contacto"
         verbose_name_plural = "Mensagens de Contacto"
@@ -57,7 +56,7 @@ class Newsletter(models.Model):
 
     class Meta:
         managed = True # Importante: Django gere esta tabela
-        db_table = 'newsletter' # Mantém o nome da tua tabela existente
+        db_table = 'newsletter'
         verbose_name = "Subscrição de Newsletter"
         verbose_name_plural = "Subscrições de Newsletter"
         ordering = ['-data_subscricao'] # Ordena pela data de subscrição mais recente primeiro
