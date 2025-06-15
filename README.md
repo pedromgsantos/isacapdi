@@ -106,7 +106,7 @@ Senha: mariasantos
 │   ├── scheduler.py         # Dá schedule na frequencia com que o scrape ativa para ir buscar os dados das noticias
 │   ├── forms.py             # Formulários Django
 │   ├── tests.py             # Testes automatizados
-│   ├── sep_signals.py       # Preenche os espaços do model dos eventos caso nao sejam preenchidos (pode dar erros, por vezes), programado para funcionar mesmo que nao sejam inseridos valores
+│   ├── seo_signals.py       # Preenche os espaços do model dos eventos caso nao sejam preenchidos (pode dar erros, por vezes), programado para funcionar mesmo que nao sejam inseridos valores
 │   ├── news_scraper.py      # Script de scraping de notícias de apoio ao template "noticias.html"
 │   ├── utils.py             # Funções utilitárias reutilizadas em várias views/scripts
 │   ├── middleware.py        # Middleware customizado (ex.: marca requests, trata headers, etc.)
@@ -134,8 +134,10 @@ Senha: mariasantos
 │   │   ├── login.html            #pertence ao painel de administração
 │   │   ├── gerar_certificados.html   #pertence ao painel de administração
 │   │   ├── certificates_issued.html  #pertence ao painel de administração
-│   │   ├── templates_list.html    #pertence ao painel de administração
-│   │   ├── template_form.html     #pertence ao painel de administração
+│   │   ├── templates_list.html   #pertence ao painel de administração
+│   │   ├── template_form.html    #pertence ao painel de administração
+│   │   ├── maintenance.html      #pertence ao painel de administração
+│   │   ├── definicoes.html       #pertence ao painel de administração
 │   │   ├── mensagem_detail.html  #pertence ao painel de administração
 │   │   ├── mensagem_reply.html   #pertence ao painel de administração
 │   │   ├── mensagens.html        #pertence ao painel de administração
