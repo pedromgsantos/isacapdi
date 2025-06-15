@@ -49,6 +49,7 @@ urlpatterns = [
 
     path('api/data/', views.get_dashboard_data_api, name='dashboard_api_data'),
     path("api/news/", views.api_isaca_news, name="api_isaca_news"),
+    path("ai-generate/", views.ai_generate_event,name="ai_generate_event"),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

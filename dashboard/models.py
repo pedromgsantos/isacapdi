@@ -10,6 +10,9 @@ class Eventos(models.Model):
     visivel = models.IntegerField(blank=True, null=True)
     tags = models.JSONField(default=list)
     is_hidden = models.BooleanField(default=False)
+    seo_descricao       = models.CharField(max_length=256, blank=True, null=True)
+    seo_texto = models.TextField(blank=True, null=True)
+    seo_keywords    = models.JSONField(default=list, blank=True)
 
     
     def __str__(self):
@@ -163,7 +166,7 @@ class CertificateIssued(models.Model):
     def __str__(self):
         return f"{self.participant_name} – evento {self.event_id}"
     
-    
+
 class Reminder(models.Model):
     """
     Lembretes avulsos que o administrador pode pôr no calendário.

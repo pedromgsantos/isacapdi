@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "django_apscheduler",
     "crispy_forms",
     "crispy_bootstrap5",
+    "django_extensions",
     "widget_tweaks",
 ]
 # Crispy Forms settings

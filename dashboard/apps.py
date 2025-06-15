@@ -49,3 +49,10 @@ class DashboardConfig(AppConfig):
             start_scheduler_once,
             dispatch_uid="dashboard_start_scheduler_once",
         )
+
+class DashboardConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "dashboard"
+
+    def ready(self):
+        from . import seo_signals  # noqa: F401 # Importa os sinais de SEO para garantir que são registados

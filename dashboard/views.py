@@ -3,25 +3,26 @@
 from datetime import datetime, timedelta, date
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
 from .models import Eventos, Contactos, NewsArticle, Membro, CertificateIssued, CertificateTemplate, Reminder
 from .forms import NewsArticleForm, ContactReplyForm, MembroForm, MembroImportForm, CertificateGenerateForm, CertificateTemplateForm, ReminderForm
-import pandas as pd, io, csv
+import pandas as pd, io, csv, os
 from django.core.paginator import Paginator
 from django.utils.text import slugify
-from django.http import JsonResponse, FileResponse, HttpResponseRedirect
+from django.http import JsonResponse, FileResponse, HttpResponseRedirect, HttpResponseNotAllowed
 from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-import json
+import json, base64
 from django.db.models import Q
 from django.core.mail import send_mail, EmailMessage
 from django.core.exceptions import PermissionDenied
 from .utils import staff_required, generate_certificate_image, generate_zip
-from django.shortcuts import render
-from django.urls import reverse
+from django.urls import reverse, NoReverseMatch
+import google.generativeai as genai
+from PIL import Image
+from django.db import IntegrityError
 
 from .analytics.client import (
     get_analytics_data,
@@ -315,37 +316,58 @@ def toggle_event_visibility(request):
 # --- Adicionar Evento ---
 @login_required
 def add_event_view(request):
-    if request.method == 'POST':
-        nome = request.POST.get('nome')
-        data_str = request.POST.get('data')
-        descricao = request.POST.get('descricao')
-        texto = request.POST.get('texto')
-        imagem = request.FILES.get('imagem')
-        is_hidden_form = request.POST.get('is_hidden') == 'on'
-        tags_list = request.POST.getlist('tags')
+    if request.method == "POST":
+        # ---------- recolha de dados ----------
+        nome        = request.POST.get("nome", "").strip()
+        data_str    = request.POST.get("data", "").strip()
+        descricao   = request.POST.get("descricao", "").strip()
+        texto       = request.POST.get("texto", "").strip()
+        imagem      = request.FILES.get("imagem")
+        is_hidden   = request.POST.get("is_hidden") == "on"
+        tags_list   = request.POST.getlist("tags")
 
+        # ---------- parsing da data ----------
         data_obj = None
         if data_str:
             try:
                 data_obj = datetime.strptime(data_str, "%Y-%m-%d").date()
             except ValueError:
-                print(f"Invalid date format received: {data_str}")
+                print(f"[add_event_view] DATA inválida recebida: {data_str!r}")
 
+        # ---------- criação ----------
         try:
-            novo_evento = Eventos.objects.create(
-                nome=nome,
-                data=data_obj,
-                descricao=descricao,
-                texto=texto,
-                imagem=imagem,
-                is_hidden=is_hidden_form,
-                tags=tags_list
+            novo = Eventos.objects.create(
+                nome       = nome,
+                data       = data_obj,
+                descricao  = descricao,
+                texto      = texto,
+                imagem     = imagem,
+                is_hidden  = is_hidden,
+                tags       = tags_list,
             )
-            return redirect('eventos')
-        except Exception as e:
-            print(f"Error creating event in DB: {e}")
+            print(f"[add_event_view] Evento #{novo.pk} criado com sucesso.")
 
-    return render(request, 'adicionar_evento.html')
+        except IntegrityError as e:
+            print(f"[add_event_view] ERRO de integridade: {e}")
+            messages.error(request, "Não foi possível gravar o evento.")
+            return render(request, "adicionar_evento.html")
+
+        except Exception as e:
+            print(f"[add_event_view] ERRO inesperado: {e}")
+            messages.error(request, "Ocorreu um erro inesperado.")
+            return render(request, "adicionar_evento.html")
+
+        # ---------- redirect ----------
+        try:
+            url = reverse("dashboard:eventos")
+            return HttpResponseRedirect(url)
+        except NoReverseMatch as e:
+            print(f"[add_event_view] NoReverseMatch: {e}")
+            # mostra link manual enquanto não resolves o nome
+            return HttpResponseRedirect(reverse("dashboard:eventos"))
+
+    # --- GET inicial ou POST inválido ---
+    return render(request, "adicionar_evento.html")
                              
 
 @require_GET
@@ -850,3 +872,69 @@ def add_reminder(request):
             "color": "#ffc107",
         })
     return JsonResponse({"errors": form.errors}, status=400)
+
+# ---------------------------------------------------------------------
+# helper – converte o ficheiro carregado num PNG em base-64 para Gemini
+# ---------------------------------------------------------------------
+def _b64_png(django_file):
+    buf = io.BytesIO()
+    Image.open(django_file).save(buf, format="PNG")
+    return base64.b64encode(buf.getvalue()).decode()
+
+# ---------------------------------------------------------------------
+# endpoint /dashboard/ai-generate/   (OPTIONS + POST)
+# ---------------------------------------------------------------------
+@csrf_exempt           # evita 403 / 404 no pre-flight OPTIONS
+@login_required        # só para utilizadores autenticados
+def ai_generate_event(request):
+    # pré-flight CORS/Fetch
+    if request.method == "OPTIONS":
+        return JsonResponse({}, status=200)
+
+    # apenas POST aceite
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    # validação de campos
+    titulo = request.POST.get("nome", "").strip()
+    poster = request.FILES.get("imagem")
+    if not (titulo and poster):
+        return JsonResponse({"error": "Título ou imagem em falta."}, status=400)
+
+    # -- chamada Gemini Vision ----------------------------------------
+    genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+
+    prompt = (
+        "PERSONA: copywriter PT-PT.\n"
+        f"Título: {titulo!r}\n"
+        "TAREFA: devolve APENAS JSON, sem ``` nem texto extra:\n"
+        '{ "descricao": "<≤256 car>", "texto": "<350-500 car>"}'
+        "DEVOLVE apenas o objecto JSON — sem markdown, sem ``` e sem o rótulo json."
+    )
+
+    response = genai.GenerativeModel("gemini-1.5-flash").generate_content(
+        [prompt, {"mime_type": "image/png", "data": _b64_png(poster)}],
+        stream=False,
+    )
+
+    # ---------------- PARSE DA RESPOSTA -----------------
+    raw = response.text.strip()
+
+    # debug opcional
+    print("\n=== Gemini raw ===\n", raw[:400], "...\n")
+
+    # isola o trecho entre a 1ª chave e a última
+    ini = raw.find("{")
+    fim = raw.rfind("}")
+    if ini == -1 or fim == -1:
+        return JsonResponse({"error": "JSON não encontrado na resposta da IA."}, status=500)
+
+    try:
+        data = json.loads(raw[ini:fim + 1])
+        return JsonResponse({
+            "descricao": data["descricao"],
+            "texto":     data["texto"],
+        })
+    except Exception as e:
+        return JsonResponse({"error": f"Resposta da IA inválida: {e}"}, status=500)
+

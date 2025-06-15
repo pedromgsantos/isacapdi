@@ -3,8 +3,17 @@ from .models import Eventos, Contactos, Newsletter, Comentarios, NewsArticle, Me
 
 @admin.register(Eventos)
 class EventoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'data', 'visivel', 'is_hidden')
-    search_fields = ('nome', 'descricao')
+    list_display  = ("nome", "data", "visivel", "is_hidden")
+    search_fields = ("nome", "descricao", "seo_descricao", "seo_texto")
+    readonly_fields = ("seo_keywords",)
+    fieldsets = (
+        ("Dados base", {"fields": ("nome", "data", "descricao", "texto", "imagem", "tags")}),
+        ("Visibilidade", {"fields": ("visivel", "is_hidden")}),
+        ("SEO (IA ou manual)", {
+            "classes": ("collapse",),
+            "fields": ("seo_descricao", "seo_texto", "seo_keywords")
+        }),
+    )
 
 @admin.register(Newsletter)
 class NewsletterAdmin(admin.ModelAdmin):
