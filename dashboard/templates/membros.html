@@ -47,24 +47,17 @@
       </select>
     </div>
 
+    {# ---------- idade (De / Até) ---------- #}
     <div class="col-6 col-sm-3 col-lg-2">
-      <input type="number" min="0" class="form-control" name="idade_min" placeholder="Idade ≥" value="{{ f.idade_min }}">
+      <input type="number" min="0" class="form-control" name="idade_min" placeholder="Idade mínima" value="{{ f.idade_min }}">
     </div>
 
     <div class="col-6 col-sm-3 col-lg-2">
-      <input type="number" min="0" class="form-control" name="idade_max" placeholder="Idade ≤" value="{{ f.idade_max }}">
+      <input type="number" min="0" class="form-control" name="idade_max" placeholder="Idade máxima" value="{{ f.idade_max }}">
     </div>
 
     <div class="col-12 col-sm-6 col-lg-3">
       <input type="text" class="form-control" name="interesse" placeholder="Interesses" value="{{ f.interesse }}">
-    </div>
-
-    <div class="col-6 col-sm-3 col-lg-2">
-      <select name="estado" class="form-select">
-        <option value="">— Estado —</option>
-        <option value="atual" {% if f.estado == 'atual' %}selected{% endif %}>Atual</option>
-        <option value="ex"    {% if f.estado == 'ex' %}selected{% endif %}>Ex-membro</option>
-      </select>
     </div>
 
     <div class="col-6 col-sm-auto d-grid">

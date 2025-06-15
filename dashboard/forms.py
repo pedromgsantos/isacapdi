@@ -1,8 +1,7 @@
 # dashboard/forms.py
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from .models import NewsArticle, Membro
-import pandas as pd, io, csv, datetime
+from .models import NewsArticle, Membro, Eventos, CertificateTemplate
 
 # -------------------------------------------------
 #  FORMULÁRIO DE LOGIN
@@ -206,3 +205,52 @@ class MembroImportForm(forms.Form):
             "(status opcional)"
         ),
     )
+
+class CertificateGenerateForm(forms.Form):
+    event = forms.ModelChoiceField(
+        queryset=Eventos.objects.all(),
+        label="Evento"
+    )
+    template = forms.ModelChoiceField(
+        queryset=CertificateTemplate.objects.none(),
+        label="Template de certificado"
+    )
+    excel_file  = forms.FileField(label="Excel (.xlsx) com colunas 'nome' e opcional 'email'")
+    send_emails = forms.BooleanField(required=False, initial=False, label="Enviar por e-mail?")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if 'event' in self.data:
+            try:
+                eid = int(self.data.get('event'))
+                self.fields['template'].queryset = CertificateTemplate.objects.filter(event_id=eid)
+            except (ValueError, TypeError):
+                pass
+        elif self.initial.get('event'):
+            self.fields['template'].queryset = CertificateTemplate.objects.filter(event_id=self.initial['event'].pk)
+
+class CertificateTemplateForm(forms.ModelForm):
+    # dropdown com nomes dos eventos
+    event = forms.ModelChoiceField(
+        queryset=Eventos.objects.all().order_by("nome"),
+        label="Evento"
+    )
+
+    class Meta:
+        model  = CertificateTemplate
+        # escondemos event_id (campo real)
+        exclude = ["event_id"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # quando editamos, pré-preenche o dropdown
+        if self.instance and self.instance.pk:
+            try:
+                self.fields["event"].initial = Eventos.objects.get(pk=self.instance.event_id)
+            except Eventos.DoesNotExist:
+                pass  # mantém vazio se o evento foi apagado
+
+    def save(self, commit=True):
+        # copia o pk escolhido para o campo inteiro
+        self.instance.event_id = self.cleaned_data["event"].pk
+        return super().save(commit)

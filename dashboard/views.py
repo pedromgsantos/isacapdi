@@ -1,30 +1,28 @@
 # dashboard/views.py
 
 from datetime import datetime, timedelta, date
-from django.urls import reverse
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from .models import Newsletter, Eventos, Contactos, Comentarios , NewsArticle, Membro
-from .forms import ContactForm, CURSOS_LICENCIATURA, CURSOS_MESTRADO, NewsArticleForm, ContactReplyForm, MembroForm, MembroImportForm
+from .models import Eventos, Contactos, NewsArticle, Membro, CertificateIssued, CertificateTemplate
+from .forms import NewsArticleForm, ContactReplyForm, MembroForm, MembroImportForm, CertificateGenerateForm, CertificateTemplateForm
 import pandas as pd, io, csv
 from django.core.paginator import Paginator
-from .news_scraper import get_isaca_news_py
 from django.utils.text import slugify
-from django.http import JsonResponse
+from django.http import JsonResponse, FileResponse, HttpResponseRedirect
 from django.views.decorators.http import require_POST, require_GET, require_http_methods
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 import json
 from django.db.models import Q
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.core.exceptions import PermissionDenied
-from .utils import staff_required
+from .utils import staff_required, generate_certificate_image, generate_zip
+from django.shortcuts import render
+from django.urls import reverse
 
-
-# Assume que analytics.client e forms estão corretamente no teu projeto
 from .analytics.client import (
     get_analytics_data,
     get_avg_pageviews_per_session,
@@ -99,7 +97,6 @@ def home(request):
     series_events = {d: 0 for d in labels}
     series_new = {d: 0 for d in labels}
 
-    # ESTA É A LÓGICA CORRETA, como no teu commit funcional
     for entry in trend:
         d = entry.get("date") # Obtém a data (que já deve ser "DD/MM" do client.py)
         if d and d in series_active: # Verifica se 'd' não é None e existe nos labels
@@ -662,3 +659,127 @@ def membros_import(request):
 
     # GET inicial ou POST inválido → renderiza a própria página
     return render(request, "membros_import.html", {"form": form})
+
+
+@login_required
+def generate_certificates(request):
+    """
+    Página que gera certificados a partir de um Excel e devolve ZIP.
+    Opcionalmente envia e-mails.  O dropdown de templates actualiza-se
+    assim que escolhes o evento (via ?event=<id>).
+    """
+    # ---------- POST: processa geração ----------
+    if request.method == "POST":
+        form = CertificateGenerateForm(request.POST, request.FILES)
+        if form.is_valid():
+            event     = form.cleaned_data["event"]
+            template  = form.cleaned_data["template"]
+            excel     = request.FILES["excel_file"]
+            send_mail = form.cleaned_data["send_emails"]
+
+            df = pd.read_excel(excel)
+            novos = []
+
+            for _, row in df.iterrows():
+                nome  = str(row.get("nome", "")).strip()
+                email = str(row.get("email", "")).strip()
+                if not nome:
+                    continue
+
+                cert, created = CertificateIssued.objects.get_or_create(
+                    event_id=event.pk,
+                    participant_name=nome,
+                    defaults={"participant_email": email},
+                )
+                if not created:
+                    continue  # já existia
+
+                fname, content = generate_certificate_image(nome, template)
+                cert.certificate_file.save(fname, content, save=True)
+                novos.append(cert)
+
+                if send_mail and email:
+                    # 1) reabre o ficheiro já guardado
+                    with cert.certificate_file.open("rb") as f:
+                        png_bytes = f.read()
+
+                    msg = EmailMessage(
+                        subject = f"Certificado – {event.nome}",
+                        body    = (
+                            f"Olá {nome},\n\n"
+                            f"Segue em anexo o teu certificado de participação "
+                            f"no evento '{event.nome}'."
+                        ),
+                        to=[email],
+                    )
+                    msg.attach(fname, png_bytes, "image/png")
+                    msg.send(fail_silently=True)
+
+            if not novos:
+                messages.warning(
+                    request,
+                    "Nenhum certificado gerado (já existiam ou Excel vazio)."
+                )
+                return HttpResponseRedirect(
+                    reverse("dashboard:generate_certificates") + f"?event={event.pk}"
+                )
+
+            zip_path, zip_name = generate_zip(
+                CertificateIssued.objects.filter(pk__in=[c.pk for c in novos])
+            )
+            return FileResponse(
+                open(zip_path, "rb"),
+                as_attachment=True,
+                filename=zip_name,
+            )
+
+    # ---------- GET: primeiro carregamento ou após escolher evento ----------
+    else:
+        event_id = request.GET.get("event")  # vem do onchange do <select>
+        initial  = {}
+        if event_id:
+            try:
+                initial["event"] = Eventos.objects.get(pk=event_id)
+            except Eventos.DoesNotExist:
+                pass
+        form = CertificateGenerateForm(initial=initial)
+
+    return render(request, "gerar_certificados.html", {"form": form})
+
+@login_required
+def templates_list(request):
+    return render(request, "templates_list.html",
+                  {"templates": CertificateTemplate.objects.all()})
+
+@login_required
+def template_create(request, pk=None):
+    instance = CertificateTemplate.objects.filter(pk=pk).first()
+    form = CertificateTemplateForm(request.POST or None,
+                                   request.FILES or None,
+                                   instance=instance)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Template guardado com sucesso.")
+        return redirect("dashboard:templates_list")
+    return render(request, "template_form.html",
+                  {"form": form, "obj": instance})
+
+@login_required
+def certificados_emitidos(request):
+    qs = CertificateIssued.objects.select_related(None).order_by("-issued_at")
+    # filtros simples (evento, nome, email)
+    event_id = request.GET.get("event")
+    q        = request.GET.get("q", "").strip()
+
+    if event_id:
+        qs = qs.filter(event_id=event_id)
+    if q:
+        qs = qs.filter(participant_name__icontains=q)
+
+    page = Paginator(qs, 20).get_page(request.GET.get("page"))
+
+    return render(request, "certificates_issued.html", {
+        "page_obj": page,
+        "eventos": Eventos.objects.all().order_by("nome"),
+        "f": {"event": event_id or "", "q": q},
+    })

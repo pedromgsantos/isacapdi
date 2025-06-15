@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     "dashboard",
     "django_apscheduler",
     "crispy_forms",
-    "crispy_bootstrap5"
+    "crispy_bootstrap5",
+    "widget_tweaks",
 ]
 # Crispy Forms settings
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
@@ -171,3 +172,5 @@ INACTIVITY_TIMEOUT = int(os.getenv("INACTIVITY_TIMEOUT", "1800"))  # 30 min
 SESSION_COOKIE_AGE = INACTIVITY_TIMEOUT
 SESSION_SAVE_EVERY_REQUEST = True
 SERVER_UUID = os.getenv("ISACAPDI_SERVER_UUID") or str(uuid.uuid4())
+
+CERTIFICATE_FONT_PATH = BASE_DIR / "dashboard" / "static" / "fonts" / "Brittany.ttf"

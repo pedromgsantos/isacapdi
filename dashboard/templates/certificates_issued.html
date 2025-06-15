@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Certificados emitidos{% endblock %}
+{% block content %}
+<div class="container mt-5">
+<div style="display: flex; align-items: center; margin-bottom: 1.8rem;" >
+    <a href="{% url 'dashboard:generate_certificates' %}" style="background-color: #2a3f54; color: white; border-radius: 50%; width: 50px; height: 50px; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; font-size: 1.5rem; margin-right: 1rem;">
+      <i class="bi bi-arrow-left"></i>
+    </a>
+    <h1 style="font-size: 2rem; font-weight: 700; color: #212529; margin: 0; line-height: 1;">Certificados emitidos</h1>
+</div>
+  
+  <form class="row g-2 mb-3">
+    <div class="col-md-4">
+      <select name="event" class="form-select"
+              onchange="this.form.submit()">
+        <option value="">— Todos os eventos —</option>
+        {% for e in eventos %}
+        <option value="{{ e.id }}" {% if f.event|default:'' == e.id|stringformat:"s" %}selected{% endif %}>
+          {{ e.nome }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <input type="text" class="form-control" name="q"
+             placeholder="Pesquisar nome/email" value="{{ f.q }}">
+    </div>
+  </form>
+
+  <table class="table table-striped">
+    <tr>
+      <th>#</th><th>Evento</th><th>Nome</th><th>Email</th><th>Data</th><th>Download</th>
+    </tr>
+    {% for cert in page_obj %}
+    <tr>
+    <td>{{ cert.id }}</td>
+    <td>
+        {% if cert.event %}
+            {{ cert.event.nome }}
+        {% else %}
+            (Evento #{{ cert.event_id }})
+        {% endif %}
+    </td>
+    <td>{{ cert.participant_name }}</td>
+    <td>{{ cert.participant_email }}</td>
+    <td>{{ cert.issued_at|date:"d/m/Y H:i" }}</td>
+    <td>
+    {% if cert.certificate_file %}
+        <a href="{{ cert.certificate_file.url }}" download
+            class="btn btn-sm btn-outline-secondary">
+            PNG
+        </a>
+    {% else %}
+        —
+    {% endif %}
+    </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="6">Nenhum certificado encontrado.</td></tr>
+    {% endfor %}
+
+  </table>
+
+</div>
+{% endblock %}

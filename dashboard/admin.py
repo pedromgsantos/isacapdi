@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Eventos, Contactos, Newsletter, Comentarios, NewsArticle, Membro
+from .models import Eventos, Contactos, Newsletter, Comentarios, NewsArticle, Membro, CertificateTemplate, CertificateIssued
 
 @admin.register(Eventos)
 class EventoAdmin(admin.ModelAdmin):
@@ -52,3 +52,58 @@ class MembroAdmin(admin.ModelAdmin):
     list_display  = ("full_name", "email", "course", "year")
     list_filter   = ("study_cycle", "course", "year")
     search_fields = ("full_name", "email", "course", "interests")
+
+
+
+def _event_name(obj):
+    try:
+        return Eventos.objects.get(pk=obj.event_id).nome
+    except Eventos.DoesNotExist:
+        return f"(evento #{obj.event_id})"
+_event_name.short_description = "Evento"
+
+@admin.register(CertificateTemplate)
+class CertificateTemplateAdmin(admin.ModelAdmin):
+    list_display  = ("id", _event_name, "font_size", "created_at")
+    list_filter   = ("event_id",)
+    search_fields = ("event_id",)
+    readonly_fields = ("created_at",)
+
+    # mostra preview de 200 px da imagem
+    def template_preview(self, obj):
+        if obj.template_image:
+            return f'<img src="{obj.template_image.url}" style="max-width:200px;">'
+        return "—"
+    template_preview.short_description = "Preview"
+    template_preview.allow_tags = True
+
+    fieldsets = (
+        (None, {
+            "fields": (
+                ("event_id", "font_size"),
+                ("name_x", "name_y"),
+                "template_image",
+                "template_preview",
+            )
+        }),
+        ("Metadados", {"fields": ("created_at",)}),
+    )
+
+@admin.register(CertificateIssued)
+class CertificateIssuedAdmin(admin.ModelAdmin):
+    list_display  = ("id", _event_name, "participant_name",
+                     "participant_email", "issued_at")
+    list_filter   = ("event_id", "issued_at")
+    search_fields = ("participant_name", "participant_email")
+    readonly_fields = ("issued_at", "certificate_file")
+
+    fieldsets = (
+        (None, {
+            "fields": (
+                ("event_id",),
+                ("participant_name", "participant_email"),
+                "certificate_file",
+            )
+        }),
+        ("Metadados", {"fields": ("issued_at",)}),
+    )

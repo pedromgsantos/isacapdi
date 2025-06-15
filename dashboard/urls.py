@@ -38,6 +38,12 @@ urlpatterns = [
     path("membros/<int:pk>/apagar/",views.membro_delete,name="membro_delete"),
     path("membros/importar/",views.membros_import,name="membros_import"),
 
+    path('certificados/gerar/', views.generate_certificates, name='generate_certificates'),
+    path("certificados/templates/",       views.templates_list,  name="templates_list"),
+    path("certificados/templates/novo/",  views.template_create, name="template_new"),
+    path("certificados/templates/<int:pk>/", views.template_create, name="template_edit"),
+    path("certificados/emitidos/", views.certificados_emitidos,name="certificados_emitidos"),
+
     path('api/data/', views.get_dashboard_data_api, name='dashboard_api_data'),
     path("api/news/", views.api_isaca_news, name="api_isaca_news"),
 

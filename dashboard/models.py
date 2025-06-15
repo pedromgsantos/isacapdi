@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
 
 class Eventos(models.Model):
@@ -11,6 +10,10 @@ class Eventos(models.Model):
     visivel = models.IntegerField(blank=True, null=True)
     tags = models.JSONField(default=list)
     is_hidden = models.BooleanField(default=False)
+
+    
+    def __str__(self):
+        return self.nome
 
     class Meta:
         managed = True
@@ -117,3 +120,46 @@ class Membro(models.Model):
 
     def __str__(self):
         return self.full_name
+    
+class CertificateTemplate(models.Model):
+    event_id        = models.IntegerField()            # sem constraint
+    template_image  = models.ImageField(upload_to='certificates/templates/')
+    font_size       = models.PositiveIntegerField(default=67)
+    name_x          = models.PositiveIntegerField(help_text="Posição X (centro) do nome")
+    name_y          = models.PositiveIntegerField(help_text="Posição Y (centro) do nome")
+    created_at      = models.DateTimeField(auto_now_add=True)
+
+    # helper para usar no Django Admin / templates
+    @property
+    def event(self):
+        from .models import Eventos
+        try:
+            return Eventos.objects.get(pk=self.event_id)
+        except Eventos.DoesNotExist:
+            return None
+
+    def __str__(self):
+        return f"Template #{self.pk} – evento {self.event_id}"
+
+
+class CertificateIssued(models.Model):
+    event_id          = models.IntegerField()
+    participant_name  = models.CharField(max_length=255)
+    participant_email = models.EmailField(blank=True)
+    certificate_file  = models.FileField(upload_to='certificates/issued/')
+    issued_at         = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('event_id', 'participant_name')
+
+    @property
+    def event(self):
+        from .models import Eventos
+        try:
+            return Eventos.objects.get(pk=self.event_id)
+        except Eventos.DoesNotExist:
+            return None
+
+    def __str__(self):
+        return f"{self.participant_name} – evento {self.event_id}"
+    
