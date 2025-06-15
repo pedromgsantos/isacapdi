@@ -20,3 +20,5 @@ openpyxl>=3.1.2
 python-slugify==8.0.1
 django-widget-tweaks==1.4.12
 google-generativeai>=0.3
+django-extensions>=3.2.1
+
