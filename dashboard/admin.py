@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Eventos, Contactos, Newsletter, Comentarios, NewsArticle, Membro, CertificateTemplate, CertificateIssued
+from .models import Eventos, Contactos, Newsletter, Comentarios, NewsArticle, Membro, CertificateTemplate, CertificateIssued, Reminder
 
 @admin.register(Eventos)
 class EventoAdmin(admin.ModelAdmin):
@@ -54,7 +54,6 @@ class MembroAdmin(admin.ModelAdmin):
     search_fields = ("full_name", "email", "course", "interests")
 
 
-
 def _event_name(obj):
     try:
         return Eventos.objects.get(pk=obj.event_id).nome
@@ -107,3 +106,9 @@ class CertificateIssuedAdmin(admin.ModelAdmin):
         }),
         ("Metadados", {"fields": ("issued_at",)}),
     )
+
+@admin.register(Reminder)
+class ReminderAdmin(admin.ModelAdmin):
+    list_display  = ("title", "date", "created_at")
+    list_filter   = ("date",)
+    search_fields = ("title",)

@@ -44,6 +44,9 @@ urlpatterns = [
     path("certificados/templates/<int:pk>/", views.template_create, name="template_edit"),
     path("certificados/emitidos/", views.certificados_emitidos,name="certificados_emitidos"),
 
+    path("calendario/", views.calendar_view, name="calendar"),
+    path("calendario/add-reminder/", views.add_reminder, name="add_reminder"),
+
     path('api/data/', views.get_dashboard_data_api, name='dashboard_api_data'),
     path("api/news/", views.api_isaca_news, name="api_isaca_news"),
 

@@ -1,7 +1,7 @@
 # dashboard/forms.py
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from .models import NewsArticle, Membro, Eventos, CertificateTemplate
+from .models import NewsArticle, Membro, Eventos, CertificateTemplate, Reminder
 
 # -------------------------------------------------
 #  FORMULÁRIO DE LOGIN
@@ -254,3 +254,13 @@ class CertificateTemplateForm(forms.ModelForm):
         # copia o pk escolhido para o campo inteiro
         self.instance.event_id = self.cleaned_data["event"].pk
         return super().save(commit)
+    
+class ReminderForm(forms.ModelForm):
+    class Meta:
+        model = Reminder
+        fields = ("title", "date", "notes")
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "notes": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }

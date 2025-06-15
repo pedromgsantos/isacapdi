@@ -98,7 +98,7 @@
               <hr>
 
               <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:membros_list' %}">Membros ISACA</a></li>
-              <li class="nav-item"><a class="nav-link" href="#">Calendário</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:calendar' %}">Calendário</a></li>
           </ul>
       </div>
 
@@ -123,7 +123,7 @@
               <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:generate_certificates' %}">Certificados</a></li>
               <hr>
               <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:membros_list' %}">Membros ISACA</a></li>
-              <li class="nav-item"><a class="nav-link" href="#">Calendário</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:calendar' %}">Calendário</a></li>
               <hr>
               <li class="nav-item"><a class="nav-link" href="#">Definições</a></li>
               <li class="nav-item"><a class="nav-link text-danger" href="{% url 'dashboard:logout' %}">Logout</a></li>

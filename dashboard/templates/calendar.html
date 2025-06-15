@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Calendário{% endblock %}
+
+{% block content %}
+<!-- FullCalendar (CSS + JS) -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+<style>
+/* garante que o calendário usa toda a largura disponível */
+#calendar { max-width: 100%; }
+
+/* cabeçalho fica em coluna no telemóvel */
+@media (max-width: 575.98px) {
+  .fc .fc-toolbar { flex-direction: column; row-gap: .5rem; }
+  .fc .fc-toolbar-title { font-size: 1.1rem; }
+  .fc button.fc-button { padding: .25rem .5rem; font-size: .875rem; }
+}
+
+@media (max-width: 575.98px) {
+  #addReminderBtn {
+    width: 100%;
+    font-size: .9rem;
+  }
+}
+
+/* quebra linha em títulos longos */
+.fc .fc-event-title, .fc .fc-list-item-title { white-space: normal; }
+</style>
+
+<div class="container-fluid px-4 py-4">
+  <div class="d-flex justify-content-between align-items-center mt-3 mb-4">
+    <h2 class="fw-bold fs-2 mb-0">Calendário</h2>
+    <button id= "addReminderBtn" class="btn btn-warning mt-3 mb-4" data-bs-toggle="modal" data-bs-target="#reminderModal">
+      + Lembrete
+    </button>
+  </div>
+
+  <div id="calendar"></div>
+</div>
+
+<!-- Modal: Novo Lembrete -->
+<div class="modal fade" id="reminderModal" tabindex="-1" aria-labelledby="reminderModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="reminderForm" class="modal-content">
+      {% csrf_token %}
+      <div class="modal-header">
+        <h5 class="modal-title" id="reminderModalLabel">Novo Lembrete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-control" name="title" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Data</label>
+          <input type="date" class="form-control" name="date" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Notas</label>
+          <textarea class="form-control" name="notes" rows="3"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const csrfToken = "{{ csrf_token }}";
+
+  /* ---------- helpers de responsividade ---------- */
+  const pickView = () => {
+    const w = window.innerWidth;
+    if (w < 576) return "listWeek";        // telemóvel
+    if (w < 992) return "timeGridWeek";    // tablet
+    return "dayGridMonth";                 // desktop
+  };
+  const pickHeader = () => {
+    const w = window.innerWidth;
+    if (w < 576) {
+      return { left: "prev,next", center: "title", right: "today" };
+    }
+    return {
+      start: "prev,next today",
+      center: "title",
+      end: "dayGridMonth,timeGridWeek,timeGridDay listWeek"
+    };
+  };
+
+  /* ---------- inicializa FullCalendar ---------- */
+  const calendar = new FullCalendar.Calendar(
+    document.getElementById("calendar"),
+    {
+      locale: "pt",
+      timeZone: "local",
+      height: "auto",
+      initialView: pickView(),
+      headerToolbar: pickHeader(),
+      events: JSON.parse('{{ events_json|escapejs }}'),
+
+      /* pop-over para descrição OU notes */
+      eventDidMount: ({ event, el }) => {
+        const texto = event.extendedProps.descricao || event.extendedProps.notes;
+        if (texto) {
+          new bootstrap.Popover(el, {
+            trigger: "hover",
+            placement: "top",
+            container: "body",
+            content: texto
+          });
+        }
+      },
+
+      /* adapta vista/toolbar ao redimensionar */
+      windowResize: () => {
+        calendar.changeView(pickView());
+        calendar.setOption("headerToolbar", pickHeader());
+      },
+    }
+  );
+  calendar.render();
+
+  /* ---------- criador de lembretes ---------- */
+  const form = document.getElementById("reminderForm");
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    fetch("{% url 'dashboard:add_reminder' %}", {
+      method: "POST",
+      headers: { "X-CSRFToken": csrfToken },
+      body: new FormData(form),
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.errors) {
+        alert("Erro:\n" + JSON.stringify(data.errors, null, 2));
+      } else {
+        calendar.addEvent(data);
+        bootstrap.Modal.getInstance(
+          document.getElementById("reminderModal")
+        ).hide();
+        form.reset();
+      }
+    })
+    .catch(() => alert("Erro inesperado ao guardar o lembrete."));
+  });
+});
+</script>
+
+{% endblock %}

@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from .models import Eventos, Contactos, NewsArticle, Membro, CertificateIssued, CertificateTemplate
-from .forms import NewsArticleForm, ContactReplyForm, MembroForm, MembroImportForm, CertificateGenerateForm, CertificateTemplateForm
+from .models import Eventos, Contactos, NewsArticle, Membro, CertificateIssued, CertificateTemplate, Reminder
+from .forms import NewsArticleForm, ContactReplyForm, MembroForm, MembroImportForm, CertificateGenerateForm, CertificateTemplateForm, ReminderForm
 import pandas as pd, io, csv
 from django.core.paginator import Paginator
 from django.utils.text import slugify
@@ -783,3 +783,70 @@ def certificados_emitidos(request):
         "eventos": Eventos.objects.all().order_by("nome"),
         "f": {"event": event_id or "", "q": q},
     })
+
+@login_required
+def calendar_view(request):
+    """
+    Entrega ao template todos os eventos + lembretes.
+
+    • NÃO filtra por `is_hidden` nem por `visivel` → tudo aparece  
+    • Continua a ignorar linhas sem data (não podem ser posicionadas)
+    """
+    eventos_qs = (
+        Eventos.objects
+        .filter(data__isnull=False)           # apenas garante que tem data
+        .values("id", "nome", "data", "descricao")
+    )
+
+    reminders_qs = Reminder.objects.values("id", "title", "date", "notes")
+
+    entries = []
+
+    # ---------- Eventos ----------
+    for ev in eventos_qs:
+        entries.append({
+            "title": ev["nome"],
+            "start": ev["data"],              # YYYY-MM-DD
+            "allDay": True,
+            "color": "#0d6efd",               # azul Bootstrap
+            "extendedProps": {
+                "descricao": ev["descricao"] or ""
+            },
+        })
+
+    # ---------- Lembretes ----------
+    for r in reminders_qs:
+        entries.append({
+            "title": f"🔔 {r['title']}",
+            "start": r["date"],
+            "allDay": True,
+            "color": "#ffc107",               # amarelo Bootstrap
+            "extendedProps": {"notes": r["notes"] or ""},
+        })
+
+    # default=str para serializar datas sem problemas
+    return render(
+        request,
+        "calendar.html",
+        {"events_json": json.dumps(entries, default=str)},
+    )
+
+
+@require_POST
+@login_required
+def add_reminder(request):
+    """
+    Cria um Reminder via AJAX e devolve JSON pronto
+    para ser injetado no FullCalendar.
+    """
+    form = ReminderForm(request.POST)
+    if form.is_valid():
+        r = form.save()
+        return JsonResponse({
+            "id": r.id,
+            "title": f"🔔 {r.title}",
+            "start": r.date.isoformat(),
+            "allDay": True,
+            "color": "#ffc107",
+        })
+    return JsonResponse({"errors": form.errors}, status=400)
