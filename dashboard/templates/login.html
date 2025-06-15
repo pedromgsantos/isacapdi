@@ -4,70 +4,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap & Icons -->
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
-    <title>Login do Dashboard</title>
+
+    <title>Login | Dashboard</title>
 
     <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #f8f9fa;
+        /* ---------- Página ---------- */
+        body,html{
+            height:100%;
+            margin:0;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background:linear-gradient(180deg,#00A6E8 0%,#0D2C6C 100%);
+            font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
         }
-        .login-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 2rem;
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+        /* ---------- Cartão ---------- */
+        .login-card{
+            width:90%;
+            max-width:640px;        /* largura desktop */
+            min-height:360px;       /* ↓ reduzido de 420 px */
+            padding:2rem 2.5rem;    /* menos padding vertical */
+            background:#FFFFFF;
+            border-radius:12px;
+            box-shadow:0 12px 30px rgba(0,0,0,.15);
+            display:flex;
+            flex-direction:column;
+            justify-content:center;
         }
-        .form-label { font-weight: bold; }
+
+        /* ---------- Inputs ---------- */
+        .input-group-text{background:#FFFFFF;border-right:0;}
+        .form-control{border-left:0;}
+        .form-control:focus{box-shadow:none;}
+
+        /* ---------- Botão ---------- */
+        .btn-primary{
+            background:#00A6E8;
+            border-color:#00A6E8;
+            transition:all .15s ease-in-out;
+        }
+        .btn-primary:hover,
+        .btn-primary:focus{
+            background:#70B540;
+            border-color:#70B540;
+        }
+
+        /* ---------- Contêiner fixo dos alertas ---------- */
+        .alert-overlay{
+            position:fixed;
+            top:1rem;
+            left:50%;
+            transform:translateX(-50%);
+            width:90%;
+            max-width:640px;
+            z-index:1080;
+            pointer-events:none;
+        }
+        .alert-overlay .alert{pointer-events:auto;}
+
+        /* ---------- Ajustes mobile ---------- */
+        @media(max-width:400px){
+            .login-card{padding:1.75rem 1.25rem;}
+        }
     </style>
 </head>
 <body>
-    <div class="login-container">
 
+    <!-- --------- ALERTAS FORA DO CARD --------- -->
+    <div class="alert-overlay">
         {% if request.GET.expired %}
-            <div class="alert alert-warning" role="alert">
-                Sessão expirada por inatividade. Por favor volte a autenticar-se.
+            <div class="alert alert-warning alert-dismissible fade show mb-2" role="alert">
+                Sessão expirada por inatividade. Volte a autenticar-se.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
             </div>
-        {% endif %}
-        
-        <!-- ---------- Mensagens (flash) ---------- -->
-        {% if messages %}
-          {% for message in messages %}
-            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-              {{ message }}
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
-            </div>
-          {% endfor %}
         {% endif %}
 
-        <h2 class="text-center mb-4">Login</h2>
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-2" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
 
         {% if form.errors %}
-          <div class="alert alert-danger" role="alert">
-            Nome de utilizador ou senha incorretos. Por favor, tente novamente.
-          </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                Nome de utilizador ou senha incorretos. Tente novamente.
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+            </div>
         {% endif %}
+    </div>
 
-        <form method="POST">
+    <!-- --------- CARTÃO --------- -->
+    <div class="login-card">
+
+        <h2 class="text-center fw-bold mb-4">LOGIN</h2>
+
+        <form method="POST" novalidate>
             {% csrf_token %}
-            <div class="mb-3">
-                <label for="id_username" class="form-label">Nome de Utilizador</label>
-                <input type="text" class="form-control" name="username" id="id_username" required>
+
+            <!-- Username -->
+            <div class="mb-3 input-group">
+                <span class="input-group-text"><i class="bi bi-person-fill text-secondary"></i></span>
+                <input type="text"
+                       class="form-control"
+                       name="username"
+                       id="id_username"
+                       placeholder="Nome de utilizador"
+                       required>
             </div>
 
-            <div class="mb-3">
-                <label for="id_password" class="form-label">Senha</label>
-                <input type="password" class="form-control" name="password" id="id_password" required>
+            <!-- Password -->
+            <div class="mb-4 input-group">
+                <span class="input-group-text"><i class="bi bi-lock-fill text-secondary"></i></span>
+                <input type="password"
+                       class="form-control"
+                       name="password"
+                       id="id_password"
+                       placeholder="Senha"
+                       required>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold text-uppercase">
+                Entrar
+            </button>
         </form>
     </div>
 
