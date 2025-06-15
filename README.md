@@ -126,6 +126,7 @@ Senha: mariasantos
 │   │   ├── esconder_eventos.html #pertence ao painel de administração
 │   │   ├── eventos.html          #pertence ao painel de administração
 │   │   ├── home.html             #pertence ao painel de administração
+│   │   ├── calendar.html         #pertence ao painel de administração
 │   │   ├── confirm_delete.html   #pertence ao painel de administração
 │   │   ├── gerirnoticias.html    #pertence ao painel de administração
 │   │   ├── news_form.html        #pertence ao painel de administração
