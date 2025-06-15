@@ -106,6 +106,7 @@ Senha: mariasantos
 │   ├── scheduler.py         # Dá schedule na frequencia com que o scrape ativa para ir buscar os dados das noticias
 │   ├── forms.py             # Formulários Django
 │   ├── tests.py             # Testes automatizados
+│   ├── sep_signals.py       # Preenche os espaços do model dos eventos caso nao sejam preenchidos (pode dar erros, por vezes), programado para funcionar mesmo que nao sejam inseridos valores
 │   ├── news_scraper.py      # Script de scraping de notícias de apoio ao template "noticias.html"
 │   ├── utils.py             # Funções utilitárias reutilizadas em várias views/scripts
 │   ├── middleware.py        # Middleware customizado (ex.: marca requests, trata headers, etc.)
