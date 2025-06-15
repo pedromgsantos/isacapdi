@@ -48,10 +48,14 @@ python -m venv .venv
 .venv\Scripts\activate
 ```
 
-## 4 · Instalar Dependências
+## 4 · Instalar Dependências + Migrar e "popular" a BD
 
 ```bash
 pip install -r requirements.txt
+```
+```bash
+python manage.py migrate
+python manage.py loaddata db_full_fixture.json
 ```
 
 ## 5 · Base de Dados
