@@ -130,6 +130,10 @@ Senha: mariasantos
 │   │   ├── gerirnoticias.html    #pertence ao painel de administração
 │   │   ├── news_form.html        #pertence ao painel de administração
 │   │   ├── login.html            #pertence ao painel de administração
+│   │   ├── gerar_certificados.html   #pertence ao painel de administração
+│   │   ├── certificates_issued.html  #pertence ao painel de administração
+│   │   ├── templates_list.html    #pertence ao painel de administração
+│   │   ├── template_form.html     #pertence ao painel de administração
 │   │   ├── mensagem_detail.html  #pertence ao painel de administração
 │   │   ├── mensagem_reply.html   #pertence ao painel de administração
 │   │   ├── mensagens.html        #pertence ao painel de administração
@@ -145,6 +149,8 @@ Senha: mariasantos
 │   │   ├── /js/
 │   │   │   ├── scripts.js
 │   │   │   └── ...
+│   │   ├── /fonts/
+│   │   │   └── brittany.ttf      # Tipo de letra usado para colocar os nomes nos certificados
 │   │   ├── /imgs/
 │   │   │   ├── logo.png
 │   │   │   ├── favicons/
