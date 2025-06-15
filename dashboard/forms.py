@@ -1,7 +1,7 @@
 # dashboard/forms.py
 from django import forms
 from django.contrib.auth.forms import AuthenticationForm
-from .models import NewsArticle, Membro, Eventos, CertificateTemplate, Reminder
+from .models import NewsArticle, Membro, Eventos, CertificateTemplate, Reminder, SiteSettings
 
 # -------------------------------------------------
 #  FORMULÁRIO DE LOGIN
@@ -263,4 +263,14 @@ class ReminderForm(forms.ModelForm):
             "title": forms.TextInput(attrs={"class": "form-control"}),
             "date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
             "notes": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+class SiteSettingsForm(forms.ModelForm):
+    class Meta:
+        model  = SiteSettings
+        fields = ["site_name", "maintenance_mode", "maintenance_message"]
+        widgets = {
+            "site_name":           forms.TextInput(attrs={"class": "form-control"}),
+            "maintenance_mode":    forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "maintenance_message": forms.TextInput(attrs={"class": "form-control"}),
         }

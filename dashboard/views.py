@@ -5,8 +5,8 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import redirect, render, get_object_or_404
 from django.contrib import messages
-from .models import Eventos, Contactos, NewsArticle, Membro, CertificateIssued, CertificateTemplate, Reminder
-from .forms import NewsArticleForm, ContactReplyForm, MembroForm, MembroImportForm, CertificateGenerateForm, CertificateTemplateForm, ReminderForm
+from .models import Eventos, Contactos, NewsArticle, Membro, CertificateIssued, CertificateTemplate, Reminder, SiteSettings
+from .forms import NewsArticleForm, ContactReplyForm, MembroForm, MembroImportForm, CertificateGenerateForm, CertificateTemplateForm, ReminderForm, SiteSettingsForm
 import pandas as pd, io, csv, os
 from django.core.paginator import Paginator
 from django.utils.text import slugify
@@ -938,3 +938,12 @@ def ai_generate_event(request):
     except Exception as e:
         return JsonResponse({"error": f"Resposta da IA inválida: {e}"}, status=500)
 
+@login_required
+def site_settings_view(request):
+    cfg  = SiteSettings.load()
+    form = SiteSettingsForm(request.POST or None, instance=cfg)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Definições guardadas.")
+        return redirect("dashboard:site_settings")
+    return render(request, "definicoes.html", {"form": form})

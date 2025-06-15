@@ -17,7 +17,8 @@ import time
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth import logout
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
+from .models import SiteSettings
 
 
 class InactivityLogoutMiddleware:
@@ -73,3 +74,23 @@ class InactivityLogoutMiddleware:
         logout(request)                 # limpa sessão
         messages.warning(request, message)
         return redirect(settings.LOGIN_URL)
+
+class MaintenanceModeMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        cfg = SiteSettings.load()
+
+        # aplica-se a QUALQUER URL fora do /dashboard
+        if cfg.maintenance_mode and not request.path.startswith("/dashboard"):
+            return render(
+                request,
+                "maintenance.html",
+                {
+                    "msg":        cfg.maintenance_message,
+                    "site_name":  cfg.site_name,
+                },
+                status=503,
+            )
+        return self.get_response(request)

@@ -103,7 +103,7 @@
       </div>
 
       <ul class="nav flex-column border-top pt-3">
-          <li class="nav-item"><a class="nav-link" href="#">Definições</a></li>
+          <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:site_settings' %}">Definições</a></li>
           <li class="nav-item"><a class="nav-link text-danger" href="{% url 'dashboard:logout' %}">Logout</a></li>
       </ul>
   </nav>
@@ -125,7 +125,7 @@
               <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:membros_list' %}">Membros ISACA</a></li>
               <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:calendar' %}">Calendário</a></li>
               <hr>
-              <li class="nav-item"><a class="nav-link" href="#">Definições</a></li>
+              <li class="nav-item"><a class="nav-link" href="{% url 'dashboard:site_settings' %}">Definições</a></li>
               <li class="nav-item"><a class="nav-link text-danger" href="{% url 'dashboard:logout' %}">Logout</a></li>
           </ul>
       </div>

@@ -181,3 +181,29 @@ class Reminder(models.Model):
 
     def __str__(self):
         return f"{self.title} – {self.date}"
+    
+class SiteSettings(models.Model):
+    site_name           = models.CharField("Nome do site", max_length=120, default="ISACA PDI")
+    maintenance_mode    = models.BooleanField("Em manutenção?", default=False)
+    maintenance_message = models.CharField(
+        "Mensagem de manutenção",
+        max_length=180,
+        blank=True,
+        help_text="Ex.: «Voltamos já! Só estamos a aplicar uma atualização.»",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # força singleton
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        return cls.objects.get_or_create(pk=1)[0]
+
+    class Meta:
+        verbose_name_plural = "Definições do site"
+
+    def __str__(self):
+        return "Definições do Site"
