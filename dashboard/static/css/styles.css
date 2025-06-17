@@ -138,3 +138,26 @@ html, body{
   50%  {transform:scale(1.15);}
   100% {transform:scale(1);}
 }
+
+@media (hover: hover){
+  /* Browsers que **têm** hover (desktop)                                      */
+}
+
+/* Browsers que **não** têm hover (telemóveis/tablets em touch mode)          */
+@media (hover: none) {
+    .event-item .card,
+    .event-item .card:hover{
+        transform: none !important;       /* anula o “levantar” */
+    }
+    .event-item .card .event-image-reduced,
+    .event-item .card:hover .event-image-reduced{
+        transform: none !important;       /* anula o “zoom”     */
+    }
+}
+
+@media (max-width: 575.98px){
+    .container-fluid{
+        padding-left: .5rem !important;
+        padding-right: .5rem !important;
+    }
+}
