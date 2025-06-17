@@ -1,7 +1,9 @@
 /* --------------------------------------------------------------------------- */
 /*  DASHBOARD – ESTILOS GERAIS                                                 */
 /* --------------------------------------------------------------------------- */
-
+html, body{
+    overflow-x: hidden; /* CORREÇÃO DO PROBLEMA DA APRESENTAÇÃO */
+}
 /* === GRÁFICOS (Chart.js) === */
 .chart-container{
     position:relative;
