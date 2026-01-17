@@ -1,11 +1,11 @@
-# ISACA Student Group - ISCAC 🌐
+# ISACA Student Group - ISCAC 
 
 Bem-vindo ao repositório do dashboard de administração do website do **ISACA Student Group do ISCAC**! Este projeto foi desenvolvido no âmbito da Unidade Curricular de **Projeto e Desenvolvimento Informático**, com o objetivo de criar um dashboard que facilite a gestão do website.
 
 ---![Logo](https://github.com/user-attachments/assets/348e3c38-f4b7-493a-92f4-ed350b4ecfe4)
 
 
-## 📖 Sobre o Projeto
+## Sobre o Projeto
 
 O ISACA Student Group é uma organização liderada por estudantes, focada em promover a educação e conscientização em áreas como:
 - **Governança de TI**
@@ -13,7 +13,7 @@ O ISACA Student Group é uma organização liderada por estudantes, focada em pr
 - **Cibersegurança**
 - **Auditoria de Sistemas de Informação**
 
-## 🛠️ Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
 - **HTML5**: Estrutura do site.
 - **DJANGO**: Framework principal, de programação ORM (Object Relational Mapping)
@@ -82,7 +82,7 @@ Nome: pedro
 Senha: mariasantos
 ```
 
-## 📁 Estrutura do Projeto
+## Estrutura do Projeto
 
 ```bash
 /isacapdi/  # Diretório raiz do projeto
