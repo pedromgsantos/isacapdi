@@ -73,15 +73,6 @@ FLUSH PRIVILEGES;
 
 ```
 
-## !!!! · ATENÇÃO
-
-```plaintext
-Para iniciar sessão em ambas as páginas /admin e /login (para aceder ao dashboard), deverão ser usadas as seguintes credenciais:
-
-Nome: pedro
-Senha: mariasantos
-```
-
 ## Estrutura do Projeto
 
 ```bash
